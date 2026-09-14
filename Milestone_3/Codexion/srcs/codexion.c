@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/11 17:08:44 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/14 09:53:56 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int     main(int argc, char *argv[])
 		free(coders);
 		return (1);
 	}
-	
+
 	if (init_threads(&threads, rules))
 	{
 		int i = 0;
