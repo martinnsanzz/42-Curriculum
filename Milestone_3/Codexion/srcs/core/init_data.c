@@ -1,48 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   initialization.c                                   :+:      :+:    :+:   */
+/*   init_data.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/11 15:16:32 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/14 12:38:29 by masanz-s         ###   ########.fr       */
+/*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
+/*   Updated: 2026/09/14 16:43:28 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
-
-static int	init_coders(t_coder **coders, int num_coders);
-static int	init_dongles(t_dongle **dongles, int num_dongles);
-static int	init_threads(pthread_t **threads, int *rules);
-
-int	initializer(t_coder **coders, t_dongle **dongles,
-				pthread_t **threads, int *rules)
-{
-	int	i;
-
-	if (init_coders(coders, rules[0]))
-		return (1);
-	if (init_dongles(dongles, rules[0]))
-	{
-		free(*coders);
-		return (1);
-	}
-
-	if (init_threads(threads, rules))
-	{
-		i = 0;
-		while(i < rules[0])
-			pthread_mutex_destroy(&(*dongles)[i++].lock);
-		free(*coders);
-		free(*dongles);
-		return (1);
-	}
-	return (0);
-}
-
-static int	init_coders(t_coder **coders, int num_coders)
+int	init_coders(t_coder **coders, int num_coders)
 {
 	t_coder_state	state;
 	int				i;
@@ -70,7 +40,7 @@ static int	init_coders(t_coder **coders, int num_coders)
 	return (0);
 }
 
-static int	init_dongles(t_dongle **dongles, int num_dongles)
+int	init_dongles(t_dongle **dongles, int num_dongles)
 {
 	int	i;
 	int	error;
@@ -78,14 +48,14 @@ static int	init_dongles(t_dongle **dongles, int num_dongles)
 	*dongles = ft_calloc(num_dongles, sizeof(t_dongle));
 	if (*dongles == NULL)
 		return (1);
-
 	i = 0;
-	while(i < num_dongles){
+	while(i < num_dongles)
+	{
 		(*dongles)[i].dongle_id = (i + 1);
 		(*dongles)[i].dongle_state = AVAILABLE;
-
 		error = pthread_mutex_init(&(*dongles)[i].lock, NULL);
-		if (error){
+		if (error)
+		{
 			fprintf(stderr, "\033[0;31mFailed to initialize"
 							"mutex number: {%d}\n\033[0m", i + 1);
 			while (i-- > 0)
@@ -99,29 +69,14 @@ static int	init_dongles(t_dongle **dongles, int num_dongles)
 	return (0);
 }
 
-static int	init_threads(pthread_t **threads, int *rules)
+int init_shared_data(t_shared **shared, t_dongle **dongles, int *rules)
 {
-	int	i;
-	int	error;
-
-	*threads = ft_calloc(rules[0], sizeof(pthread_t));
-	if (*threads == NULL)
+	*shared = ft_calloc(rules[0], sizeof(t_shared));
+	if (*shared == NULL)
 		return (1);
 
-	i = 0;
-	while(i < rules[0]){
-		error = pthread_create(&(*threads)[i], NULL, print_hello, NULL);
+	(*shared)->dongles = *dongles;
+	(*shared)->rules = rules;
 
-		if (error){
-			fprintf(stderr, "\033[0;31mFailed to create"
-							"thread number: {%d}\n\033[0m", i + 1);
-			while (i-- > 0)
-				pthread_join((*threads)[i], NULL);
-			free(*threads);
-			*threads = NULL;
-			return (1);
-		}
-		i++;
-	}
 	return (0);
 }
