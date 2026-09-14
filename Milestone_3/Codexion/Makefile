@@ -102,7 +102,7 @@ valgrind: $(NAME)
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
 			  ./$(NAME) 5 4 3 2 1 4 2 fifo; \
-			  if [ $$? -ne 0 ]; then \
+			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \
 			  	echo "$(GREEN)\nNo leaks found${RESET}"; \

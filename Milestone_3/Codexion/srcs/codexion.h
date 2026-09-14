@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/11 16:57:48 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/14 11:50:16 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,8 @@ typedef struct		s_dongle{
 void		*print_hello();
 
 // -------- Initialization ---------
-int			init_coders(t_coder **coders, int num_coders);
-int			init_dongles(t_dongle **dongles, int num_dongles);
-int			init_threads(pthread_t **threads, int *rules);
+int				initializer(t_coder **coders, t_dongle **dongles,
+							pthread_t **threads, int *rules);
 
 // ---------- Validation -----------
 int     	check_argv(int argc, char *argv[]);

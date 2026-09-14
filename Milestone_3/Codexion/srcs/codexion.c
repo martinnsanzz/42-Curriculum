@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/14 09:53:56 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/14 12:31:46 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,28 +23,12 @@ int     main(int argc, char *argv[])
 	t_dongle		*dongles;
 	pthread_t		*threads;
 
-	if (check_argv(argc, argv) == -1)
-        return (0);
+	if (check_argv(argc, argv) == 1)
+        return (1);
     get_rules(argv, rules, &scheduler);
 
-	if (init_coders(&coders, rules[0]))
+	if (initializer(&coders, &dongles, &threads, rules))
 		return (1);
-	if (init_dongles(&dongles, rules[0]))
-	{
-		free(coders);
-		return (1);
-	}
-
-	if (init_threads(&threads, rules))
-	{
-		int i = 0;
-
-		while(i < rules[0])
-			pthread_mutex_destroy(&dongles[i].lock);
-		free(coders);
-		free(dongles);
-		return (1);
-	}
 	clean_values(rules[0], &coders, &dongles, &threads);
 
 	return (0);
@@ -53,10 +37,23 @@ int     main(int argc, char *argv[])
 void	clean_values(int num_coders, t_coder **coders, t_dongle **dongles,
 					 pthread_t **threads)
 {
-	while(num_coders--)
+	int	i;
+	int	error;
+
+	i = 0;
+	while(i < num_coders)
 	{
-		pthread_join((*threads)[num_coders], NULL);
-		pthread_mutex_destroy(&(*dongles)[num_coders].lock);
+		error = pthread_join((*threads)[i], NULL);
+		if (error){
+			fprintf(stderr, "\033[0;31mFailed to join "
+							"thread number: {%d}\n\033[0m", i + 1);
+			}
+		error = pthread_mutex_destroy(&(*dongles)[i].lock);
+		if (error){
+			fprintf(stderr, "\033[0;31mFailed to destroy "
+							"dongle lock number: {%d}\n\033[0m", i + 1);
+			}
+		i++;
 	}
 	free(*threads);
 	free(*dongles);
