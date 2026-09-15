@@ -3,80 +3,93 @@
 /*                                                        :::      ::::::::   */
 /*   init_data.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/14 16:43:28 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/15 12:44:21 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
-int	init_coders(t_coder **coders, int num_coders)
+static int  init_coders(t_program *prog);
+static int  init_dongles(t_program *prog);
+
+int	data_initializer(t_program *program)
 {
-	t_coder_state	state;
+    int i;
+
+	if (init_coders(program))
+		return (1);
+
+	if (init_dongles(program))
+		return (free ((*program).coders), 1);
+
+	if (init_threads(program))
+	{
+        i = 0;
+		while(i < (*program).rules[0])
+			pthread_mutex_destroy(&(*program).dongles[i].lock);
+		free((*program).coders);
+		free((*program).dongles);
+		return (1);
+	}
+	return (0);
+}
+
+static int  init_coders(t_program *prog)
+{
+    t_coder_state	state;
 	int				i;
 
 	state = INIT;
-	*coders = ft_calloc(num_coders, sizeof(t_coder));
-	if (*coders == NULL)
+	(*prog).coders = ft_calloc((*prog).rules[0], sizeof(t_coder));
+	if ((*prog).coders == NULL)
 		return (1);
 
 	i = 0;
-	while(i < num_coders)
+	while(i < (*prog).rules[0])
 	{
-		(*coders)[i].coder_id = (i + 1);
-		(*coders)[i].total_compiles = 0;
-		(*coders)[i].coder_state = state;
+		(*prog).coders[i].coder_id = (i + 1);
+		(*prog).coders[i].total_compiles = 0;
+		(*prog).coders[i].coder_state = state;
 
-		(*coders)[i].right_dongle_i = (i + 1);
+		(*prog).coders[i].right_dongle_i = (i + 1);
 
 		if (i == 0)
-			(*coders)[i].left_dongle_i = num_coders;
+			(*prog).coders[i].left_dongle_i = (*prog).rules[0];
 		else
-			(*coders)[i].left_dongle_i = i;
+			(*prog).coders[i].left_dongle_i = i;
 		i++;
 	}
 	return (0);
 }
 
-int	init_dongles(t_dongle **dongles, int num_dongles)
+static int  init_dongles(t_program *prog)
 {
-	int	i;
+    int	i;
 	int	error;
 
-	*dongles = ft_calloc(num_dongles, sizeof(t_dongle));
-	if (*dongles == NULL)
+	(*prog).dongles = ft_calloc((*prog).rules[0], sizeof(t_dongle));
+	if ((*prog).dongles == NULL)
 		return (1);
 	i = 0;
-	while(i < num_dongles)
+	while(i < (*prog).rules[0])
 	{
-		(*dongles)[i].dongle_id = (i + 1);
-		(*dongles)[i].dongle_state = AVAILABLE;
-		error = pthread_mutex_init(&(*dongles)[i].lock, NULL);
+		(*prog).dongles[i].dongle_id = (i + 1);
+		(*prog).dongles[i].dongle_state = AVAILABLE;
+		error = pthread_mutex_init(&(*prog).dongles[i].lock, NULL);
 		if (error)
 		{
 			fprintf(stderr, "\033[0;31mFailed to initialize"
 							"mutex number: {%d}\n\033[0m", i + 1);
 			while (i-- > 0)
-				pthread_mutex_destroy(&(*dongles)[i].lock);
-			free(*dongles);
-			*dongles = NULL;
+				pthread_mutex_destroy(&(*prog).dongles[i].lock);
+			free((*prog).dongles);
+			(*prog).dongles = NULL;
 			return (1);
 		}
 		i++;
 	}
-	return (0);
-}
-
-int init_shared_data(t_shared **shared, t_dongle **dongles, int *rules)
-{
-	*shared = ft_calloc(rules[0], sizeof(t_shared));
-	if (*shared == NULL)
-		return (1);
-
-	(*shared)->dongles = *dongles;
-	(*shared)->rules = rules;
-
 	return (0);
 }

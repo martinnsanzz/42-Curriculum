@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/14 16:38:41 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/15 12:41:10 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <stdint.h>
 # include <pthread.h>
 # include <stdbool.h>
+
+typedef struct s_thread_arg	t_thread_arg;
 
 // ---------- Enums -----------
 typedef enum e_coder_state
@@ -62,32 +64,33 @@ typedef struct s_dongle
 	t_dongle_state	dongle_state;
 } t_dongle;
 
-typedef struct s_shared
+typedef struct s_program
 {
-	t_dongle		*dongles;
-	int				*rules;
-} t_shared;
+    t_coder			*coders;
+    t_dongle		*dongles;
+    pthread_t		*threads;
+    t_thread_arg    *args;
+    char            *scheduler;
+    int				rules[7];
+}	t_program;
 
 typedef struct s_thread_arg
 {
 	t_coder			*coder;
-	t_shared		*shared;
-} t_thread_arg;
+	t_program		*prog;
+}	t_thread_arg;
+
+
 
 // -------------- Test -------------
 void		*print_hello(void *arg);
 
 // -------- Initialization ---------
-int			initializer(int *rules);
-int			init_coders(t_coder **coders, int num_coders);
-int			init_dongles(t_dongle **dongles, int num_dongles);
-int			init_shared_data(t_shared **shared, t_dongle **dongles, int *rules);
-int			init_threads(t_coder **coders, t_dongle **dongles, pthread_t **threads,
-				int *rules);
+int         data_initializer(t_program *program);
+int			init_threads(t_program *prog);
 
 // ----------- Clean up ------------
-void	clean_values(int num_coders, t_coder **coders, t_dongle **dongles,
-			pthread_t **threads);
+void		clean_values(t_program *prog);
 
 // ---------- Validation -----------
 int			check_argv(int argc, char *argv[]);

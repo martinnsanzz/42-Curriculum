@@ -3,65 +3,76 @@
 /*                                                        :::      ::::::::   */
 /*   init_threats.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:56 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/14 16:47:47 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/15 12:43:57 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
-static int	init_thread_args(t_thread_arg **args, t_coder **coders,
-                             t_dongle **dongles, int *rules);
+static int create_thread_args(t_program *prog);
+static int create_threads(t_program *prog);
 
-int	init_threads(t_coder **coders, t_dongle **dongles, pthread_t **threads, int *rules)
+int	init_threads(t_program *prog)
 {
-	int				i;
-	t_thread_arg	*args;
+	int	failed_at;
+    int	i;
 
-	if (init_thread_args(&args, coders, dongles, rules))
+	if (create_thread_args(prog))
 		return (1);
-	*threads = ft_calloc(rules[0], sizeof(pthread_t));
-	if (*threads == NULL)
-		return (free(args), 1);
-	i = 0;
-	while (i < rules[0])
+	(*prog).threads = ft_calloc((*prog).rules[0], sizeof(pthread_t));
+	
+    if ((*prog).threads == NULL)
+		return (free((*prog).args), 1);
+	
+    failed_at = create_threads(prog);
+	if (failed_at < 0)
 	{
-		if (pthread_create(&(*threads)[i], NULL, print_hello, (void *)&args[i]))
-		{
-			fprintf(stderr, "\033[0;31mFailed to create"
-							"thread number: {%d}\n\033[0m", i + 1);
-			while (i-- > 0)
-				pthread_join((*threads)[i], NULL);
-			free(*threads);
-			*threads = NULL;
-			return (free(args->shared), free(args), 1);
-		}
-		i++;
+
+		i = -failed_at - 1;
+		while (i-- > 0)
+			pthread_join((*prog).threads[i], NULL);
+		free((*prog).threads);
+		(*prog).threads = NULL;
+		free((*prog).args);
+		(*prog).args = NULL;
+		return (1);
 	}
-	return (free(args->shared), free(args), 0);
+	return (0);
 }
 
-static int	init_thread_args(t_thread_arg **args, t_coder **coders,
-                             t_dongle **dongles, int *rules)
+static int create_threads(t_program *prog)
 {
-	int			i;
-	t_shared	*shared;
+	int	i;
+	int	error;
 
-	init_shared_data(&shared, dongles, rules);
-	if (shared == NULL)
-		return (1);
+	i = 0;
+	while (i < (*prog).rules[0])
+	{
+		error = pthread_create(&(*prog).threads[i], NULL, print_hello,
+				(void *)&(*prog).args[i]);
+		if (error)
+			return (-(i + 1));
+		i++;
+	}
+	return (0);
+}
 
-	*args = ft_calloc(rules[0], sizeof(t_thread_arg));
-    if (*args == NULL)
+static int	create_thread_args(t_program *prog)
+{
+	int i;
+
+    (*prog).args = ft_calloc((*prog).rules[0], sizeof(t_thread_arg));
+    if ((*prog).args == NULL)
         return (1);
-
+    
     i = 0;
-    while (i < rules[0])
+    while (i < (*prog).rules[0])
     {
-        (*args)[i].coder = &(*coders)[i];
-        (*args)[i].shared = shared;
+        (*prog).args[i].coder = &(*prog).coders[i];
+        (*prog).args[i].prog = &(*prog);
         i++;
     }
     return (0);
