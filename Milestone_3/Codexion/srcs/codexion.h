@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/15 12:41:10 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/09/16 14:29:44 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ typedef struct s_thread_arg
 void		*print_hello(void *arg);
 
 // -------- Initialization ---------
-int         data_initializer(t_program *program);
+int         data_initializer(t_program *prog);
 int			init_threads(t_program *prog);
 
 // ----------- Clean up ------------
@@ -95,7 +95,7 @@ void		clean_values(t_program *prog);
 // ---------- Validation -----------
 int			check_argv(int argc, char *argv[]);
 int			check_valid_num(char *argv[]);
-void		get_rules(char *argv[], int *arr, char **scheduler);
+void		get_rules(char *argv[], t_program *prog);
 
 // ------------ Display ------------
 void		display_status(int timestamp_ms, int coder_id, char *state);
@@ -108,5 +108,12 @@ void		*ft_memset(void *s, int c, size_t n);
 void		ft_bzero(void *s, size_t n);
 void		*ft_calloc(size_t nmemb, size_t size);
 char		*ft_itoa(int num);
+
+// ------------- Errors -------------
+void		invalid_num_of_args();
+void		invalid_num(int error_id, int index, char *value);
+void		wrong_scheduler(char *value);
+void		thread_errors(int error_id, int index);
+void		mutex_errors(int error_id, int index);
 
 #endif

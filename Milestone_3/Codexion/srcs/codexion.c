@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/15 12:46:51 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/09/16 14:54:35 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,14 @@
 
 int	data_initializer(t_program *program);
 
+
 int     main(int argc, char *argv[])
 {
     t_program program;
 
 	if (check_argv(argc, argv) == 1)
         return (1);
-    get_rules(argv, program.rules, &program.scheduler);
+    get_rules(argv, &program);
 
 	if (data_initializer(&program))
 		return (1);
@@ -38,10 +39,10 @@ void	clean_values(t_program *program)
 	{
 		error = pthread_join((*program).threads[i], NULL);
 		if (error)
-			fprintf(stderr, "\033[0;31mFailed to join thread number: {%d}\n\033[0m", i + 1);
+			thread_errors(2, i + 1);
 		error = pthread_mutex_destroy(&(*program).dongles[i].lock);
 		if (error)
-			fprintf(stderr, "\033[0;31mFailed to destroy lock number: {%d}\n\033[0m", i + 1);
+			mutex_errors(2, i + 1);
 		i++;
 	}
     free((*program).args);
@@ -62,6 +63,6 @@ void	*print_hello(void *arg)
 	printf("Coder id: %d\n", coder_id);
 	printf("Coder %d left dongle: %d\n", coder_id, data->coder->left_dongle_i);
 	printf("Coder %d right dongle: %d\n", coder_id, data->coder->right_dongle_i);
-	sleep(5);
+	sleep(1);
 	return NULL;
 }

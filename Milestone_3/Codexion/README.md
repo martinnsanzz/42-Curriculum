@@ -32,6 +32,7 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Mutexes in C](https://medium.com/@sherniiazov.da/mutexes-in-c-ac2b0f1a6d34)
 - [Data Structures using C](https://www.geeksforgeeks.org/dsa/lmns-data-structures/)
 - [Pthread.h library](https://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread.h.html)
+- [C Code Style Guidelines](https://www.cs.swarthmore.edu/~newhall/unixhelp/c_codestyle.html)
 
 ### Extra
 - [The Dining Philosophers Problem](https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html)
@@ -43,6 +44,8 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Lock (Computer Science)](https://en.wikipedia.org/wiki/Lock_(computer_science))
 - [Philosophers 42 Guide](https://medium.com/@ruinadd/philosophers-42-guide-the-dining-philosophers-problem-893a24bc0fe2)
 - [Introduction to Threads](https://www.youtube.com/watch?v=LOfGJcVnvAk)
+- [Guie to use Doxygen for C code](https://embeddedinventor.com/guide-to-configure-doxygen-to-document-c-source-code-for-beginners/)
+- [Doxygen Documentation](https://doxygen.nl/manual/index.html)
 
 ---
 

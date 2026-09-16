@@ -36,6 +36,8 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 libft/ft_convert.c \
                                    				 libft/ft_memory.c \
                                    				 libft/ft_string.c \
+												 error/validation_errors.c \
+												 error/threading_errors.c \
 												 core/init_data.c \
 												 core/init_threats.c)
 
@@ -52,6 +54,7 @@ $(OBJS_DIR):
 	@mkdir -p $(OBJS_DIR)
 	@mkdir -p $(OBJS_DIR)/libft
 	@mkdir -p $(OBJS_DIR)/core
+	@mkdir -p $(OBJS_DIR)/error
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
 	@$(CC) $(C_FLAGS) -c $< -o $@
@@ -66,6 +69,7 @@ $(OBJS_DIR_DEBUG):
 	@mkdir -p $(OBJS_DIR_DEBUG)
 	@mkdir -p $(OBJS_DIR_DEBUG)/libft
 	@mkdir -p $(OBJS_DIR_DEBUG)/core
+	@mkdir -p $(OBJS_DIR_DEBUG)/error
 
 $(OBJS_DIR_DEBUG)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR_DEBUG)
 	@$(CC) $(GDB_FLAG) -c $< -o $@
