@@ -71,3 +71,23 @@ one to be release simultaneously.
 
 There exists a simple technique of deadlock prevention when mutexes are seized in some fixed
 order. This is discussed in depth in the `Dining philosophers` problem.
+
+### Data Races / Race Condition
+Race condition is a design or implementation bug where the outcome of a process or function
+can vary depending on the scheduling/processing of other threads or processes. It usually happens
+when two processes depend or manipulate the same piece of memory or multiple processes attempt to
+access the same file.
+
+In any situation where a resource is shared and access by multiple threads a race condition is
+possible. One way of avoiding this happening is with the use of mutexes or specific contention
+avoidance.
+
+`Threads` implicitly share most or all of their memory. Programming languages with support for
+threading supply various forms of locking and synchronization primitives.
+
+Most solutions to this problems revolve around preventing access to the same data at the same
+time.
+
+`Locks` are mechanism that force one thread to wait until another thread is finished with a
+piece of data. Various sorts of locking primitives include `semaphores` and `mutexes` (mutual
+exclusion objects).
