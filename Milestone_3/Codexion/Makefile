@@ -39,8 +39,8 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
 												 core/clean_up.c \
-												 core/init_data.c \
-												 core/init_threats.c)
+												 core/init.c \
+												 core/monitor.c)
 
 OBJS				:= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 OBJS_DEBUG			:= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR_DEBUG)/%.o)

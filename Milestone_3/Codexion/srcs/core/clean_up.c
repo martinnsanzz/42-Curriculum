@@ -6,73 +6,84 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 14:26:11 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/17 17:01:12 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 /**
- * @brief Joins all coder threads, destroys all dongle mutexes, and
- *        frees both arrays.
+ * @brief Joins the monitor thread, then every coder thread, then
+ *        destroys all mutexes (program-level locks and dongles) and
+ *        frees the coders array.
  *
- * Every thread is joined before any mutex is destroyed, guaranteeing
- * no coder still holds a lock when its mutex is destroyed. Join or
- * destroy failures are logged but never abort the loop, so every
- * remaining thread/mutex still gets its own attempt and nothing leaks
- * partway through.
+ * The monitor is joined first since it is responsible for signalling
+ * coders to stop; joining it guarantees every coder thread is either
+ * finished or has been told to stop by the time its own join runs.
+ * Join and destroy failures are logged but never abort the process,
+ * so every remaining thread/mutex still gets its own attempt.
  *
- * @param total_coders Number of coders/threads/dongles to clean up.
- * @param coders       Array of coders whose threads are joined; freed
- *                      at the end.
- * @param dongles      Array of mutexes to destroy; freed at the end.
- *
- * @note Only call this when @p coders and @p dongles are both valid,
- *       fully-created arrays (e.g. after a successful @c init_threads).
- *       For a failure path where threads were never created, use
- *       @c pthread_mutex_destroy_all on @p dongles alone instead.
+ * @param monitor_thread The monitor thread to join first.
+ * @param prog           Pointer to the program struct; its @c coders
+ *                       array is joined thread-by-thread and freed at
+ *                       the end. Its three program-level mutexes are
+ *                       destroyed via @c pthread_mutex_destroy_all.
+ * @param dongles        Array of dongle mutexes to destroy and free
+ *                       (via @c pthread_mutex_destroy_all).
  */
-void	clean_values(int total_coders, t_coder *coders, pthread_mutex_t *dongles)
+void	clean_values(pthread_t monitor_thread, t_program *prog, pthread_mutex_t *dongles)
 {
 	int	i;
 	int	error;
 
+	if (pthread_join(monitor_thread, NULL))
+		thread_errors(4, 0);
 	i = 0;
-	while(i < total_coders)
+	while(i < (*prog).total_coders)
 	{
-		error = pthread_join(coders[i].thread, NULL);
+		error = pthread_join((*prog).coders[i].thread, NULL);
 		if (error)
 			thread_errors(2, i + 1);
 		i++;
 	}
 	i = 0;
-	while(i < total_coders)
-	{
-		error = pthread_mutex_destroy(&dongles[i]);
-		if (error)
-			mutex_errors(2, i + 1);
-		i++;
-	}
-    free(coders);
-	free(dongles);
+
+	pthread_mutex_destroy_all(prog, dongles);
+
+    free((*prog).coders);
 }
 
 /**
- * @brief Destroys every mutex in @p dongles and frees the array.
+ * @brief Destroys the program's three shared mutexes (compile, finish,
+ *        burnout) and every dongle mutex, then frees @p dongles.
  *
- * Used on failure paths where the dongles array was fully initialized
- * but no threads exist yet to join (e.g. @c init_threads failed), so
- * only the dongles need tearing down.
+ * Every destroy is attempted regardless of whether an earlier one
+ * failed; failures are logged but never abort the function, so
+ * @p dongles is always freed and every mutex gets its own attempt.
  *
- * @param dongles       Array of mutexes to destroy; freed at the end.
- * @param total_dongles Number of mutexes in @p dongles.
+ * @param prog    Pointer to the program struct holding the three
+ *                shared mutexes to destroy.
+ * @param dongles Array of dongle mutexes to destroy and free.
  */
-void pthread_mutex_destroy_all(pthread_mutex_t *dongles, int total_dongles)
+void pthread_mutex_destroy_all(t_program *prog, pthread_mutex_t *dongles)
 {
 	int	i;
+	int error;
+
+	if (pthread_mutex_destroy(&(*prog).compile_lock))
+		mutex_destroy_errors(2, 0);
+	if (pthread_mutex_destroy(&(*prog).finish_lock))
+		mutex_destroy_errors(3, 0);
+	if (pthread_mutex_destroy(&(*prog).burnout_lock))
+		mutex_destroy_errors(4, 0);
 
 	i = 0;
-	while(i < total_dongles)
-		pthread_mutex_destroy(&dongles[i++]);
+	while(i < (*prog).total_coders)
+	{
+		error = pthread_mutex_destroy(&dongles[i]);
+		if (error)
+			mutex_destroy_errors(1, i + 1);
+		i++;
+	}
 	free(dongles);
 }

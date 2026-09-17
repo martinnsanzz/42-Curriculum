@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 14:25:07 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/17 17:00:59 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,14 +48,16 @@ typedef struct s_coder
 	int				time_to_debug;
 	int				time_to_refactor;
 
-	bool			is_burn_out;
+	bool			*burn_out;
 
 	t_coder_state	state;
 
 	pthread_mutex_t	*l_dongle;
 	pthread_mutex_t	*r_dongle;
 
-	t_coder_state	coder_state;
+	pthread_mutex_t *compile_lock;
+	pthread_mutex_t *finish_lock;
+	pthread_mutex_t	*burnout_lock;
 } t_coder;
 
 typedef struct s_program
@@ -70,6 +72,10 @@ typedef struct s_program
 
 	t_coder			*coders;
 
+	pthread_mutex_t compile_lock;
+	pthread_mutex_t finish_lock;
+	pthread_mutex_t	burnout_lock;
+
 }	t_program;
 
 
@@ -78,17 +84,19 @@ typedef struct s_program
 void		*print_hello(void *arg);
 
 // -------- Initialization ---------
-int			data_initializer(t_program *prog, pthread_mutex_t **dongles);
-int			init_threads(t_program *prog);
+int			program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles);
 
 // ----------- Clean up ------------
-void		clean_values(int total_coders, t_coder *coders, pthread_mutex_t *dongles);
-void 		pthread_mutex_destroy_all(pthread_mutex_t *dongles, int total_dongles);
+void		clean_values(pthread_t monitor_thread, t_program *prog, pthread_mutex_t *dongles);
+void		pthread_mutex_destroy_all(t_program *prog, pthread_mutex_t *dongles);
 
 // ---------- Validation -----------
 int			check_argv(int argc, char *argv[]);
 int			check_valid_num(char *argv[]);
 void		get_rules(char *argv[], t_program *prog);
+
+// ------------ Monitor ------------
+void		*monitor(void *pointer);
 
 // ------------ Display ------------
 void		display_status(int timestamp_ms, int coder_id, char *state);
@@ -107,6 +115,7 @@ void		invalid_num_of_args();
 void		invalid_num(int error_id, int index, char *value);
 void		wrong_scheduler(char *value);
 void		thread_errors(int error_id, int index);
-void		mutex_errors(int error_id, int index);
+void		mutex_init_errors(int error_id, int index);
+void 		mutex_destroy_errors(int error_id, int index);
 
 #endif
