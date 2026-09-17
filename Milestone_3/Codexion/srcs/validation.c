@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/16 15:16:38 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/17 14:21:22 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,22 +72,35 @@ int check_valid_num(char *argv[])
 }
 
 /**
- * @brief Extracts the CLI and packs them in @p prog.
+ * @brief Extracts the CLI rules and packs them into @p prog.
  *
- * It takes all int values from 1 - 7 into an int array
- * and the scheduler which is value 8.
+ * Fills each coder's timing fields (burnout, compile, debug,
+ * refactor) from argv[2]-argv[5], and the program-wide fields
+ * (compiles required, dongle cooldown, scheduler) from argv[6]-argv[8].
  *
  * @param argv CLI arguments.
- * @param prog Pointer to the program struct holding the
- * 			   program data.
+ * @param prog Pointer to the program struct holding the program data;
+ *             its @c coders array must already be allocated.
  */
 void    get_rules(char *argv[], t_program *prog)
 {
     int i;
+	int total_coders;
 
     i = 0;
-    while(i++ < 7)
-		(*prog).rules[i - 1] = (int)ft_atoi(argv[i]);
+	total_coders = ft_atoi(argv[1]);
+    while(i < ft_atoi(argv[1]))
+	{
+		(*prog).coders[i].time_to_burn_out = ft_atoi(argv[2]);
+		(*prog).coders[i].time_to_compile = ft_atoi(argv[3]);
+		(*prog).coders[i].time_to_debug = ft_atoi(argv[4]);
+		(*prog).coders[i].time_to_refactor = ft_atoi(argv[5]);
+		(*prog).coders[i].total_compiles = ft_atoi(argv[5]);
+		i++;
+	}
+
+	(*prog).compiles_required = ft_atoi(argv[6]);
+	(*prog).dongle_cooldown = ft_atoi(argv[7]);
 	(*prog).scheduler = argv[8];
 }
 

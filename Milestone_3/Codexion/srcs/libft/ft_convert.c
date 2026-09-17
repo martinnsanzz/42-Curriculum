@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:45 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/16 15:01:26 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/17 14:19:30 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,20 @@
 static size_t	num_len(int num);
 
 /**
- * @brief Converts a string to a long long integer, skipping leading
+ * @brief Converts a string to an integer, skipping leading
  *        whitespace and handling an optional sign.
+ * 
+ * It checks for INT_MAX using long long and then converting it back to integer,
  *
  * @param nptr String to convert (e.g. "  -42abc").
  *
  * @return The parsed integer value, or 0 if the parsed value exceeds INT_MAX.
  */
-long long    ft_atoi(const char *nptr)
+int    ft_atoi(const char *nptr)
 {
     long long    num;
-    int            sign;
+    int          sign;
+	int			 val;
 
     num = 0;
     sign = 1;
@@ -43,8 +46,9 @@ long long    ft_atoi(const char *nptr)
         nptr++;
     }
     if (num > INT_MAX)
-        return (0);
-    return (num * sign);
+		return (0);
+	val = (int)num;
+    return (val * sign);
 }
 
 /**

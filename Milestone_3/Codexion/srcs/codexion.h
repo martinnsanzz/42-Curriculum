@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/16 14:29:44 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/17 14:25:07 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,49 +36,41 @@ typedef enum e_coder_state
 	FINISH
 }	t_coder_state;
 
-typedef enum e_dongle_state
-{
-	AVAILABLE,
-	UNAVAILABLE
-}	t_dongle_state;
-
 // ---------- Structs -----------
 typedef struct s_coder
 {
-	int				coder_id;
+	pthread_t		thread;
 
-	int				left_dongle_i;
-	int				right_dongle_i;
-
+	int				id;
 	int				total_compiles;
+	int				time_to_burn_out;
+	int				time_to_compile;
+	int				time_to_debug;
+	int				time_to_refactor;
+
+	bool			is_burn_out;
+
+	t_coder_state	state;
+
+	pthread_mutex_t	*l_dongle;
+	pthread_mutex_t	*r_dongle;
 
 	t_coder_state	coder_state;
 } t_coder;
 
-typedef struct s_dongle
-{
-	int				dongle_id;
-
-	pthread_mutex_t	lock;
-
-	t_dongle_state	dongle_state;
-} t_dongle;
-
 typedef struct s_program
 {
-    t_coder			*coders;
-    t_dongle		*dongles;
-    pthread_t		*threads;
-    t_thread_arg    *args;
-    char            *scheduler;
-    int				rules[7];
-}	t_program;
+	int				compiles_required;
+	int				dongle_cooldown;
+	int				total_coders;
 
-typedef struct s_thread_arg
-{
-	t_coder			*coder;
-	t_program		*prog;
-}	t_thread_arg;
+	char			*scheduler;
+
+	bool			burn_out_flag;
+
+	t_coder			*coders;
+
+}	t_program;
 
 
 
@@ -86,11 +78,12 @@ typedef struct s_thread_arg
 void		*print_hello(void *arg);
 
 // -------- Initialization ---------
-int         data_initializer(t_program *prog);
+int			data_initializer(t_program *prog, pthread_mutex_t **dongles);
 int			init_threads(t_program *prog);
 
 // ----------- Clean up ------------
-void		clean_values(t_program *prog);
+void		clean_values(int total_coders, t_coder *coders, pthread_mutex_t *dongles);
+void 		pthread_mutex_destroy_all(pthread_mutex_t *dongles, int total_dongles);
 
 // ---------- Validation -----------
 int			check_argv(int argc, char *argv[]);
@@ -101,7 +94,7 @@ void		get_rules(char *argv[], t_program *prog);
 void		display_status(int timestamp_ms, int coder_id, char *state);
 
 // ------------- Utils -------------
-long long	ft_atoi(const char *nptr);
+int			ft_atoi(const char *nptr);
 int			ft_strcmp(const char *s1, const char *s2);
 size_t		ft_strlen(const char *s);
 void		*ft_memset(void *s, int c, size_t n);

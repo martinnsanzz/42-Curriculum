@@ -38,6 +38,7 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 libft/ft_string.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
+												 core/clean_up.c \
 												 core/init_data.c \
 												 core/init_threats.c)
 
