@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 17:01:12 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 14:53:57 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ void	clean_values(pthread_t monitor_thread, t_program *prog, pthread_mutex_t *do
 			thread_errors(2, i + 1);
 		i++;
 	}
-	i = 0;
 
 	pthread_mutex_destroy_all(prog, dongles);
 
@@ -72,7 +71,7 @@ void pthread_mutex_destroy_all(t_program *prog, pthread_mutex_t *dongles)
 
 	if (pthread_mutex_destroy(&(*prog).compile_lock))
 		mutex_destroy_errors(2, 0);
-	if (pthread_mutex_destroy(&(*prog).finish_lock))
+	if (pthread_mutex_destroy(&(*prog).write_lock))
 		mutex_destroy_errors(3, 0);
 	if (pthread_mutex_destroy(&(*prog).burnout_lock))
 		mutex_destroy_errors(4, 0);

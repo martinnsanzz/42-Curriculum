@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 09:43:39 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 14:53:29 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,15 @@ int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
 		*dongles = NULL;
 		return (1);
 	}
+
 	get_rules(argv, prog);
+
 	if (init_monitor_thread(&monitor_thread, prog))
 		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
+
 	(*prog).start_time = get_current_time();
+	(*prog).burn_out_flag = false;
+
 	if (init_coder_threads(prog))
 		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
 	clean_values(monitor_thread, prog, *dongles);
@@ -95,7 +100,7 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 		(*prog).coders[i].burn_out = &(prog)->burn_out_flag;
 		(*prog).coders[i].compile_lock = &(prog)->compile_lock;
 		(*prog).coders[i].burnout_lock = &(prog)->burnout_lock;
-		(*prog).coders[i].finish_lock = &(prog)->finish_lock;
+		(*prog).coders[i].write_lock = &(prog)->write_lock;
 		(*prog).coders[i].r_dongle = &dongles[i];
 		if (i == 0)
 			(*prog).coders[i].l_dongle = &dongles[(*prog).total_coders - 1];
@@ -177,13 +182,13 @@ static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 
 	if (pthread_mutex_init(&(*prog).compile_lock, NULL))
 		return (mutex_init_errors(2, 0), 1);
-	if (pthread_mutex_init(&(*prog).finish_lock, NULL))
+	if (pthread_mutex_init(&(*prog).write_lock, NULL))
 		return (pthread_mutex_destroy(&(*prog).compile_lock),
 			mutex_init_errors(3, 0), 1);
 	if (pthread_mutex_init(&(*prog).burnout_lock, NULL))
 	{
 		pthread_mutex_destroy(&(*prog).compile_lock);
-		pthread_mutex_destroy(&(*prog).finish_lock);
+		pthread_mutex_destroy(&(*prog).write_lock);
 		mutex_init_errors(4, 0);
 		return (1);
 	}
@@ -192,7 +197,7 @@ static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 	{
 		thread_errors(3, 0);
 		pthread_mutex_destroy(&(*prog).compile_lock);
-		pthread_mutex_destroy(&(*prog).finish_lock);
+		pthread_mutex_destroy(&(*prog).write_lock);
 		pthread_mutex_destroy(&(*prog).burnout_lock);
 		return (1);
 	}
@@ -225,7 +230,8 @@ static int	init_coder_threads(t_program *prog)
 	while (i < (*prog).total_coders)
 	{
 		(*prog).coders[i].start_time = &(*prog).start_time;
-		error = pthread_create(&(*prog).coders[i].thread, NULL, print_hello,
+		(*prog).coders[i].last_compile = (*prog).start_time;
+		error = pthread_create(&(*prog).coders[i].thread, NULL, coder_routine,
 				(void *)&(*prog).coders[i]);
 		if (error)
 		{

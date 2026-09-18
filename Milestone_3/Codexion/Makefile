@@ -39,8 +39,10 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
 												 utils/time.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
+												 error/time_errors.c \
 												 core/clean_up.c \
 												 core/init.c \
+												 core/routine.c \
 												 core/monitor.c)
 
 OBJS				:= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
@@ -108,11 +110,24 @@ valgrind: $(NAME)
 			  --leak-resolution=high \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 5 4 3 2 1 4 2 fifo; \
+			  ./$(NAME) 5 1000 3 2 1 2 2 fifo; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \
 			  	echo "$(GREEN)\nNo leaks found${RESET}"; \
+			  fi
+
+helgrind: $(NAME)
+	@echo "$(YELLOW)Running helgrind to check for race conditions\n${RESET}"
+	@valgrind --tool=helgrind \
+			  --num-callers=40 \
+			  --error-exitcode=99 \
+			  --log-file=valgrind.log \
+			  ./$(NAME) 5 1000 3 2 1 2 2 fifo; \
+			  if [ $$? -eq 99 ]; then \
+			  	echo "$(RED)\nHelgrind found race conditions — see valgrind.log${RESET}"; \
+			  else \
+			  	echo "$(GREEN)\nNo race conditions found${RESET}"; \
 			  fi
 
 debug: $(DEBUGEXEC)
@@ -140,4 +155,4 @@ re: fclean all
 
 re-debug: fclean debug
 
-.PHONY: help help-run all valgrind debug clean fclean re re-debug
+.PHONY: help help-run all valgrind helgrind debug clean fclean re re-debug

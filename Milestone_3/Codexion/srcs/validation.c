@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 14:21:22 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 14:44:33 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void    get_rules(char *argv[], t_program *prog)
 		(*prog).coders[i].time_to_compile = ft_atoi(argv[3]);
 		(*prog).coders[i].time_to_debug = ft_atoi(argv[4]);
 		(*prog).coders[i].time_to_refactor = ft_atoi(argv[5]);
-		(*prog).coders[i].total_compiles = ft_atoi(argv[5]);
+		(*prog).coders[i].compiles_required = ft_atoi(argv[6]);
 		i++;
 	}
 

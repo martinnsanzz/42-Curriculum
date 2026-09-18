@@ -33,6 +33,8 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Data Structures using C](https://www.geeksforgeeks.org/dsa/lmns-data-structures/)
 - [Pthread.h library](https://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread.h.html)
 - [C Code Style Guidelines](https://www.cs.swarthmore.edu/~newhall/unixhelp/c_codestyle.html)
+- [How to use gettimeday function](https://www.youtube.com/watch?v=cunJcNgtxMk)
+- [How to use gettimeday function in C](https://linuxhint.com/gettimeofday_c_language/)
 
 ### Extra
 - [The Dining Philosophers Problem](https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html)

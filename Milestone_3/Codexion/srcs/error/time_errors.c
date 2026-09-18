@@ -1,28 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
+/*   time_errors.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 14:25:12 by masanz-s         ###   ########.fr       */
+/*   Created: 2026/09/18 12:10:11 by masanz-s          #+#    #+#             */
+/*   Updated: 2026/09/18 12:54:01 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "codexion.h"
+#include "../codexion.h"
 
-int     main(int argc, char *argv[])
+/**
+ * @brief Prints error msg specific to time of the program
+ */
+void time_error(int error_id)
 {
-    t_program		prog;
-	pthread_mutex_t	*dongles;
-
-	if (check_argv(argc, argv) == 1)
-        return (1);
-
-	prog.total_coders = ft_atoi(argv[1]);
-
-	if (program_initializer(argv, &prog, &dongles))
-		return (1);
-	return (0);
+	fprintf(stderr, "\033[0;31m");
+	if (error_id == 1)
+		fprintf(stderr, "Failed to get time from 'gettimeofday()'\n");
+	fprintf(stderr, "\033[0m");
 }
