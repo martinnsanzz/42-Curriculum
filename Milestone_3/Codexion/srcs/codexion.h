@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 17:00:59 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 09:38:32 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ typedef struct s_coder
 
 	bool			*burn_out;
 
+	size_t			*start_time;
+
 	t_coder_state	state;
 
 	pthread_mutex_t	*l_dongle;
@@ -65,6 +67,8 @@ typedef struct s_program
 	int				compiles_required;
 	int				dongle_cooldown;
 	int				total_coders;
+
+	size_t			start_time;
 
 	char			*scheduler;
 
@@ -104,11 +108,12 @@ void		display_status(int timestamp_ms, int coder_id, char *state);
 // ------------- Utils -------------
 int			ft_atoi(const char *nptr);
 int			ft_strcmp(const char *s1, const char *s2);
-size_t		ft_strlen(const char *s);
-void		*ft_memset(void *s, int c, size_t n);
 void		ft_bzero(void *s, size_t n);
+void		*ft_memset(void *s, int c, size_t n);
 void		*ft_calloc(size_t nmemb, size_t size);
 char		*ft_itoa(int num);
+size_t		ft_strlen(const char *s);
+size_t 		get_current_time();
 
 // ------------- Errors -------------
 void		invalid_num_of_args();

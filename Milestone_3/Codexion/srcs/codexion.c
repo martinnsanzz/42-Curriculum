@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 16:30:29 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 09:47:06 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	*print_hello(void *arg)
 	coder = (t_coder *)arg;
 
 	coder->total_compiles = 10;
-	printf("Coder id: %d\n", (*coder).id);
+	printf("Coder id: %d, time: %lu\n", (*coder).id, *((*coder).start_time));
 	sleep(1);
 	return NULL;
 }

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 17:04:57 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/18 09:43:39 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ static int	init_coder_threads(t_program *prog);
  * each coder needs its left/right dongle mutexes to already exist).
  * Frees any previously allocated resource if a later stage fails,
  * so the caller never receives a partially-initialized @p prog or
- * @p dongles on error.
+ * @p dongles on error. Also gets start_time of program fo reference
+ * later on.
  *
  * @param argv    CLI arguments.
  * @param prog    Pointer to the program struct to initialize.
@@ -41,7 +42,7 @@ static int	init_coder_threads(t_program *prog);
  */
 int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
 {
-	pthread_t monitor_thread;
+	pthread_t	monitor_thread;
 
 	if (init_dongles((*prog).total_coders, dongles))
 		return (1);
@@ -52,12 +53,11 @@ int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
 		return (1);
 	}
 	get_rules(argv, prog);
-
 	if (init_monitor_thread(&monitor_thread, prog))
 		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
+	(*prog).start_time = get_current_time();
 	if (init_coder_threads(prog))
 		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
-
 	clean_values(monitor_thread, prog, *dongles);
 	return (0);
 }
@@ -81,12 +81,11 @@ int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
  */
 static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 {
-	int				i;
+	int	i;
 
 	(*prog).coders = ft_calloc((*prog).total_coders, sizeof(t_coder));
 	if ((*prog).coders == NULL)
 		return (1);
-
 	i = 0;
 	while (i < (*prog).total_coders)
 	{
@@ -94,11 +93,10 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 		(*prog).coders[i].total_compiles = 0;
 		(*prog).coders[i].state = INIT;
 		(*prog).coders[i].burn_out = &(prog)->burn_out_flag;
-		(*prog).coders[i].r_dongle = &dongles[i];
 		(*prog).coders[i].compile_lock = &(prog)->compile_lock;
 		(*prog).coders[i].burnout_lock = &(prog)->burnout_lock;
 		(*prog).coders[i].finish_lock = &(prog)->finish_lock;
-
+		(*prog).coders[i].r_dongle = &dongles[i];
 		if (i == 0)
 			(*prog).coders[i].l_dongle = &dongles[(*prog).total_coders - 1];
 		else
@@ -107,6 +105,7 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 	}
 	return (0);
 }
+
 /**
  * @brief Initializes and allocates the dongles array (mutexes).
  *
@@ -172,9 +171,9 @@ static int	init_dongles(int total_dongles, pthread_mutex_t **dongles)
  * @return 1 on failure; any mutexes already initialized are
  *         destroyed.
  */
-static int init_monitor_thread(pthread_t *thread, t_program *prog)
+static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 {
-	int error;
+	int	error;
 
 	if (pthread_mutex_init(&(*prog).compile_lock, NULL))
 		return (mutex_init_errors(2, 0), 1);
@@ -188,7 +187,6 @@ static int init_monitor_thread(pthread_t *thread, t_program *prog)
 		mutex_init_errors(4, 0);
 		return (1);
 	}
-
 	error = pthread_create(thread, NULL, &monitor, (void *)&(*prog));
 	if (error)
 	{
@@ -221,11 +219,12 @@ static int init_monitor_thread(pthread_t *thread, t_program *prog)
 static int	init_coder_threads(t_program *prog)
 {
 	int	i;
-	int error;
+	int	error;
 
 	i = 0;
 	while (i < (*prog).total_coders)
 	{
+		(*prog).coders[i].start_time = &(*prog).start_time;
 		error = pthread_create(&(*prog).coders[i].thread, NULL, print_hello,
 				(void *)&(*prog).coders[i]);
 		if (error)
