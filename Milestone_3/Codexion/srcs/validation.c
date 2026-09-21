@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 14:44:33 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/21 13:07:16 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,10 +85,8 @@ int check_valid_num(char *argv[])
 void    get_rules(char *argv[], t_program *prog)
 {
     int i;
-	int total_coders;
 
     i = 0;
-	total_coders = ft_atoi(argv[1]);
     while(i < ft_atoi(argv[1]))
 	{
 		(*prog).coders[i].time_to_burn_out = ft_atoi(argv[2]);
