@@ -1,0 +1,7 @@
+# Editor
+.vscode/
+
+# Other
+.DS_Store
+*.dSYM
+*__pycache__

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 14:53:29 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/22 11:34:07 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,13 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 	{
 		(*prog).coders[i].id = (i + 1);
 		(*prog).coders[i].total_compiles = 0;
-		(*prog).coders[i].state = INIT;
+		(*prog).coders[i].state = IDLE;
 		(*prog).coders[i].burn_out = &(prog)->burn_out_flag;
 		(*prog).coders[i].compile_lock = &(prog)->compile_lock;
 		(*prog).coders[i].burnout_lock = &(prog)->burnout_lock;
 		(*prog).coders[i].write_lock = &(prog)->write_lock;
 		(*prog).coders[i].r_dongle = &dongles[i];
+		(*prog).coders[i].total_coders = &(prog)->total_coders;
 		if (i == 0)
 			(*prog).coders[i].l_dongle = &dongles[(*prog).total_coders - 1];
 		else

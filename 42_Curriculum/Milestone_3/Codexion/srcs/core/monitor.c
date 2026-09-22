@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   monitor.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 15:36:24 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/21 13:30:26 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/09/22 12:38:59 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	check_total_compiles(t_program *prog);
 static int	check_burnouts(t_program *prog);
-static int	check_coder_burn(t_program *prog, t_coder coder);
+static int	check_coder_burn(t_program *prog, t_coder *coder);
 
 void	*monitor(void *pointer)
 {
@@ -37,9 +37,11 @@ static int	check_burnouts(t_program *prog)
 	i = 0;
 	while (i < (*prog).total_coders)
 	{
-		if ((*prog).coders[i].state != COMPILING)
+		if ((*prog).coders[i].state == FINISH)
+			return (1);
+		else if ((*prog).coders[i].state != COMPILING)
 		{
-			if (check_coder_burn(prog, (*prog).coders[i]))
+			if (check_coder_burn(prog, &(*prog).coders[i]))
 			{
 				pthread_mutex_lock(&(*prog).burnout_lock);
 				(*prog).burn_out_flag = true;
@@ -52,22 +54,22 @@ static int	check_burnouts(t_program *prog)
 	return (0);
 }
 
-static int check_coder_burn(t_program *prog, t_coder coder)
+static int check_coder_burn(t_program *prog, t_coder *coder)
 {
 	size_t	last_compile;
 	size_t	current_time;
 
-	last_compile = coder.last_compile;
+	last_compile = (*coder).last_compile;
 	current_time = get_current_time();
-	if ((int)(current_time - last_compile) > coder.time_to_burn_out)
+	if ((int)(current_time - last_compile) > (*coder).time_to_burn_out)
 	{
-		pthread_mutex_lock(&(*prog).write_lock);
-		display_status((*prog).start_time, coder.id, BURNOUT);
-		pthread_mutex_unlock(&(*prog).write_lock);
+		(*coder).state = BURNOUT;
+		display_status((*prog).start_time, coder);
 		return (1);
 	}
 	return (0);
 }
+
 static int check_total_compiles(t_program *prog)
 {
 	int	i;

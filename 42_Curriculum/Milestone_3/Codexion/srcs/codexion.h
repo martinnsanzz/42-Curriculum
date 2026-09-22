@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 15:41:42 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/22 12:58:50 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,12 @@ typedef struct s_thread_arg	t_thread_arg;
 // ---------- Enums -----------
 typedef enum e_coder_state
 {
-	INIT,
+	IDLE,
 	COMPILING,
 	DEBUGGING,
 	REFACTORING,
+	FINISH,
 	BURNOUT,
-	TAKING_DONGLE,
-	FINISH
 }	t_coder_state;
 
 // ---------- Structs -----------
@@ -49,6 +48,7 @@ typedef struct s_coder
 	int				time_to_compile;
 	int				time_to_debug;
 	int				time_to_refactor;
+	int				*total_coders;
 
 	bool			*burn_out;
 
@@ -107,7 +107,8 @@ void	*monitor(void *pointer);
 void	*coder_routine(void *arg);
 
 // ------------ Display ------------
-void	display_status(int start_time, int coder_id, t_coder_state state);
+void	display_status(int start_time, t_coder *coder);
+void	display_dongle(int start_time, t_coder *coder, char *dongle);
 
 // ------------- Utils -------------
 int		ft_atoi(const char *nptr);

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 09:32:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 15:54:14 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/22 12:03:45 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int interruptible_sleep(t_coder *coder, int miliseconds)
 	{
 		if (*(*coder).burn_out == true)
 			return (1);
-		usleep(1000);
+		usleep(500);
 	}
 	return (0);
 }

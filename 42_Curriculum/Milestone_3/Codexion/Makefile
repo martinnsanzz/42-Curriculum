@@ -110,7 +110,7 @@ valgrind: $(NAME)
 			  --leak-resolution=high \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 5 1000 3 2 1 2 2 fifo; \
+			  ./$(NAME) 1 30000 2000 1000 1500 2 500 fifo; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \
@@ -123,7 +123,7 @@ helgrind: $(NAME)
 			  --num-callers=40 \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 5 1000 3 2 1 2 2 fifo; \
+			  ./$(NAME) 1 3000 2000 1000 1500 2 500 fifo; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nHelgrind found race conditions — see valgrind.log${RESET}"; \
 			  else \
