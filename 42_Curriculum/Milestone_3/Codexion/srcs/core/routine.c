@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 14:23:23 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/24 16:42:44 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 18:56:44 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	*coder_routine(void *arg)
 		if (get_total_compiles(coder) == coder->compiles_required)
 			set_state(coder, FINISH);
 	}
+    //printf("Coder {%d} total compilations: %d\n", coder->id, coder->total_compiles);
 	return (arg);
 }
 
@@ -78,9 +79,9 @@ static int	compile_helper(t_coder *coder)
 		pthread_mutex_unlock((*coder).r_dongle);
 		return (1);
 	}
-	pthread_mutex_lock((*coder).compile_lock);
 	set_state(coder, COMPILING);
 	display_status(coder);
+	pthread_mutex_lock((*coder).compile_lock);
 	(*coder).last_compile = get_current_time();
 	(*coder).total_compiles += 1;
 	pthread_mutex_unlock((*coder).compile_lock);
@@ -94,6 +95,8 @@ static int	compile_helper(t_coder *coder)
 
 static int debugging(t_coder *coder)
 {
+    if (*(*coder).burn_out)
+        return (1);
 	set_state(coder, DEBUGGING);
 	display_status(coder);
 	if (interruptible_sleep(coder, coder->time_to_debug))
@@ -104,6 +107,8 @@ static int debugging(t_coder *coder)
 
 static int refactor(t_coder *coder)
 {
+    if (*(*coder).burn_out)
+        return (1);
 	set_state(coder, REFACTORING);
 	display_status(coder);
 	if (interruptible_sleep(coder, coder->time_to_refactor))
