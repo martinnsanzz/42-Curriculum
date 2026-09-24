@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/22 11:34:07 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 15:52:27 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 		(*prog).coders[i].state = IDLE;
 		(*prog).coders[i].burn_out = &(prog)->burn_out_flag;
 		(*prog).coders[i].compile_lock = &(prog)->compile_lock;
-		(*prog).coders[i].burnout_lock = &(prog)->burnout_lock;
+		(*prog).coders[i].state_lock = &(prog)->state_lock;
 		(*prog).coders[i].write_lock = &(prog)->write_lock;
 		(*prog).coders[i].r_dongle = &dongles[i];
 		(*prog).coders[i].total_coders = &(prog)->total_coders;
@@ -186,7 +186,7 @@ static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 	if (pthread_mutex_init(&(*prog).write_lock, NULL))
 		return (pthread_mutex_destroy(&(*prog).compile_lock),
 			mutex_init_errors(3, 0), 1);
-	if (pthread_mutex_init(&(*prog).burnout_lock, NULL))
+	if (pthread_mutex_init(&(*prog).state_lock, NULL))
 	{
 		pthread_mutex_destroy(&(*prog).compile_lock);
 		pthread_mutex_destroy(&(*prog).write_lock);
@@ -199,7 +199,7 @@ static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 		thread_errors(3, 0);
 		pthread_mutex_destroy(&(*prog).compile_lock);
 		pthread_mutex_destroy(&(*prog).write_lock);
-		pthread_mutex_destroy(&(*prog).burnout_lock);
+		pthread_mutex_destroy(&(*prog).state_lock);
 		return (1);
 	}
 	return (0);

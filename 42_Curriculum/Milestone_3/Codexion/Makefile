@@ -37,6 +37,7 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 utils/ft_memory.c \
                                    				 utils/ft_string.c \
 												 utils/time.c \
+												 utils/locks.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
 												 error/time_errors.c \
@@ -110,7 +111,7 @@ valgrind: $(NAME)
 			  --leak-resolution=high \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 1 30000 2000 1000 1500 2 500 fifo; \
+			  ./$(NAME) 1 400 60 60 60 2 50 fifo; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \
@@ -123,7 +124,7 @@ helgrind: $(NAME)
 			  --num-callers=40 \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 1 3000 2000 1000 1500 2 500 fifo; \
+			  ./$(NAME) 5 300 60 60 60 2 50 fifo; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nHelgrind found race conditions — see valgrind.log${RESET}"; \
 			  else \

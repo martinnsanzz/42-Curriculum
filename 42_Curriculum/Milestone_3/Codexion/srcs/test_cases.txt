@@ -1,0 +1,5 @@
+./codexion 2 125 60 60 60 5 50 fifo
+./codexion 5 800 60 60 60 5 50 fifo
+./codexion 100 400 60 60 60 5 50 fifo
+./codexion 1 300 60 60 60 5 50 fifo
+./codexion 5 400 60 60 60 5 50 fifo

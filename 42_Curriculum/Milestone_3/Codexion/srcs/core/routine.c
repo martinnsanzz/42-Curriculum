@@ -6,23 +6,33 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 14:23:23 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/22 13:31:23 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 16:42:44 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 static int	compile(t_coder *coder);
-static int	compile_helper(t_coder *coder);
 static int	debugging(t_coder *coder);
 static int	refactor(t_coder *coder);
+static int	compile_helper(t_coder *coder);
 
 void	*coder_routine(void *arg)
 {
-	t_coder *coder;
+	t_coder	*coder;
 
 	coder = (t_coder *)arg;
-	while(!*(coder->burn_out) && coder->state != FINISH)
+	if (*(*coder).total_coders == 1)
+	{
+		pthread_mutex_lock(coder->l_dongle);
+		display_dongle(coder, "left");
+		interruptible_sleep(coder, coder->time_to_burn_out);
+		set_state(coder, BURNOUT);
+		display_status(coder);
+		set_state(coder, FINISH);
+		return (pthread_mutex_unlock(coder->l_dongle), arg);
+	}
+	while (!*coder->burn_out && get_state(coder) != FINISH)
 	{
 		if (compile(coder))
 			break ;
@@ -30,46 +40,31 @@ void	*coder_routine(void *arg)
 			break ;
 		if (refactor(coder))
 			break ;
-		if (coder->total_compiles == coder->compiles_required)
-			coder->state = FINISH;
+		if (get_total_compiles(coder) == coder->compiles_required)
+			set_state(coder, FINISH);
 	}
-	return arg;
+	return (arg);
 }
 
 static int compile(t_coder *coder)
 {
-	pthread_mutex_t *first_dongle;
-	pthread_mutex_t *second_dongle;
-
-	if ((*coder).id % 2 == 0)
+	if (coder->id % 2 == 0)
 	{
-		first_dongle = coder->l_dongle;
-		second_dongle = coder->r_dongle;
+		pthread_mutex_lock(coder->l_dongle);
+		display_dongle(coder, "left");
+		pthread_mutex_lock(coder->r_dongle);
+		display_dongle(coder, "right");
 	}
 	else
 	{
-		first_dongle = coder->r_dongle;
-		second_dongle = coder->l_dongle;
+		pthread_mutex_lock(coder->r_dongle);
+		display_dongle(coder, "right");
+		pthread_mutex_lock(coder->l_dongle);
+		display_dongle(coder, "left");
 	}
-	pthread_mutex_lock(first_dongle);
-	display_dongle(*(coder->start_time), coder, "left");
-	if (*(*coder).total_coders == 1)
-	{
-		interruptible_sleep(coder, coder->time_to_burn_out);
-		(*coder).state = FINISH;
-		return (pthread_mutex_unlock(first_dongle), 1);
-	}
-	pthread_mutex_lock(second_dongle);
-	display_dongle(*(coder->start_time), coder, "right");
-	if(compile_helper(coder))
-	{
-		pthread_mutex_unlock(first_dongle);
-		pthread_mutex_unlock(second_dongle);
+	if (compile_helper(coder))
 		return (1);
-	}
-	pthread_mutex_unlock(first_dongle);
-	pthread_mutex_unlock(second_dongle);
-	(*coder).state = IDLE;
+	set_state(coder, IDLE);
 	return (0);
 }
 
@@ -77,34 +72,42 @@ static int	compile_helper(t_coder *coder)
 {
 	int	error;
 
-	pthread_mutex_lock((*coder).compile_lock);
-	(*coder).state = COMPILING;
-	error = interruptible_sleep(coder, coder->time_to_compile);
-	if (!error)
+	if (*(*coder).burn_out)
 	{
-		display_status(*(coder->start_time), coder);
-		(*coder).last_compile = get_current_time();
-		(*coder).total_compiles += 1;
+		pthread_mutex_unlock((*coder).l_dongle);
+		pthread_mutex_unlock((*coder).r_dongle);
+		return (1);
 	}
+	pthread_mutex_lock((*coder).compile_lock);
+	set_state(coder, COMPILING);
+	display_status(coder);
+	(*coder).last_compile = get_current_time();
+	(*coder).total_compiles += 1;
 	pthread_mutex_unlock((*coder).compile_lock);
-	return (error);
+	error = interruptible_sleep(coder, coder->time_to_compile);
+	pthread_mutex_unlock((*coder).l_dongle);
+	pthread_mutex_unlock((*coder).r_dongle);
+	if (error)
+		return (1);
+	return (0);
 }
+
 static int debugging(t_coder *coder)
 {
-	(*coder).state = DEBUGGING;
-	display_status(*(coder->start_time), coder);
+	set_state(coder, DEBUGGING);
+	display_status(coder);
 	if (interruptible_sleep(coder, coder->time_to_debug))
 		return (1);
-	(*coder).state = IDLE;
+	set_state(coder, IDLE);
 	return (0);
 }
 
 static int refactor(t_coder *coder)
 {
-	(*coder).state = REFACTORING;
-	display_status(*(coder->start_time), coder);
+	set_state(coder, REFACTORING);
+	display_status(coder);
 	if (interruptible_sleep(coder, coder->time_to_refactor))
 		return (1);
-	(*coder).state = IDLE;
+	set_state(coder, IDLE);
 	return (0);
 }

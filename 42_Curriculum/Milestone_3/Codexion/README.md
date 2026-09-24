@@ -49,6 +49,7 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Guie to use Doxygen for C code](https://embeddedinventor.com/guide-to-configure-doxygen-to-document-c-source-code-for-beginners/)
 - [Doxygen Documentation](https://doxygen.nl/manual/index.html)
 - [Avoiding Deadlock](https://docs.oracle.com/cd/E19455-01/806-5257/6je9h0347/index.html)
+- [Process/Thread Scheduling](https://os.cs.luc.edu/scheduling.html)
 
 ---
 

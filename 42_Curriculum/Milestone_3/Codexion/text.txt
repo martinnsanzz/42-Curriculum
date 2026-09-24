@@ -1,0 +1,26 @@
+[30m0 1 has taken right dongle[0m
+[30m0 1 has taken left dongle[0m
+[32m0 1 is compiling[0m
+[30m0 4 has taken left dongle[0m
+[30m0 4 has taken right dongle[0m
+[32m0 4 is compiling[0m
+[35m60 1 is debugging[0m
+[30m60 5 has taken right dongle[0m
+[30m60 2 has taken left dongle[0m
+[30m60 2 has taken right dongle[0m
+[32m60 2 is compiling[0m
+[35m60 4 is debugging[0m
+[30m60 3 has taken right dongle[0m
+[30m60 5 has taken left dongle[0m
+[32m60 5 is compiling[0m
+[35m120 2 is debugging[0m
+[30m120 3 has taken left dongle[0m
+[32m120 3 is compiling[0m
+[35m120 5 is debugging[0m
+[37m120 1 is refactoring[0m
+[37m120 4 is refactoring[0m
+[37m126 4 is refactoring[0m
+[35m180 3 is debugging[0m
+[37m180 2 is refactoring[0m
+[37m180 5 is refactoring[0m
+[37m240 3 is refactoring[0m

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 14:53:57 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 15:17:06 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void pthread_mutex_destroy_all(t_program *prog, pthread_mutex_t *dongles)
 		mutex_destroy_errors(2, 0);
 	if (pthread_mutex_destroy(&(*prog).write_lock))
 		mutex_destroy_errors(3, 0);
-	if (pthread_mutex_destroy(&(*prog).burnout_lock))
+	if (pthread_mutex_destroy(&(*prog).state_lock))
 		mutex_destroy_errors(4, 0);
 
 	i = 0;

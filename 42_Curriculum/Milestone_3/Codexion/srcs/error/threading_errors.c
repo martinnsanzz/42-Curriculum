@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 13:54:43 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 14:53:51 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 15:17:18 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void mutex_init_errors(int error_id, int index)
 	else if (error_id == 3)
 		fprintf(stderr, "Failed to initialize write mutex\n");
 	else if (error_id == 4)
-		fprintf(stderr, "Failed to initialize burnout mutex\n");
+		fprintf(stderr, "Failed to initialize state mutex\n");
 	fprintf(stderr, "\033[0m");
 }
 
@@ -62,6 +62,6 @@ void mutex_destroy_errors(int error_id, int index)
 	else if (error_id == 3)
 		fprintf(stderr, "Failed to destroy write mutex\n");
 	else if (error_id == 4)
-		fprintf(stderr, "Failed to destroy burnout mutex\n");
+		fprintf(stderr, "Failed to destroy state mutex\n");
 	fprintf(stderr, "\033[0m");
 }

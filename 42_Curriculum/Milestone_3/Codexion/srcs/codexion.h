@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/22 12:58:50 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 15:49:45 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ typedef struct s_coder
 
 	pthread_mutex_t *compile_lock;
 	pthread_mutex_t *write_lock;
-	pthread_mutex_t	*burnout_lock;
+	pthread_mutex_t	*state_lock;
 } t_coder;
 
 typedef struct s_program
@@ -81,12 +81,8 @@ typedef struct s_program
 
 	pthread_mutex_t compile_lock;
 	pthread_mutex_t write_lock;
-	pthread_mutex_t	burnout_lock;
-
+	pthread_mutex_t	state_lock;
 }	t_program;
-
-
-
 
 // -------- Initialization ---------
 int		program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles);
@@ -103,12 +99,18 @@ void	get_rules(char *argv[], t_program *prog);
 // ------------ Monitor ------------
 void	*monitor(void *pointer);
 
+// ------------- Locks -------------
+int		get_burnout_flag(t_coder *coder);
+int		get_total_compiles(t_coder *coder);
+void	set_state(t_coder *coder, t_coder_state state);
+t_coder_state	get_state(t_coder *coder);
+
 // --------- Coder Routine ---------
 void	*coder_routine(void *arg);
 
 // ------------ Display ------------
-void	display_status(int start_time, t_coder *coder);
-void	display_dongle(int start_time, t_coder *coder, char *dongle);
+void	display_status(t_coder *coder);
+void	display_dongle(t_coder *coder, char *dongle);
 
 // ------------- Utils -------------
 int		ft_atoi(const char *nptr);

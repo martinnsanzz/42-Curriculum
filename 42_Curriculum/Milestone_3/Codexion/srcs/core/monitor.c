@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 15:36:24 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/22 12:38:59 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/24 16:36:48 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 static int	check_total_compiles(t_program *prog);
 static int	check_burnouts(t_program *prog);
-static int	check_coder_burn(t_program *prog, t_coder *coder);
 
 void	*monitor(void *pointer)
 {
@@ -29,24 +28,25 @@ void	*monitor(void *pointer)
 	return (pointer);
 }
 
-
 static int	check_burnouts(t_program *prog)
 {
-	int		i;
+	size_t	last_compile;
+	size_t	current_time;
+	int	i;
 
 	i = 0;
 	while (i < (*prog).total_coders)
 	{
-		if ((*prog).coders[i].state == FINISH)
-			return (1);
-		else if ((*prog).coders[i].state != COMPILING)
+		last_compile = (*prog).coders[i].last_compile;
+		current_time = get_current_time();
+		if ((*prog).coders[i].state != FINISH
+			&& (*prog).coders[i].state != COMPILING)
 		{
-			if (check_coder_burn(prog, &(*prog).coders[i]))
+			if ((int)(current_time - last_compile) > (*prog).coders[i].time_to_burn_out)
 			{
-				pthread_mutex_lock(&(*prog).burnout_lock);
 				(*prog).burn_out_flag = true;
-				pthread_mutex_unlock(&(*prog).burnout_lock);
-				return (1);
+				set_state(&(*prog).coders[i], BURNOUT);
+				return (display_status(&(*prog).coders[i]), 1);
 			}
 		}
 		i++;
@@ -54,36 +54,20 @@ static int	check_burnouts(t_program *prog)
 	return (0);
 }
 
-static int check_coder_burn(t_program *prog, t_coder *coder)
-{
-	size_t	last_compile;
-	size_t	current_time;
-
-	last_compile = (*coder).last_compile;
-	current_time = get_current_time();
-	if ((int)(current_time - last_compile) > (*coder).time_to_burn_out)
-	{
-		(*coder).state = BURNOUT;
-		display_status((*prog).start_time, coder);
-		return (1);
-	}
-	return (0);
-}
-
 static int check_total_compiles(t_program *prog)
 {
 	int	i;
-	int	total_compiles;
+	int	finished_coders;
 
 	i = 0;
-	total_compiles = 0;
+	finished_coders = 0;
 	while (i < (*prog).total_coders)
 	{
-		if ((*prog).coders[i].total_compiles >= (*prog).compiles_required)
-			total_compiles += 1;
+		if (get_state(&(*prog).coders[i]) == FINISH)
+			finished_coders += 1;
 		i++;
 	}
-	if (total_compiles == (*prog).total_coders)
+	if (finished_coders == (*prog).total_coders)
 		return (1);
 	return (0);
 }
