@@ -91,3 +91,8 @@ time.
 `Locks` are mechanism that force one thread to wait until another thread is finished with a
 piece of data. Various sorts of locking primitives include `semaphores` and `mutexes` (mutual
 exclusion objects).
+
+### Thread scheduling
+SCHED_DEADLINE
+
+SCHED_FIFO
