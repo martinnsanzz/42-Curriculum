@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/24 15:49:45 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/25 13:42:49 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ typedef enum e_coder_state
 	DEBUGGING,
 	REFACTORING,
 	FINISH,
-	BURNOUT,
+	BURNOUT
 }	t_coder_state;
 
 // ---------- Structs -----------
@@ -43,11 +43,12 @@ typedef struct s_coder
 
 	int				id;
 	int				total_compiles;
-	int				compiles_required;
 	int				time_to_burn_out;
 	int				time_to_compile;
 	int				time_to_debug;
 	int				time_to_refactor;
+	int				*compiles_required;
+	int				*dongle_cooldown;
 	int				*total_coders;
 
 	bool			*burn_out;
@@ -122,10 +123,10 @@ char	*ft_itoa(int num);
 int		get_program_time(size_t start, size_t current_time);
 int		interruptible_sleep(t_coder *coder, int miliseconds);
 size_t	ft_strlen(const char *s);
-size_t 	get_current_time();
+size_t 	get_current_time(void);
 
 // ------------- Errors -------------
-void	invalid_num_of_args();
+void	invalid_num_of_args(void);
 void	invalid_num(int error_id, int index, char *value);
 void	wrong_scheduler(char *value);
 void	thread_errors(int error_id, int index);

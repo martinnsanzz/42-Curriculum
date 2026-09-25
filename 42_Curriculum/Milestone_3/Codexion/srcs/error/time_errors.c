@@ -6,14 +6,14 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 12:10:11 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/18 12:54:01 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/25 11:33:48 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 /**
- * @brief Prints error msg specific to time of the program
+ * @brief Prints error msg specific if @fn gettimeofday() fails.
  */
 void time_error(int error_id)
 {

@@ -97,3 +97,13 @@ when multiple coders request them.
 request arrived first.
 - edf means Earliest Deadline First with deadline = last_compile_start +
 time_to_burnout.
+
+
+# Codexion — Progress
+
+## Working on
+- Dongle cooldown logic. (I need a dongle struct, that holds a queu *for the scheduler* and
+the mutex and the time of last_released)
+
+## To do
+- Scheduling logic (Both 'fifo' and 'edf')

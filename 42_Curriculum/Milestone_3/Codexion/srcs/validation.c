@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/21 13:07:16 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/09/25 13:49:52 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@ int     check_argv(int argc, char *argv[])
  * @param argv CLI arguments to check.
  *
  * @return 0 on success.
- * @return 1 if number is not valid.
+ * @return 1 if number is not valid or if number of coders
+ * 			is == 0.
  */
 int check_valid_num(char *argv[])
 {
@@ -63,11 +64,11 @@ int check_valid_num(char *argv[])
 			return (invalid_num(1, i, argv[i]), 1);
 		else if (ft_atoi(argv[i]) == 0 && ft_strlen(argv[i]) > 1)
 			return (invalid_num(2, i, argv[i]), 1);
-		else if (ft_atoi(argv[i]) == 0 && ft_strlen(argv[i]) == 1)
-			return (invalid_num(3, i, argv[i]), 1);
 		else if (ft_atoi(argv[i]) < 0)
-			return (invalid_num(4, i, argv[i]), 1);
+			return (invalid_num(3, i, argv[i]), 1);
 	}
+	if (ft_atoi(argv[1]) == 0)
+		return (invalid_num(4, 0, 0), 1);
 	return (0);
 }
 
@@ -87,16 +88,16 @@ void    get_rules(char *argv[], t_program *prog)
     int i;
 
     i = 0;
-    while(i < ft_atoi(argv[1]))
+	while(i < ft_atoi(argv[1]))
 	{
 		(*prog).coders[i].time_to_burn_out = ft_atoi(argv[2]);
 		(*prog).coders[i].time_to_compile = ft_atoi(argv[3]);
 		(*prog).coders[i].time_to_debug = ft_atoi(argv[4]);
 		(*prog).coders[i].time_to_refactor = ft_atoi(argv[5]);
-		(*prog).coders[i].compiles_required = ft_atoi(argv[6]);
+		(*prog).coders[i].compiles_required = &(*prog).compiles_required;
+		(*prog).coders[i].dongle_cooldown = &(*prog).dongle_cooldown;
 		i++;
 	}
-
 	(*prog).compiles_required = ft_atoi(argv[6]);
 	(*prog).dongle_cooldown = ft_atoi(argv[7]);
 	(*prog).scheduler = argv[8];

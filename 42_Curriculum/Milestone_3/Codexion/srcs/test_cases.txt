@@ -1,5 +1,43 @@
-./codexion 2 125 60 60 60 5 50 fifo
-./codexion 5 800 60 60 60 5 50 fifo
-./codexion 100 400 60 60 60 5 50 fifo
-./codexion 1 300 60 60 60 5 50 fifo
-./codexion 5 400 60 60 60 5 50 fifo
+Codexion testing — Easy
+
+./codexion 1 800 200 200 200 10 0 fifo A single coder has a single dongle but needs
+    two to compile. Therefore never compile and MUST burn out, around timestamp 800.
+
+./codexion 5 2000 200 200 200 10 0 fifo time_to_burnout (2000) is well above one
+    compile+debug+refactor (200+200+200 = 600), so no coder should burn out; the program must
+    stop on its own once every code least 10 times.
+
+./codexion 5 2000 200 200 200 7 0 edf Same, with the edf scheduler: no burnout, stops
+    after 7 compiles
+
+
+Codexion testing — Less easy
+
+./codexion 5 500 200 200 200 10 0 fifo Infeasible by design: one compile+debug+refactor 
+    cycle takes a 200+200+200 = 600 ms, which is longer than time_to_burnout (500), so a coder 
+    cannot start its next compile MUST burn out (around timestamp 500). The "burned out" line 
+    must be the LAST line printed and mus 10 ms of the deadline.
+
+On a feasible run (for example the 5 2000 ... case from the Easy section), check that 
+    every "is compilin immediately preceded by exactly two "has taken a dongle" lines for 
+    the same coder, and that no two log interleaved on the same line.
+
+Confirm the same dongle is never held by two coders at the same time (no dongle duplication).
+
+
+Codexion testing — Medium
+
+./codexion 5 3000 200 200 200 10 400 fifo Cooldown check: after a coder releases a dongle, 
+    that dongle taken again until 400 ms have elapsed. By reading the timestamps, verify that 
+    no "has taken a dongle" dongle occurs within 400 ms of its release. time_to_burnout (3000) 
+    is generous, so no coder should burout it should complete.
+
+./codexion 5 3000 200 200 200 10 800 fifo then ... edf Run the exact same parameters once 
+    with fifo and edf. The large cooldown (800) forces coders to queue for the dongles. Compare 
+    the  order in which the waiting is granted the dongles: under edf, a coder closer to its 
+    burnout deadline may be served ahead of one that so the grant order can differ from the strict 
+    arrival order seen with fifo.
+
+Verify each coder spends close to time_to_compile / time_to_debug / time_to_refactor in each 
+    phase (tolerance), and that the output stays correctly serialized even under heavy 
+    contention.

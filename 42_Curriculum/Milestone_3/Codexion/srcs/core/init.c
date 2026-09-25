@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/24 15:52:27 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/25 13:48:28 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,8 +179,6 @@ static int	init_dongles(int total_dongles, pthread_mutex_t **dongles)
  */
 static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 {
-	int	error;
-
 	if (pthread_mutex_init(&(*prog).compile_lock, NULL))
 		return (mutex_init_errors(2, 0), 1);
 	if (pthread_mutex_init(&(*prog).write_lock, NULL))
@@ -193,8 +191,7 @@ static int	init_monitor_thread(pthread_t *thread, t_program *prog)
 		mutex_init_errors(4, 0);
 		return (1);
 	}
-	error = pthread_create(thread, NULL, &monitor, (void *)&(*prog));
-	if (error)
+	if (pthread_create(thread, NULL, &monitor, (void *)&(*prog)))
 	{
 		thread_errors(3, 0);
 		pthread_mutex_destroy(&(*prog).compile_lock);

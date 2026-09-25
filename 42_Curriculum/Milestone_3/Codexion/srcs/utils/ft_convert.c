@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:45 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/17 14:19:30 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/25 10:13:45 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static size_t	num_len(int num);
 /**
  * @brief Converts a string to an integer, skipping leading
  *        whitespace and handling an optional sign.
- * 
+ *
  * It checks for INT_MAX using long long and then converting it back to integer,
  *
  * @param nptr String to convert (e.g. "  -42abc").

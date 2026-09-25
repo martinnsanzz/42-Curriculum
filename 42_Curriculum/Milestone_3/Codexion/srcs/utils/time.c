@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 09:32:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/22 12:03:45 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/25 11:28:09 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,22 @@ size_t	get_current_time(void)
 	return (t.tv_sec * 1000 + (t.tv_usec / 1000));
 }
 
+/**
+ * @brief Gives the time that has passed since the program started.
+ */
 int	get_program_time(size_t start, size_t current_time)
 {
 	return ((int)current_time - (int)start);
 }
 
+/**
+ * @brief Delays the program @p miliseconds in chunks of 100ms.
+ *
+ * For every loop it checks if any coder has burnout to stop.
+ *
+ * @return 0 If delays hasnt being interrumpted.
+ * @return 1 If delay is interrupted.
+ */
 int interruptible_sleep(t_coder *coder, int miliseconds)
 {
 	size_t start;
@@ -41,7 +52,7 @@ int interruptible_sleep(t_coder *coder, int miliseconds)
 	{
 		if (*(*coder).burn_out == true)
 			return (1);
-		usleep(500);
+		usleep(100);
 	}
 	return (0);
 }
