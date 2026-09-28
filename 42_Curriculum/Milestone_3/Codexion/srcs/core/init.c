@@ -5,42 +5,50 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/14 15:40:54 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 13:48:28 by masanz-s         ###   ########.fr       */
+/*   Created: 2026/09/28 14:15:59 by masanz-s          #+#    #+#             */
+/*   Updated: 2026/09/28 15:04:12 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../codexion.h"
-#include "sys/resource.h"
 
-static int	init_dongles(int total_dongles, pthread_mutex_t **dongles);
-static int	init_coders(t_program *prog, pthread_mutex_t *dongles);
+
+#include "../codexion.h"
+
+static int	init_dongles(int total_dongles, t_dongle **dongles);
+static int	init_coders(t_program *prog, t_dongle *dongles);
 static int	init_monitor_thread(pthread_t *thread, t_program *prog);
 static int	init_coder_threads(t_program *prog);
 
 /**
  * @brief Initializes all core program data structures in sequence.
  *
- * Allocates and sets up dongles, then coders (in that order, since
- * each coder needs its left/right dongle mutexes to already exist).
- * Frees any previously allocated resource if a later stage fails,
- * so the caller never receives a partially-initialized @p prog or
- * @p dongles on error. Also gets start_time of program fo reference
- * later on.
+ * Allocates and sets up dongles, then coders, then parses the CLI
+ * rules into @p prog and every coder's per-coder fields (in that
+ * order, since @c get_rules sets @p prog->start_time before
+ * @c set_coder_rules copies it into each coder's @c last_compile —
+ * reversing that order would leave @c last_compile holding garbage
+ * and trigger an immediate false burnout). Only once @p prog and
+ * every coder are fully populated are the monitor thread and coder
+ * threads created, so no thread can ever observe a partially
+ * initialized @p prog or coder. Frees any previously allocated
+ * resource if a later stage fails, so the caller never receives a
+ * partially-initialized @p prog or @p dongles on error.
  *
  * @param argv    CLI arguments.
  * @param prog    Pointer to the program struct to initialize.
- *                Its @c coders and @c total_coders fields are read
- *                from and written into by this function.
+ *                Its @c coders, @c total_coders, and rule fields are
+ *                read from and written into by this function.
  * @param dongles Output parameter. On success, points to a newly
  *                allocated array of @p prog->total_coders initialized
- *                mutexes. On failure, set to NULL.
+ *                dongles. On failure, set to NULL.
  *
- * @return 0 on success (all fields fully initialized).
+ * @return 0 on success (all fields fully initialized, all threads
+ *         running).
  * @return 1 on failure; @p prog and @p dongles are left in a clean
- *         state (no leaks or midway allocations).
+ *         state (no leaks, no dangling mutexes/condition variables,
+ *         no threads left running).
  */
-int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
+int	program_initializer(char **argv, t_program *prog, t_dongle **dongles)
 {
 	pthread_t	monitor_thread;
 
@@ -52,17 +60,12 @@ int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
 		*dongles = NULL;
 		return (1);
 	}
-
 	get_rules(argv, prog);
-
+	set_coder_rules(argv, prog);
 	if (init_monitor_thread(&monitor_thread, prog))
-		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
-
-	(*prog).start_time = get_current_time();
-	(*prog).burn_out_flag = false;
-
+		return (destroy_all(prog, (*dongles)), 1);
 	if (init_coder_threads(prog))
-		return (pthread_mutex_destroy_all(prog, (*dongles)), 1);
+		return (destroy_all(prog, (*dongles)), 1);
 	clean_values(monitor_thread, prog, *dongles);
 	return (0);
 }
@@ -84,7 +87,7 @@ int	program_initializer(char **argv, t_program *prog, pthread_mutex_t **dongles)
  * @return 0 on success (allocation successful).
  * @return 1 on failure (allocation failed); @p prog->coders is NULL.
  */
-static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
+static int	init_coders(t_program *prog, t_dongle *dongles)
 {
 	int	i;
 
@@ -101,55 +104,63 @@ static int	init_coders(t_program *prog, pthread_mutex_t *dongles)
 		(*prog).coders[i].compile_lock = &(prog)->compile_lock;
 		(*prog).coders[i].state_lock = &(prog)->state_lock;
 		(*prog).coders[i].write_lock = &(prog)->write_lock;
-		(*prog).coders[i].r_dongle = &dongles[i];
 		(*prog).coders[i].total_coders = &(prog)->total_coders;
-		if (i == 0)
-			(*prog).coders[i].l_dongle = &dongles[(*prog).total_coders - 1];
-		else
-			(*prog).coders[i].l_dongle = &dongles[i - 1];
+		(*prog).coders[i].start_time = &(*prog).start_time;
+		set_coder_dongles(prog, dongles);
 		i++;
 	}
 	return (0);
 }
 
 /**
- * @brief Initializes and allocates the dongles array (mutexes).
+ * @brief Initializes and allocates the dongles array (t_dongle).
  *
- * Allocates an array of @p total_dongles mutexes and initializes
- * each one. If a mutex fails to initialize partway through, it
- * destroys and frees every dongle already initialized so far,
- * so the caller never receives a partially-initialized array.
+ * Allocates an array of @p total_dongles structs, then initializes
+ * every condition variable first, and every mutex second, each in
+ * its own pass. Splitting the two passes means that if a mutex
+ * fails to initialize partway through, every condition variable is
+ * already known to be valid (all of them were initialized in the
+ * first pass), and only the mutexes initialized so far in the
+ * second pass need destroying. If a condition variable fails to
+ * initialize partway through the first pass, no mutex has been
+ * touched yet, so only the condition variables initialized so far
+ * need destroying. Either way, the caller never receives a
+ * partially-initialized array.
  *
- * @param total_dongles Number of dongle mutexes to allocate and
- *                       initialize (equal to the number of coders).
+ * @param total_dongles Number of dongles to allocate and initialize
+ *                       (equal to the number of coders).
  * @param dongles        Output parameter. On success, points to a
- *                       newly allocated array of initialized mutexes.
- *                       On failure, set to NULL.
+ *                       newly allocated array of @p total_dongles
+ *                       fully initialized dongles. On failure, set
+ *                       to NULL.
  *
- * @return 0 on success (allocation and mutex initialization successful).
- * @return 1 on failure; @p *dongles is NULL, no leaks or dangling mutexes.
+ * @return 0 on success (allocation and initialization successful).
+ * @return 1 on failure; @p *dongles is NULL, no leaks or dangling
+ *         mutexes/condition variables.
  */
-static int	init_dongles(int total_dongles, pthread_mutex_t **dongles)
+static int	init_dongles(int total_dongles, t_dongle **dongles)
 {
 	int	i;
 	int	error;
 
-	*dongles = ft_calloc(total_dongles, sizeof(pthread_mutex_t));
+	*dongles = ft_calloc(total_dongles, sizeof(t_dongle));
 	if (*dongles == NULL)
 		return (1);
 	i = 0;
 	while (i < total_dongles)
 	{
-		error = pthread_mutex_init(&(*dongles)[i], NULL);
+		(*dongles)[i].last_release = 0;
+		error = pthread_cond_init(&(*dongles)[i].cond, NULL);
 		if (error)
-		{
-			mutex_init_errors(1, i + 1);
-			while (i-- > 0)
-				pthread_mutex_destroy(&(*dongles)[i]);
-			free(*dongles);
-			*dongles = NULL;
-			return (1);
-		}
+			return (clean_failed_cond(dongles, i), 1);
+		i++;
+	}
+	i = 0;
+	while (i < total_dongles)
+	{
+		error = pthread_mutex_init(&(*dongles)[i].lock, NULL);
+		if (error)
+			return (clean_failed_mutex(dongles, total_dongles, i), 1);
 		i++;
 	}
 	return (0);

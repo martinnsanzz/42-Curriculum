@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 13:54:43 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/24 15:17:18 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 12:40:28 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
  */
 void thread_errors(int error_id, int index)
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	if (error_id == 1)
 		fprintf(stderr, "Failed to create thread number: {%d}\n", index);
 	else if (error_id == 2)
@@ -27,7 +27,7 @@ void thread_errors(int error_id, int index)
 		fprintf(stderr, "Failed to create monitor thread\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to join monitor thread\n");
-	fprintf(stderr, "\033[0m");
+	fprintf(stderr, RESET);
 }
 
 /**
@@ -35,9 +35,9 @@ void thread_errors(int error_id, int index)
  */
 void mutex_init_errors(int error_id, int index)
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	if (error_id == 1)
-		fprintf(stderr, "Failed to initialize mutex with id: {%d}\n", index);
+		fprintf(stderr, "Failed to initialize dongle mutex: {%d}\n", index);
 	(void)index;
 	if (error_id == 2)
 		fprintf(stderr, "Failed to initialize compiling mutex\n");
@@ -45,7 +45,7 @@ void mutex_init_errors(int error_id, int index)
 		fprintf(stderr, "Failed to initialize write mutex\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to initialize state mutex\n");
-	fprintf(stderr, "\033[0m");
+	fprintf(stderr, RESET);
 }
 
 /**
@@ -53,7 +53,7 @@ void mutex_init_errors(int error_id, int index)
  */
 void mutex_destroy_errors(int error_id, int index)
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	if (error_id == 1)
 		fprintf(stderr, "Failed to destroy mutex with id: {%d}\n", index);
 	(void)index;
@@ -63,5 +63,18 @@ void mutex_destroy_errors(int error_id, int index)
 		fprintf(stderr, "Failed to destroy write mutex\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to destroy state mutex\n");
-	fprintf(stderr, "\033[0m");
+	fprintf(stderr, RESET);
+}
+
+/**
+ * @brief Prints error msg specific to cond variables based on an ID into stderr
+ */
+void cond_erors(int error_id, int index)
+{
+	fprintf(stderr, RED);
+	if (error_id == 1)
+		fprintf(stderr, "Failed to initialize condition number: {%d}\n", index);
+	else if (error_id == 2)
+		fprintf(stderr, "Failed to destroy condition number: {%d}\n", index);
+	fprintf(stderr, RESET);
 }

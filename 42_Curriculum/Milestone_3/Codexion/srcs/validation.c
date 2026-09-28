@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 13:49:52 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 14:55:09 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int     check_argv(int argc, char *argv[])
 {
 	if (argc != 9)
 		return (invalid_num_of_args(), 1);
-	else if ((ft_strcmp(argv[8], "fifo")) && (ft_strcmp(argv[8], "edf")))
+	else if ((ft_strcmp(argv[8], FIFO)) && (ft_strcmp(argv[8], EDF)))
 		return (wrong_scheduler(argv[8]), 1);
 
 	if (check_valid_num(argv) == 1)
@@ -67,40 +67,11 @@ int check_valid_num(char *argv[])
 		else if (ft_atoi(argv[i]) < 0)
 			return (invalid_num(3, i, argv[i]), 1);
 	}
-	if (ft_atoi(argv[1]) == 0)
+	if (ft_atoi(argv[1]) == MIN_CODERS - 1)
 		return (invalid_num(4, 0, 0), 1);
+	if (ft_atoi(argv[1]) > MAX_CODERS)
+		return (invalid_num(5, 0, 0), 1);
 	return (0);
-}
-
-/**
- * @brief Extracts the CLI rules and packs them into @p prog.
- *
- * Fills each coder's timing fields (burnout, compile, debug,
- * refactor) from argv[2]-argv[5], and the program-wide fields
- * (compiles required, dongle cooldown, scheduler) from argv[6]-argv[8].
- *
- * @param argv CLI arguments.
- * @param prog Pointer to the program struct holding the program data;
- *             its @c coders array must already be allocated.
- */
-void    get_rules(char *argv[], t_program *prog)
-{
-    int i;
-
-    i = 0;
-	while(i < ft_atoi(argv[1]))
-	{
-		(*prog).coders[i].time_to_burn_out = ft_atoi(argv[2]);
-		(*prog).coders[i].time_to_compile = ft_atoi(argv[3]);
-		(*prog).coders[i].time_to_debug = ft_atoi(argv[4]);
-		(*prog).coders[i].time_to_refactor = ft_atoi(argv[5]);
-		(*prog).coders[i].compiles_required = &(*prog).compiles_required;
-		(*prog).coders[i].dongle_cooldown = &(*prog).dongle_cooldown;
-		i++;
-	}
-	(*prog).compiles_required = ft_atoi(argv[6]);
-	(*prog).dongle_cooldown = ft_atoi(argv[7]);
-	(*prog).scheduler = argv[8];
 }
 
 /**

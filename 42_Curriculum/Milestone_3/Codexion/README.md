@@ -35,6 +35,7 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [C Code Style Guidelines](https://www.cs.swarthmore.edu/~newhall/unixhelp/c_codestyle.html)
 - [How to use gettimeday function](https://www.youtube.com/watch?v=cunJcNgtxMk)
 - [How to use gettimeday function in C](https://linuxhint.com/gettimeofday_c_language/)
+- [Conditions Variables](https://ycpcs.github.io/cs365-spring2017/lectures/lecture10.html)
 
 ### Extra
 - [The Dining Philosophers Problem](https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html)
@@ -102,8 +103,4 @@ time_to_burnout.
 # Codexion — Progress
 
 ## Working on
-- Dongle cooldown logic. (I need a dongle struct, that holds a queu *for the scheduler* and
-the mutex and the time of last_released)
-
-## To do
 - Scheduling logic (Both 'fifo' and 'edf')

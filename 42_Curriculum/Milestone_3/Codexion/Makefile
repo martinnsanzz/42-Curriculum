@@ -37,13 +37,16 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 utils/ft_memory.c \
                                    				 utils/ft_string.c \
 												 utils/time.c \
-												 utils/locks.c \
+												 utils/setters.c \
+												 utils/getters.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
 												 error/time_errors.c \
 												 core/clean_up.c \
 												 core/init.c \
+												 core/dongles.c \
 												 core/routine.c \
+												 core/scheduling.c \
 												 core/monitor.c)
 
 OBJS				:= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
@@ -111,7 +114,7 @@ valgrind: $(NAME)
 			  --leak-resolution=high \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 1 400 60 60 60 2 50 fifo; \
+			  ./$(NAME) 5 200 200 200 200 7 0 edf; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 12:02:04 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 13:17:29 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 11:07:57 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@
  */
 void invalid_num_of_args()
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	fprintf(stderr, "Program must have 8 arguments !!\n "
 					"Run 'make help-run'.\n");
-	fprintf(stderr, "\033[0m");
+	fprintf(stderr, RESET);
 }
 
 /**
@@ -34,7 +34,7 @@ void invalid_num_of_args()
  */
 void invalid_num(int error_id, int index, char *value)
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	if (error_id == 1)
 	{
 		fprintf(stderr, "Argument %d is an invalid "
@@ -53,8 +53,10 @@ void invalid_num(int error_id, int index, char *value)
 	(void)index;
 	(void)value;
 	if (error_id == 4)
-		fprintf(stderr, "Number of coders must be greater than 0\n");
-	fprintf(stderr, "\033[0m");
+		fprintf(stderr, "Number of coders must be greater than %d\n", MIN_CODERS - 1);
+	if (error_id == 5)
+		fprintf(stderr, "Number of coders limit is %d\n", MAX_CODERS);
+	fprintf(stderr, RESET);
 }
 
 /**
@@ -62,7 +64,7 @@ void invalid_num(int error_id, int index, char *value)
  */
 void wrong_scheduler(char *value)
 {
-	fprintf(stderr, "\033[0;31m");
+	fprintf(stderr, RED);
 	fprintf(stderr, "Wrong scheduler {%s}: Allowed ['fifo', 'edf']\n", value);
-	fprintf(stderr, "\033[0m");
+	fprintf(stderr, RESET);
 }

@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 13:47:12 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 13:11:01 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 int     main(int argc, char *argv[])
 {
-    t_program		prog;
-	pthread_mutex_t	*dongles;
+    t_program	prog;
+	t_dongle	*dongles;
 
 	if (check_argv(argc, argv) == 1)
         return (1);

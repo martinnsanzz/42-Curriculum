@@ -6,33 +6,22 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 09:32:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 11:28:09 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 14:24:51 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 /**
- * @brief Gets the current time based on the Unix Epoch in milliseconds.
+ * @brief Checks is a dongle is in cooldown or not.
  *
- * @return The current time in milliseconds since the Unix Epoch.
- * @return 0 on error.
+ * @param last_release	Time where the dongle was last used.
+ * @param cooldown	Time in (ms) for a dongle to be available to
+ * 					use again after being released.
  */
-size_t	get_current_time(void)
+bool is_cooldown(size_t last_release, size_t cooldown)
 {
-	struct timeval	t;
-
-	if (gettimeofday(&t, NULL) == -1)
-		return (time_error(1), 0);
-	return (t.tv_sec * 1000 + (t.tv_usec / 1000));
-}
-
-/**
- * @brief Gives the time that has passed since the program started.
- */
-int	get_program_time(size_t start, size_t current_time)
-{
-	return ((int)current_time - (int)start);
+	return (get_current_time() - last_release < cooldown);
 }
 
 /**

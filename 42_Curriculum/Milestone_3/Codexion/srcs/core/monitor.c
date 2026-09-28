@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 15:36:24 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 12:33:31 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/28 14:27:31 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	check_total_compiles(t_program *prog);
 static int	check_burnouts(t_program *prog);
-static int	is_burnt_out(t_coder *coder);
+static bool	is_burnt_out(t_coder *coder);
 
 /**
  * @brief Monitor thread entry point: watches every coder until the
@@ -65,7 +65,10 @@ static int check_total_compiles(t_program *prog)
 		i++;
 	}
 	if (finished_coders == (*prog).total_coders)
+	{
+		printf(LOG_SUCCESS, YELLOW, RESET);
 		return (1);
+	}
 	return (0);
 }
 
@@ -84,7 +87,7 @@ static int check_total_compiles(t_program *prog)
  *         @c time_to_burn_out.
  * @return 0 otherwise, or if the coder is `FINISH`/`COMPILING`.
  */
-static int	is_burnt_out(t_coder *coder)
+static bool is_burnt_out(t_coder *coder)
 {
 	size_t	last_compile;
 	size_t	current_time;
@@ -95,7 +98,7 @@ static int	is_burnt_out(t_coder *coder)
 	last_compile = coder->last_compile;
 	pthread_mutex_unlock(coder->compile_lock);
 	current_time = get_current_time();
-	return ((int)(current_time - last_compile) > coder->time_to_burn_out);
+	return (current_time - last_compile > coder->time_to_burn_out);
 }
 
 /**
