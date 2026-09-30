@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 14:52:47 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:12:45 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,7 @@ int     main(int argc, char *argv[])
  */
 static int	program_initializer(char **argv, t_program *prog, t_dongle **dongles)
 {
-	if (init_program(prog, argv))
-		return (1);
+	init_program(prog, argv);
 	if (init_dongles((*prog).total_coders, dongles))
 		return (1);
 	if (init_coders(prog, *dongles, argv))

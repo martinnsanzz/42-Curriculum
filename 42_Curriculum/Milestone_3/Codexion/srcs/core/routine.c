@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 14:23:23 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 14:55:30 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:14:21 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,12 @@ void	*coder_routine(void *arg)
 
 static int compile(t_coder *coder)
 {
-	while(!(*coder).priority)
-	{
-		if (*coder->burn_out)
-			return (1);
-		continue;
-	}
+	// while(!(*coder).priority)
+	// {
+	// 	if (*coder->burn_out)
+	// 		return (1);
+	// 	continue;
+	// }
 	lock_dongles(coder);
 	if (compile_helper(coder))
 		return (1);

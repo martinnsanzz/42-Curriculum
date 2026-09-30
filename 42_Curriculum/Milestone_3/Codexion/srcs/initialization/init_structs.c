@@ -3,31 +3,54 @@
 /*                                                        :::      ::::::::   */
 /*   init_structs.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 11:20:13 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 13:57:10 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:11:18 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 /**
- * @brief Extracts the CLI rules and packs them into @p prog.
+ * @brief Extracts the CLI rules that belong to the whole program
+ *        (not per-coder) and packs them into @p prog.
  *
+ * Sets @c compiles_required, @c dongle_cooldown, and @c start_time
+ * (captured here, before any thread exists, so no thread can ever
+ * observe it uninitialized). Per-coder rules are set separately by
+ * @c set_coder_rules inside @c init_coders.
+ *
+ * @param prog Pointer to the program struct to fill in.
  * @param argv CLI arguments.
- * @param prog Pointer to the program struct holding the program data;
- *             its @c coders array must already be allocated.
  */
-int	init_program(t_program *prog, char *argv[])
+void	init_program(t_program *prog, char *argv[])
 {
 	(*prog).compiles_required = ft_atoi(argv[6]);
-	(*prog).dongle_cooldown = (size_t)ft_atoi(argv[7]);
 	(*prog).start_time = get_current_time();
 	(*prog).burn_out_flag = false;
-	return (0);
 }
 
+/**
+ * @brief Allocates and initializes @p prog->scheduler.
+ *
+ * Links @p scheduler->burn_out to @p prog->burn_out_flag and
+ * @p scheduler->coders to the address of @p prog->coders, so the
+ * scheduler always observes the current values of both, and copies
+ * the scheduler argument (argv[8]) in. Must be called after
+ * @c init_coders, since @c sched_routine (via @p scheduler->coders)
+ * expects @p prog->coders to already be a valid, populated array.
+ * Does not initialize @c priority_lock or create the scheduler
+ * thread — that happens later, in @c init_scheduler_thread.
+ *
+ * @param prog Pointer to the program struct; its @c scheduler field
+ *             is allocated and written into.
+ * @param argv CLI arguments.
+ *
+ * @return 0 on success (allocation successful).
+ * @return 1 on failure (allocation failed); @p prog->scheduler is
+ *         NULL.
+ */
 int	init_scheduler(t_program *prog, char *argv[])
 {
 	(*prog).scheduler = ft_calloc(1, sizeof(t_schedule));
@@ -73,6 +96,7 @@ int	init_coders(t_program *prog, t_dongle *dongles, char *argv[])
 		(*prog).coders[i].priority = false;
 		(*prog).coders[i].burn_out = &(prog)->burn_out_flag;
 		set_coder_rules(&(*prog).coders[i], prog, argv);
+		(*prog).coders[i].last_compile = (*prog).start_time;
 		(*prog).coders[i].start_time = &(*prog).start_time;
 		(*prog).coders[i].state = IDLE;
 		set_coder_dongles(&(*prog).coders[i], dongles, i);

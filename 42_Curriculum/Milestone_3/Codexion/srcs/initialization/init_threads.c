@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_threads.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 14:15:59 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 13:20:44 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:18:02 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,25 @@
 
 /**
  * @brief Initializes the program's three shared mutexes (compile,
- *        finish, burnout) and creates the monitor thread.
+ *        write, and state) and creates the monitor thread.
  *
  * Each mutex is initialized in sequence; if one fails, every mutex
  * already initialized before it is destroyed before returning, so no
  * partially-initialized lock set is left behind. If the monitor
  * thread itself fails to create, all three mutexes (now fully
- * initialized) are destroyed and @p prog->coders is freed, since the
- * monitor thread failing means the program cannot proceed.
+ * initialized) are destroyed before returning, since the monitor
+ * thread failing means the program cannot proceed. Any further
+ * cleanup (dongles, coders, scheduler) is the caller's
+ * responsibility.
  *
- * @param thread Output parameter; on success, holds the created
- *               monitor thread.
- * @param prog   Pointer to the program struct; its three mutex fields
- *               are initialized, and @c coders is freed on final
- *               failure.
+ * @param prog Pointer to the program struct; its @c compile_lock,
+ *             @c write_lock, and @c state_lock are initialized, and
+ *             its @c monitor_thread is created.
  *
  * @return 0 on success (all three mutexes and the monitor thread
  *         created).
  * @return 1 on failure; any mutexes already initialized are
- *         destroyed.
+ *         destroyed before returning.
  */
 int	init_monitor_thread(t_program *prog)
 {
@@ -59,6 +59,23 @@ int	init_monitor_thread(t_program *prog)
 	return (0);
 }
 
+/**
+ * @brief Initializes the scheduler's priority_lock and creates the
+ *        scheduler thread.
+ *
+ * If the mutex initializes but @c pthread_create fails, the mutex is
+ * destroyed here before returning, so the caller never has to guess
+ * whether it needs destroying elsewhere.
+ *
+ * @param scheduler Pointer to the already-allocated scheduler
+ *                  struct (from @c init_scheduler); its
+ *                  @c priority_lock is initialized and its
+ *                  @c scheduler_thread is created.
+ *
+ * @return 0 on success (mutex initialized and thread created).
+ * @return 1 on failure; @c priority_lock is destroyed if it was
+ *         initialized before the failure.
+ */
 int	init_scheduler_thread(t_schedule *scheduler)
 {
 	if (pthread_mutex_init(&(*scheduler).priority_lock, NULL))
@@ -73,21 +90,20 @@ int	init_scheduler_thread(t_schedule *scheduler)
 }
 
 /**
- * @brief Initializes and creates all threads of the program.
+ * @brief Creates one thread per coder, each running @c coder_routine.
  *
- * Creates one thread per coder, each running @c print_hello with a
- * pointer to its own @c t_coder as argument. If a thread fails to
- * create partway through, it joins every thread already created so
- * far, frees the coders array, and returns — the caller never works
- * with a partially-created set of threads.
+ * If a thread fails to create partway through, joins every thread
+ * already created so far, frees @p prog->coders and sets it to NULL,
+ * and returns — the caller never works with a partially-created set
+ * of threads, and later cleanup (e.g. @c free((*prog).coders) again)
+ * is safe since @c free(NULL) is a no-op.
  *
  * @param prog Pointer to the program struct; its @c coders array is
- *             read from (each coder's thread field is written into),
- *             and freed on failure.
+ *             read from (each coder's @c thread field is written
+ *             into), and freed/set to NULL on failure.
  *
  * @return 0 on success (every thread created).
- * @return 1 on failure (thread creation failed at some index);
- *         @p prog->coders is freed and set to NULL.
+ * @return 1 on failure (thread creation failed at some index).
  */
 int	init_coder_threads(t_program *prog)
 {
@@ -97,8 +113,6 @@ int	init_coder_threads(t_program *prog)
 	i = 0;
 	while (i < (*prog).total_coders)
 	{
-		(*prog).coders[i].start_time = &(*prog).start_time;
-		(*prog).coders[i].last_compile = (*prog).start_time;
 		error = pthread_create(&(*prog).coders[i].thread, NULL, coder_routine,
 				(void *)&(*prog).coders[i]);
 		if (error)

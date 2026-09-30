@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dongles.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 13:37:13 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:59:54 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:17:17 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,32 +15,37 @@
 static void wait_for_dongle(t_dongle *dongle, size_t cooldown);
 
 /**
- * @brief Locks a coder's left and right dongles in a fixed order.
+ * @brief Locks a coder's left and right dongles in a fixed order,
+ *        blocking on each until it is free and its cooldown has
+ *        elapsed.
  *
  * Even-numbered coders lock their left dongle before their right;
  * odd-numbered coders lock right before left. This consistent,
  * opposite ordering between neighbors is what prevents circular
  * wait: two coders sharing a dongle can never both be holding one
- * mutex while blocked on the other's.
+ * mutex while blocked on the other's. Each dongle is acquired via
+ * @c wait_for_dongle, which blocks until both the mutex is free and
+ * @c dongle_cooldown milliseconds have passed since it was last
+ * released.
  *
  * @param coder Pointer to the coder acquiring its dongles. Blocks
  *              until both @c l_dongle->lock and @c r_dongle->lock
- *              are held.
+ *              are held and out of cooldown.
  */
 void	lock_dongles(t_coder *coder)
 {
 	if (coder->id % 2 == 0)
 	{
-		wait_for_dongle(coder->l_dongle, (size_t)*coder->dongle_cooldown);
+		wait_for_dongle(coder->l_dongle, (*coder).dongle_cooldown);
 		display_dongle(coder, "left");
-		wait_for_dongle(coder->r_dongle, (size_t)*coder->dongle_cooldown);
+		wait_for_dongle(coder->r_dongle, (*coder).dongle_cooldown);
 		display_dongle(coder, "right");
 	}
 	else
 	{
-		wait_for_dongle(coder->r_dongle, (size_t)*coder->dongle_cooldown);
+		wait_for_dongle(coder->r_dongle, (*coder).dongle_cooldown);
 		display_dongle(coder, "right");
-		wait_for_dongle(coder->l_dongle, (size_t)*coder->dongle_cooldown);
+		wait_for_dongle(coder->l_dongle, (*coder).dongle_cooldown);
 		display_dongle(coder, "left");
 	}
 }

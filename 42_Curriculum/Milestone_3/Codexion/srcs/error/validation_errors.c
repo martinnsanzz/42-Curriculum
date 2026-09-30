@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation_errors.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 12:02:04 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 11:07:57 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:04:10 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ void invalid_num_of_args()
  * 	- Is not a valid int (No float)
  * 	- Is negative
  * 	- Is larger than INT_MAX
- * 	- Is number of coders is == 0
+ * 	- Is number of coders is <= 0
+ *  - Number of coders is higher than the limit (200 per eval sheet)
  */
 void invalid_num(int error_id, int index, char *value)
 {

@@ -3,33 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   full_clean_up.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 14:54:50 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:01:25 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
 /**
- * @brief Joins the monitor thread, then every coder thread, then
- *        destroys all mutexes (program-level locks and dongles) and
- *        frees the coders array.
+ * @brief Joins the monitor thread, the scheduler thread, then every
+ *        coder thread, then destroys every mutex and frees every
+ *        heap allocation owned by the program (via @c destroy_all).
  *
  * The monitor is joined first since it is responsible for signalling
- * coders to stop; joining it guarantees every coder thread is either
- * finished or has been told to stop by the time its own join runs.
- * Join and destroy failures are logged but never abort the process,
- * so every remaining thread/mutex still gets its own attempt.
+ * coders to stop; joining it guarantees every coder thread has
+ * already been told to stop by the time its own join runs. The
+ * scheduler thread is joined next, before the coder threads, since
+ * it must also observe that signal and return on its own — if it
+ * relied on a coder thread having already exited, joining it here
+ * (before any coder is joined) would deadlock. Join and destroy
+ * failures are logged but never abort the process, so every
+ * remaining thread/mutex still gets its own attempt.
  *
- * @param monitor_thread The monitor thread to join first.
- * @param prog           Pointer to the program struct; its @c coders
- *                       array is joined thread-by-thread and freed at
- *                       the end. Its three program-level mutexes are
- *                       destroyed via @c destroy_all.
- * @param dongles        Array of dongle mutexes to destroy and free
- *                       (via @c destroy_all).
+ * @param prog    Pointer to the program struct; its monitor thread,
+ *                scheduler thread, and every coder thread are
+ *                joined. All of its mutexes and heap allocations
+ *                (@c coders, @c scheduler) are destroyed/freed via
+ *                @c destroy_all.
+ * @param dongles Array of dongles to destroy and free (via
+ *                @c destroy_all).
  */
 void	clean_values(t_program *prog, t_dongle *dongles)
 {
@@ -52,16 +56,22 @@ void	clean_values(t_program *prog, t_dongle *dongles)
 }
 
 /**
- * @brief Destroys the program's three shared mutexes (compile, finish,
- *        burnout) and every dongle mutex, then frees @p dongles.
+ * @brief Destroys every mutex owned by the program (the three
+ *        shared coder mutexes, the scheduler's priority_lock, and
+ *        every dongle's mutex/cond), then frees @p prog->coders,
+ *        @p prog->scheduler, and @p dongles.
  *
  * Every destroy is attempted regardless of whether an earlier one
- * failed; failures are logged but never abort the function, so
- * @p dongles is always freed and every mutex gets its own attempt.
+ * failed; failures are logged but never abort the function, so all
+ * allocations are still freed and every mutex still gets its own
+ * attempt.
  *
- * @param prog    Pointer to the program struct holding the three
- *                shared mutexes to destroy.
- * @param dongles Array of dongle mutexes to destroy and free.
+ * @param prog    Pointer to the program struct. Its @c compile_lock,
+ *                @c write_lock, @c state_lock, and
+ *                @c scheduler->priority_lock are destroyed; its
+ *                @c coders and @c scheduler are freed.
+ * @param dongles Array of dongles whose mutexes/conds are destroyed;
+ *                the array itself is freed.
  */
 void destroy_all(t_program *prog, t_dongle *dongles)
 {
@@ -70,6 +80,22 @@ void destroy_all(t_program *prog, t_dongle *dongles)
 	cleanup_after_monitor(prog, dongles);
 }
 
+/**
+ * @brief Destroys every condition variable and mutex in @p dongles,
+ *        then frees the array.
+ *
+ * If any condition variable or mutex fails to be destroyed, an
+ * error message is displayed but destruction continues, giving
+ * every remaining one its own attempt. Once every element has been
+ * attempted, frees @p *dongles and sets it to NULL so the caller
+ * can't read or free it again afterward.
+ *
+ * @param dongles      Pointer to the variable holding the dongles
+ *                     array's address. Freed and set to NULL.
+ * @param total_dongles Number of dongles in the array (each one
+ *                      assumed fully initialized: both cond and
+ *                      mutex).
+ */
 void	clean_dongles(t_dongle **dongles, int total_dongles)
 {
 	int	i;

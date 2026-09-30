@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   partial_clean_up.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 13:59:07 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 14:49:12 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:02:51 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,24 @@ void	clean_failed_mutex(t_dongle **dongles, int total_dongles, int i)
 	*dongles = NULL;
 }
 
+/**
+ * @brief Cleans up everything allocated before any thread exists.
+ *
+ * Called when a stage that runs before @c init_monitor_thread fails
+ * (e.g. @c init_scheduler). At this point every dongle is fully
+ * initialized (both cond and mutex), so @c clean_dongles destroys
+ * and frees the whole array. @p prog->coders is freed directly (it
+ * owns no mutexes of its own — only pointers into @p prog and the
+ * dongles). @p prog->scheduler is freed directly: it was either
+ * never allocated (NULL, safe to free) or allocated but never given
+ * an initialized mutex yet, so there is nothing inside it to
+ * destroy.
+ *
+ * @param prog    Pointer to the program struct; its @c coders and
+ *                @c scheduler are freed.
+ * @param dongles Array of fully-initialized dongles to destroy and
+ *                free.
+ */
 void	cleanup_pre_threads(t_program *prog, t_dongle *dongles)
 {
 	clean_dongles(&dongles, (*prog).total_coders);
@@ -72,6 +90,26 @@ void	cleanup_pre_threads(t_program *prog, t_dongle *dongles)
 	free((*prog).scheduler);
 }
 
+/**
+ * @brief Cleans up everything allocated once the monitor thread's
+ *        mutexes exist, but before the scheduler thread's does.
+ *
+ * Called when @c init_scheduler_thread fails. By this point
+ * @c init_monitor_thread has already succeeded, so @c compile_lock,
+ * @c write_lock, and @c state_lock were all successfully
+ * initialized and are destroyed here. @c priority_lock is not
+ * touched: @c init_scheduler_thread already destroyed it itself on
+ * failure (its own @c pthread_create failed after its own
+ * @c pthread_mutex_init succeeded), so destroying it again here
+ * would be a double destroy. The rest of the cleanup (dongles,
+ * @c coders, @c scheduler) is delegated to @c cleanup_pre_threads.
+ *
+ * @param prog    Pointer to the program struct; its three shared
+ *                mutexes are destroyed, then @c coders and
+ *                @c scheduler are freed via @c cleanup_pre_threads.
+ * @param dongles Array of fully-initialized dongles to destroy and
+ *                free.
+ */
 void	cleanup_after_monitor(t_program *prog, t_dongle *dongles)
 {
 	if (pthread_mutex_destroy(&(*prog).compile_lock))

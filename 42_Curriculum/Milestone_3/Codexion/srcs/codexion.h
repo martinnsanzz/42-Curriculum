@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 14:00:07 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:09:52 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ typedef struct s_program
 	int				compiles_required;
 	int				total_coders;
 
-	size_t			dongle_cooldown;
 	size_t			start_time;
 
 	bool			burn_out_flag;
@@ -135,8 +134,8 @@ typedef struct s_coder
 	size_t			time_to_debug;
 	size_t			time_to_refactor;
 	size_t			last_compile;
+	size_t			dongle_cooldown;
 	size_t			*start_time;
-	size_t			*dongle_cooldown;
 
 	t_coder_state	state;
 
@@ -159,7 +158,7 @@ int		check_valid_num(char *argv[]);
 
 // -------- Initialization ---------
 // Structs //
-int	init_program(t_program *prog, char *argv[]);
+void	init_program(t_program *prog, char *argv[]);
 int	init_dongles(int total_dongles, t_dongle **dongles);
 int	init_coders(t_program *prog, t_dongle *dongles, char *argv[]);
 int	init_scheduler(t_program *prog, char *argv[]);
