@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 12:47:15 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:29:51 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 10:51:01 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,13 @@ void display_status(t_coder *coder)
 	prog_time = get_program_time(*(coder->start_time));
 	id = (*coder).id;
     if ((*coder).state == COMPILING)
-		printf(LOG_COMPILING, GREEN, prog_time, id);
+		printf(LOG_COMPILING, GREEN, prog_time, id, RESET);
     else if ((*coder).state == DEBUGGING)
-		printf(LOG_DEBUGGING, PURPLE, prog_time, id);
+		printf(LOG_DEBUGGING, PURPLE, prog_time, id, RESET);
     else if ((*coder).state == REFACTORING)
-        printf(LOG_REFACTOR, WHITE, prog_time, id);
+        printf(LOG_REFACTOR, WHITE, prog_time, id, RESET);
 	else if ((*coder).state == BURNOUT)
-        printf(LOG_BURNS_OUT, RED, prog_time, id);
+        printf(LOG_BURNS_OUT, RED, prog_time, id, RESET);
 }
 
 void	display_dongle(t_coder *coder, char *dongle)
@@ -39,7 +39,7 @@ void	display_dongle(t_coder *coder, char *dongle)
 	{
 		prog_time = get_program_time(*(coder->start_time));
 		id = (*coder).id;
-		printf(LOG_TAKE_DONGLE, BLACK, prog_time, id, dongle);
+		printf(LOG_TAKE_DONGLE, BLACK, prog_time, id, dongle, RESET);
 	}
 	pthread_mutex_unlock((*coder).write_lock);
 }

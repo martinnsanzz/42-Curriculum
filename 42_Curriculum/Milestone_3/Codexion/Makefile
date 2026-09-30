@@ -41,9 +41,11 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
 												 utils/getters.c \
 												 error/validation_errors.c \
 												 error/threading_errors.c \
+												 initialization/init_structs.c \
+												 initialization/init_threads.c \
 												 error/time_errors.c \
-												 core/clean_up.c \
-												 core/init.c \
+												 clean_up/full_clean_up.c \
+												 clean_up/partial_clean_up.c \
 												 core/dongles.c \
 												 core/routine.c \
 												 core/scheduling.c \
@@ -61,8 +63,10 @@ $(NAME): $(OBJS)
 $(OBJS_DIR):
 	@mkdir -p $(OBJS_DIR)
 	@mkdir -p $(OBJS_DIR)/utils
+	@mkdir -p $(OBJS_DIR)/clean_up
 	@mkdir -p $(OBJS_DIR)/core
 	@mkdir -p $(OBJS_DIR)/error
+	@mkdir -p $(OBJS_DIR)/initialization
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
 	@$(CC) $(C_FLAGS) -c $< -o $@
@@ -76,8 +80,10 @@ $(DEBUGEXEC): $(OBJS_DEBUG)
 $(OBJS_DIR_DEBUG):
 	@mkdir -p $(OBJS_DIR_DEBUG)
 	@mkdir -p $(OBJS_DIR_DEBUG)/utils
+	@mkdir -p $(OBJS_DIR_DEBUG)/clean_up
 	@mkdir -p $(OBJS_DIR_DEBUG)/core
 	@mkdir -p $(OBJS_DIR_DEBUG)/error
+	@mkdir -p $(OBJS_DIR_DEBUG)/initialization
 
 $(OBJS_DIR_DEBUG)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR_DEBUG)
 	@$(CC) $(GDB_FLAG) -c $< -o $@
@@ -114,7 +120,7 @@ valgrind: $(NAME)
 			  --leak-resolution=high \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 5 200 200 200 200 7 0 edf; \
+			  ./$(NAME) 5 1000 200 200 200 5 0 edf; \
 			  if [ $$? -eq 99 ]; then \
 			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
 			  else \

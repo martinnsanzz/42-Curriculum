@@ -1,0 +1,88 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   full_clean_up.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
+/*   Updated: 2026/09/30 14:54:50 by masanz-s         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../codexion.h"
+
+/**
+ * @brief Joins the monitor thread, then every coder thread, then
+ *        destroys all mutexes (program-level locks and dongles) and
+ *        frees the coders array.
+ *
+ * The monitor is joined first since it is responsible for signalling
+ * coders to stop; joining it guarantees every coder thread is either
+ * finished or has been told to stop by the time its own join runs.
+ * Join and destroy failures are logged but never abort the process,
+ * so every remaining thread/mutex still gets its own attempt.
+ *
+ * @param monitor_thread The monitor thread to join first.
+ * @param prog           Pointer to the program struct; its @c coders
+ *                       array is joined thread-by-thread and freed at
+ *                       the end. Its three program-level mutexes are
+ *                       destroyed via @c destroy_all.
+ * @param dongles        Array of dongle mutexes to destroy and free
+ *                       (via @c destroy_all).
+ */
+void	clean_values(t_program *prog, t_dongle *dongles)
+{
+	int	i;
+	int	error;
+
+	if (pthread_join((*prog).monitor_thread, NULL))
+		thread_errors(4, 0);
+	if (pthread_join((*prog).scheduler->scheduler_thread, NULL))
+		thread_errors(6, 0);
+	i = 0;
+	while(i < (*prog).total_coders)
+	{
+		error = pthread_join((*prog).coders[i].thread, NULL);
+		if (error)
+			thread_errors(2, i + 1);
+		i++;
+	}
+	destroy_all(prog, dongles);
+}
+
+/**
+ * @brief Destroys the program's three shared mutexes (compile, finish,
+ *        burnout) and every dongle mutex, then frees @p dongles.
+ *
+ * Every destroy is attempted regardless of whether an earlier one
+ * failed; failures are logged but never abort the function, so
+ * @p dongles is always freed and every mutex gets its own attempt.
+ *
+ * @param prog    Pointer to the program struct holding the three
+ *                shared mutexes to destroy.
+ * @param dongles Array of dongle mutexes to destroy and free.
+ */
+void destroy_all(t_program *prog, t_dongle *dongles)
+{
+	if (pthread_mutex_destroy(&(*prog).scheduler->priority_lock))
+		mutex_destroy_errors(5, 0);
+	cleanup_after_monitor(prog, dongles);
+}
+
+void	clean_dongles(t_dongle **dongles, int total_dongles)
+{
+	int	i;
+
+	i = 0;
+	while (i < total_dongles)
+	{
+		if (pthread_cond_destroy(&(*dongles)[i].cond))
+			cond_erors(2, i + 1);
+		if (pthread_mutex_destroy(&(*dongles)[i].lock))
+			mutex_destroy_errors(1, i + 1);
+		i++;
+	}
+	free(*dongles);
+	*dongles = NULL;
+}

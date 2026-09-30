@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 13:54:43 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 12:40:28 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 13:15:00 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@ void thread_errors(int error_id, int index)
 		fprintf(stderr, "Failed to create monitor thread\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to join monitor thread\n");
+	if (error_id == 5)
+		fprintf(stderr, "Failed to create scheduler thread\n");
+	else if (error_id == 6)
+		fprintf(stderr, "Failed to join scheduler thread\n");
 	fprintf(stderr, RESET);
 }
 
@@ -45,6 +49,8 @@ void mutex_init_errors(int error_id, int index)
 		fprintf(stderr, "Failed to initialize write mutex\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to initialize state mutex\n");
+	else if (error_id == 5)
+		fprintf(stderr, "Failed to initialize priority mutex\n");
 	fprintf(stderr, RESET);
 }
 
@@ -63,6 +69,8 @@ void mutex_destroy_errors(int error_id, int index)
 		fprintf(stderr, "Failed to destroy write mutex\n");
 	else if (error_id == 4)
 		fprintf(stderr, "Failed to destroy state mutex\n");
+	else if (error_id == 5)
+		fprintf(stderr, "Failed to destroy priority mutex\n");
 	fprintf(stderr, RESET);
 }
 

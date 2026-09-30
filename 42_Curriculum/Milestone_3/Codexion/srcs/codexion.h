@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:56:17 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 14:00:07 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,11 @@
 # define RESET				"\033[0m"
 
 // Logs message //
-# define LOG_TAKE_DONGLE	"%s[%lu] Coder %d has taken %s dongle\n"
-# define LOG_COMPILING		"%s[%lu] Coder %d is compiling\n"
-# define LOG_DEBUGGING		"%s[%lu] Coder %d is debugging\n"
-# define LOG_REFACTOR		"%s[%lu] Coder %d is refactoring\n"
-# define LOG_BURNS_OUT		"%s[%lu] Coder %d burned out\n"
+# define LOG_TAKE_DONGLE	"%s[%lu] Coder %d has taken %s dongle%s\n"
+# define LOG_COMPILING		"%s[%lu] Coder %d is compiling%s\n"
+# define LOG_DEBUGGING		"%s[%lu] Coder %d is debugging%s\n"
+# define LOG_REFACTOR		"%s[%lu] Coder %d is refactoring%s\n"
+# define LOG_BURNS_OUT		"%s[%lu] Coder %d burned out%s\n"
 # define LOG_SUCCESS		"\n%sAll coders have compiled. They can rest... for now%s\n"
 
 // Coders limits //
@@ -72,9 +72,42 @@ typedef enum e_coder_state
 // -------------------- //
 //		STRUCTURES		//
 // -------------------- //
+typedef struct s_program	t_program;
 typedef struct s_dongle		t_dongle;
 typedef struct s_coder		t_coder;
-typedef struct s_program	t_program;
+typedef struct s_schedule	t_schedule;
+
+typedef struct s_program
+{
+	pthread_t		monitor_thread;
+	int				compiles_required;
+	int				total_coders;
+
+	size_t			dongle_cooldown;
+	size_t			start_time;
+
+	bool			burn_out_flag;
+
+	t_coder			*coders;
+
+	t_schedule		*scheduler;
+
+	pthread_mutex_t compile_lock;
+	pthread_mutex_t write_lock;
+	pthread_mutex_t	state_lock;
+}	t_program;
+
+typedef struct s_schedule
+{
+	pthread_t		scheduler_thread;
+
+	char			*sched_arg;
+	bool			*burn_out;
+
+	t_coder			**coders;
+
+	pthread_mutex_t	priority_lock;
+}	t_schedule;
 
 typedef struct s_dongle
 {
@@ -94,6 +127,7 @@ typedef struct s_coder
 	int				*compiles_required;
 	int				*total_coders;
 
+	bool			priority;
 	bool			*burn_out;
 
 	size_t			time_to_burn_out;
@@ -114,24 +148,6 @@ typedef struct s_coder
 	pthread_mutex_t	*state_lock;
 }	t_coder;
 
-typedef struct s_program
-{
-	int				compiles_required;
-	int				total_coders;
-
-	size_t			dongle_cooldown;
-	size_t			start_time;
-
-	char			*scheduler;
-
-	bool			burn_out_flag;
-
-	t_coder			*coders;
-
-	pthread_mutex_t compile_lock;
-	pthread_mutex_t write_lock;
-	pthread_mutex_t	state_lock;
-}	t_program;
 
 // -------------------- //
 //		PROTOTYPES		//
@@ -140,16 +156,30 @@ typedef struct s_program
 // ----------- Parsing -------------
 int		check_argv(int argc, char *argv[]);
 int		check_valid_num(char *argv[]);
-void	get_rules(char *argv[], t_program *prog);
 
 // -------- Initialization ---------
-int		program_initializer(char **argv, t_program *prog, t_dongle **dongles);
+// Structs //
+int	init_program(t_program *prog, char *argv[]);
+int	init_dongles(int total_dongles, t_dongle **dongles);
+int	init_coders(t_program *prog, t_dongle *dongles, char *argv[]);
+int	init_scheduler(t_program *prog, char *argv[]);
+
+// Threads //
+int	init_monitor_thread(t_program *prog);
+int	init_scheduler_thread(t_schedule *scheduler);
+int	init_coder_threads(t_program *prog);
 
 // ----------- Clean up ------------
-void	clean_values(pthread_t monitor_thread, t_program *prog, t_dongle *dongles);
+void	clean_values(t_program *prog, t_dongle *dongles);
 void	destroy_all(t_program *prog, t_dongle *dongles);
 void	clean_failed_cond(t_dongle **dongles, int i);
 void	clean_failed_mutex(t_dongle **dongles, int total_dongles, int i);
+void	clean_dongles(t_dongle **dongles, int total_dongles);
+void	cleanup_pre_threads(t_program *prog, t_dongle *dongles);
+void	cleanup_after_monitor(t_program *prog, t_dongle *dongles);
+
+// ----------- Schedule ------------
+void	*sched_routine(void *pointer);
 
 // ------------ Monitor ------------
 void	*monitor(void *pointer);
@@ -163,8 +193,8 @@ void	unlock_dongles(t_coder *coder);
 
 // ------------- Setters -------------
 void	set_state(t_coder *coder, t_coder_state state);
-void	set_coder_dongles(t_program *prog, t_dongle *dongles);
-void	set_coder_rules(char *argv[], t_program *prog);
+void	set_coder_dongles(t_coder *coder, t_dongle *dongles, int index);
+void	set_coder_rules(t_coder *coder, t_program *prog, char *argv[]);
 
 // ------------- Getter -------------
 int				get_total_compiles(t_coder *coder);

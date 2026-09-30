@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 11:14:50 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:55:27 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/09/30 12:06:12 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,20 +70,4 @@ size_t	get_current_time(void)
 size_t	get_program_time(size_t start)
 {
 	return (get_current_time() - start);
-}
-
-/**
- * @brief Extracts the CLI rules and packs them into @p prog.
- *
- * @param argv CLI arguments.
- * @param prog Pointer to the program struct holding the program data;
- *             its @c coders array must already be allocated.
- */
-void    get_rules(char *argv[], t_program *prog)
-{
-    (*prog).compiles_required = ft_atoi(argv[6]);
-	(*prog).dongle_cooldown = (size_t)ft_atoi(argv[7]);
-	(*prog).scheduler = argv[8];
-	(*prog).start_time = get_current_time();
-	(*prog).burn_out_flag = false;
 }
