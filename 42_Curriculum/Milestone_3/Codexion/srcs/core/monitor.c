@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 15:36:24 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:27:31 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/01 15:16:06 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ static int check_total_compiles(t_program *prog)
 	}
 	if (finished_coders == (*prog).total_coders)
 	{
+		(*prog).all_finish = true;
+		wake_scheduler(prog->scheduler);
 		printf(LOG_SUCCESS, YELLOW, RESET);
 		return (1);
 	}
@@ -92,7 +94,7 @@ static bool is_burnt_out(t_coder *coder)
 	size_t	last_compile;
 	size_t	current_time;
 
-	if (coder->state == FINISH || coder->state == COMPILING)
+	if (get_state(coder) == FINISH || get_state(coder) == COMPILING)
 		return (0);
 	pthread_mutex_lock(coder->compile_lock);
 	last_compile = coder->last_compile;
@@ -132,6 +134,7 @@ static int	check_burnouts(t_program *prog)
 			set_state(&(*prog).coders[i], BURNOUT);
 			display_status(&(*prog).coders[i]);
 			pthread_mutex_unlock(&(*prog).write_lock);
+			wake_scheduler(prog->scheduler);
 			return (1);
 		}
 		i++;

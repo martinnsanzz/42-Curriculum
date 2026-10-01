@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   partial_clean_up.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 13:59:07 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:02:51 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/01 11:45:43 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,10 @@ void	clean_failed_mutex(t_dongle **dongles, int total_dongles, int i)
  * initialized (both cond and mutex), so @c clean_dongles destroys
  * and frees the whole array. @p prog->coders is freed directly (it
  * owns no mutexes of its own — only pointers into @p prog and the
- * dongles). @p prog->scheduler is freed directly: it was either
- * never allocated (NULL, safe to free) or allocated but never given
- * an initialized mutex yet, so there is nothing inside it to
- * destroy.
+ * dongles). @p (*prog).scheduler->heap is freed before @p prog->scheduler
+ * is freed directly: it was either never allocated (NULL, safe to free)
+ * or allocated but never given an initialized mutex yet, so there is
+ * nothing inside it to destroy.
  *
  * @param prog    Pointer to the program struct; its @c coders and
  *                @c scheduler are freed.
@@ -87,7 +87,7 @@ void	cleanup_pre_threads(t_program *prog, t_dongle *dongles)
 {
 	clean_dongles(&dongles, (*prog).total_coders);
 	free((*prog).coders);
-	free((*prog).scheduler);
+	free_scheduler(&(*prog).scheduler);
 }
 
 /**
@@ -119,4 +119,24 @@ void	cleanup_after_monitor(t_program *prog, t_dongle *dongles)
 	if (pthread_mutex_destroy(&(*prog).state_lock))
 		mutex_destroy_errors(4, 0);
 	cleanup_pre_threads(prog, dongles);
+}
+
+/**
+ * @brief Frees a scheduler's heap array and the struct itself.
+ *
+ * Called whenever @p scheduler was allocated (by @c init_scheduler)
+ * but priority_lock/turn_cond were never initialized (so nothing
+ * pthread-related needs destroying). Safe to call on a NULL
+ * @p *scheduler.
+ *
+ * @param scheduler Pointer to the scheduler pointer to free and set
+ *                  to NULL.
+ */
+void	free_scheduler(t_schedule **scheduler)
+{
+	if (*scheduler == NULL)
+		return ;
+	free((*scheduler)->heap);
+	free(*scheduler);
+	*scheduler = NULL;
 }

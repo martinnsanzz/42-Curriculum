@@ -93,6 +93,5 @@ piece of data. Various sorts of locking primitives include `semaphores` and `mut
 exclusion objects).
 
 ### Thread scheduling
-SCHED_DEADLINE
-
-SCHED_FIFO
+Scheduling is the OS activity that decides which runnable process or thread uses the CPU next.
+The scheduler needs to balance responsiveness, fairness, throughput and overhead.

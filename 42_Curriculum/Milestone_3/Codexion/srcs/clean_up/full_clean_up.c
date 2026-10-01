@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   full_clean_up.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:01:25 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/01 10:39:49 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,9 @@ void	clean_values(t_program *prog, t_dongle *dongles)
 
 /**
  * @brief Destroys every mutex owned by the program (the three
- *        shared coder mutexes, the scheduler's priority_lock, and
- *        every dongle's mutex/cond), then frees @p prog->coders,
- *        @p prog->scheduler, and @p dongles.
+ *        shared coder mutexes, the scheduler's priority_lock and
+ * 		  turn_cond, and every dongle's mutex/cond), then frees
+ * 		  @p prog->coders, @p prog->scheduler, and @p dongles.
  *
  * Every destroy is attempted regardless of whether an earlier one
  * failed; failures are logged but never abort the function, so all
@@ -68,8 +68,8 @@ void	clean_values(t_program *prog, t_dongle *dongles)
  *
  * @param prog    Pointer to the program struct. Its @c compile_lock,
  *                @c write_lock, @c state_lock, and
- *                @c scheduler->priority_lock are destroyed; its
- *                @c coders and @c scheduler are freed.
+ *                @c scheduler->priority_lock / turn_cond are destroyed;
+ * 				  its @c coders and @c scheduler are freed.
  * @param dongles Array of dongles whose mutexes/conds are destroyed;
  *                the array itself is freed.
  */
@@ -77,6 +77,8 @@ void destroy_all(t_program *prog, t_dongle *dongles)
 {
 	if (pthread_mutex_destroy(&(*prog).scheduler->priority_lock))
 		mutex_destroy_errors(5, 0);
+	if (pthread_cond_destroy(&(*prog).scheduler->turn_cond))
+		cond_erors(4, 0);
 	cleanup_after_monitor(prog, dongles);
 }
 

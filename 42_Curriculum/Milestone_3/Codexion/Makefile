@@ -37,6 +37,7 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 utils/ft_memory.c \
                                    				 utils/ft_string.c \
 												 utils/time.c \
+												 utils/heap_op.c \
 												 utils/setters.c \
 												 utils/getters.c \
 												 error/validation_errors.c \
@@ -110,7 +111,7 @@ all: $(NAME)
 	@echo "${BOLD}	Run ./$(NAME) $(DEBUGGER)...${RESET}"
 
 valgrind: $(NAME)
-	@echo "$(YELLOW)Runnin valgrind with stric flags with default arguments\n${RESET}"
+	@echo "$(YELLOW)Running valgrind with strict flags and default arguments\n$(RESET)"
 	@valgrind --leak-check=full \
 			  --show-leak-kinds=all \
 			  --errors-for-leak-kinds=all \
@@ -118,26 +119,28 @@ valgrind: $(NAME)
 			  --show-reachable=yes \
 			  --num-callers=40 \
 			  --leak-resolution=high \
+			  --fair-sched=yes \
 			  --error-exitcode=99 \
 			  --log-file=valgrind.log \
-			  ./$(NAME) 5 1000 200 200 200 5 0 edf; \
+			  ./$(NAME) 5 10000 200 200 200 3 0 edf; \
 			  if [ $$? -eq 99 ]; then \
-			  	echo "$(RED)\nValgrind found errors — see valgrind.log${RESET}"; \
+				echo "$(RED)\nValgrind found errors, see valgrind.log$(RESET)"; \
 			  else \
-			  	echo "$(GREEN)\nNo leaks found${RESET}"; \
+				echo "$(GREEN)\nNo leaks found$(RESET)"; \
 			  fi
 
 helgrind: $(NAME)
-	@echo "$(YELLOW)Running helgrind to check for race conditions\n${RESET}"
+	@echo "$(YELLOW)Running helgrind to check for race conditions\n$(RESET)"
 	@valgrind --tool=helgrind \
 			  --num-callers=40 \
+			  --fair-sched=yes \
 			  --error-exitcode=99 \
-			  --log-file=valgrind.log \
-			  ./$(NAME) 5 300 60 60 60 2 50 fifo; \
+			  --log-file=helgrind.log \
+			  ./$(NAME) 5 10000 200 200 200 3 0 edf; \
 			  if [ $$? -eq 99 ]; then \
-			  	echo "$(RED)\nHelgrind found race conditions — see valgrind.log${RESET}"; \
+				echo "$(RED)\nHelgrind found race conditions, see helgrind.log$(RESET)"; \
 			  else \
-			  	echo "$(GREEN)\nNo race conditions found${RESET}"; \
+				echo "$(GREEN)\nNo race conditions found$(RESET)"; \
 			  fi
 
 debug: $(DEBUGEXEC)
@@ -152,6 +155,9 @@ clean:
 
 	@echo "${RED}Removing 'valgrind.log' file.${RESET}"
 	@$(RM) valgrind.log
+
+	@echo "${RED}Removing 'helgrind.log' file.${RESET}"
+	@$(RM) helgrind.log
 
 
 fclean: clean

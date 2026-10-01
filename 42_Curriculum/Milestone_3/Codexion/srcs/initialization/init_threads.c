@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_threads.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 14:15:59 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:18:02 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/01 11:30:34 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,10 @@
  */
 int	init_monitor_thread(t_program *prog)
 {
-	if (pthread_mutex_init(&(*prog).compile_lock, NULL))
-		return (mutex_init_errors(2, 0), 1);
-	if (pthread_mutex_init(&(*prog).write_lock, NULL))
-		return (pthread_mutex_destroy(&(*prog).compile_lock),
-			mutex_init_errors(3, 0), 1);
-	if (pthread_mutex_init(&(*prog).state_lock, NULL))
-	{
-		pthread_mutex_destroy(&(*prog).compile_lock);
-		pthread_mutex_destroy(&(*prog).write_lock);
-		mutex_init_errors(4, 0);
-		return (1);
-	}
-	if (pthread_create(&(*prog).monitor_thread, NULL, &monitor, (void *)&(*prog)))
+	int	error;
+
+	error = pthread_create(&(*prog).monitor_thread, NULL, &monitor, (void *)&(*prog));
+	if (error)
 	{
 		thread_errors(3, 0);
 		pthread_mutex_destroy(&(*prog).compile_lock);
@@ -60,30 +51,37 @@ int	init_monitor_thread(t_program *prog)
 }
 
 /**
- * @brief Initializes the scheduler's priority_lock and creates the
+ * @brief Initializes priority_lock and turn_cond, then creates the
  *        scheduler thread.
  *
- * If the mutex initializes but @c pthread_create fails, the mutex is
- * destroyed here before returning, so the caller never has to guess
- * whether it needs destroying elsewhere.
+ * Each pthread object is initialized in sequence; if one fails,
+ * everything already initialized before it is destroyed before
+ * returning, so no partially-initialized lock/cond is left behind.
+ * This is the one place that owns their lifecycle — @c init_scheduler
+ * never touches either.
  *
  * @param scheduler Pointer to the already-allocated scheduler
- *                  struct (from @c init_scheduler); its
- *                  @c priority_lock is initialized and its
- *                  @c scheduler_thread is created.
+ *                  struct; its @c priority_lock and @c turn_cond are
+ *                  initialized and its @c scheduler_thread created.
  *
- * @return 0 on success (mutex initialized and thread created).
- * @return 1 on failure; @c priority_lock is destroyed if it was
- *         initialized before the failure.
+ * @return 0 on success.
+ * @return 1 on failure; anything already initialized is destroyed.
  */
 int	init_scheduler_thread(t_schedule *scheduler)
 {
 	if (pthread_mutex_init(&(*scheduler).priority_lock, NULL))
-		return ((mutex_init_errors(5, 0), 1));
-	if (pthread_create(&(*scheduler).scheduler_thread, NULL, &sched_routine, (void *)&(*scheduler)))
+		return (mutex_init_errors(5, 0), 1);
+	if (pthread_cond_init(&(*scheduler).turn_cond, NULL))
+	{
+		pthread_mutex_destroy(&(*scheduler).priority_lock);
+		return (cond_erors(3, 0), 1);
+	}
+	if (pthread_create(&(*scheduler).scheduler_thread, NULL, &sched_routine,
+			(void *)&(*scheduler)))
 	{
 		thread_errors(5, 0);
 		pthread_mutex_destroy(&(*scheduler).priority_lock);
+		pthread_cond_destroy(&(*scheduler).turn_cond);
 		return (1);
 	}
 	return (0);

@@ -36,6 +36,7 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [How to use gettimeday function](https://www.youtube.com/watch?v=cunJcNgtxMk)
 - [How to use gettimeday function in C](https://linuxhint.com/gettimeofday_c_language/)
 - [Conditions Variables](https://ycpcs.github.io/cs365-spring2017/lectures/lecture10.html)
+- [Priority Queue](https://www.geeksforgeeks.org/c/c-program-to-implement-priority-queue/)
 
 ### Extra
 - [The Dining Philosophers Problem](https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html)
@@ -51,6 +52,8 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Doxygen Documentation](https://doxygen.nl/manual/index.html)
 - [Avoiding Deadlock](https://docs.oracle.com/cd/E19455-01/806-5257/6je9h0347/index.html)
 - [Process/Thread Scheduling](https://os.cs.luc.edu/scheduling.html)
+- [Binary Heap](https://en.wikipedia.org/wiki/Binary_heap)
+- [Introduction to heap](https://www.youtube.com/watch?v=fJORlbOGm9Y)
 
 ---
 
@@ -104,3 +107,13 @@ time_to_burnout.
 
 ## Working on
 - Scheduling logic (Both 'fifo' and 'edf')
+
+- Add to t_schedule: a pthread_cond_t turn_cond; (init/destroy alongside priority_lock) and your heap/queue data structure (array or linked list of pending requests, each holding at minimum the coder's id/pointer plus whatever fifo/edf needs to order it — arrival sequence number for fifo, deadline last_compile + time_to_burn_out for edf).
+
+- Coder requests a turn (in compile(), before the current busy-wait): lock priority_lock, push a request for itself onto the scheduler's queue, unlock.
+
+- Coder waits for its turn: lock priority_lock, while (!coder->priority && !*coder->burn_out) pthread_cond_wait(&scheduler->turn_cond, &scheduler->priority_lock);, unlock. This replaces the busy-wait entirely — the coder sleeps until woken, costing no CPU while waiting.
+
+- Scheduler thread (sched_routine) loop: lock priority_lock; if the queue has a waiting request, pick the correct one (fifo: earliest arrival; edf: earliest deadline — this is where the heap's ordering matters), set that coder's priority = true, remove it from the queue, pthread_cond_broadcast(&turn_cond) (broadcast, not signal — same reasoning as the dongle cooldown cond: multiple coders may be waiting, and only broadcast guarantees none are left asleep); unlock. If the queue is empty, it should also wait on a cond (don't busy-spin here either) until something is enqueued.
+
+- Coder resets priority back to false (under priority_lock) once it's done with the dongles, so the next time it wants to compile it has to request again.

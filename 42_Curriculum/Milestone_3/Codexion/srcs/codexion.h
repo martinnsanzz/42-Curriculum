@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:09:52 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/01 14:57:12 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ typedef struct s_program	t_program;
 typedef struct s_dongle		t_dongle;
 typedef struct s_coder		t_coder;
 typedef struct s_schedule	t_schedule;
+typedef struct s_request	t_request;
 
 typedef struct s_program
 {
@@ -86,6 +87,7 @@ typedef struct s_program
 	size_t			start_time;
 
 	bool			burn_out_flag;
+	bool			all_finish;
 
 	t_coder			*coders;
 
@@ -101,11 +103,16 @@ typedef struct s_schedule
 	pthread_t		scheduler_thread;
 
 	char			*sched_arg;
-	bool			*burn_out;
 
-	t_coder			**coders;
+	bool			*burn_out;
+	bool			*all_finish;
+
+	t_request		*heap;
+	size_t			heap_size;
+	size_t			next_seq;
 
 	pthread_mutex_t	priority_lock;
+	pthread_cond_t	turn_cond;
 }	t_schedule;
 
 typedef struct s_dongle
@@ -142,11 +149,18 @@ typedef struct s_coder
 	t_dongle		*l_dongle;
 	t_dongle		*r_dongle;
 
+	t_schedule		*schedule;
+
 	pthread_mutex_t *compile_lock;
 	pthread_mutex_t *write_lock;
 	pthread_mutex_t	*state_lock;
 }	t_coder;
 
+typedef struct s_request
+{
+	t_coder *coder;
+	size_t	key;
+}	t_request;
 
 // -------------------- //
 //		PROTOTYPES		//
@@ -158,7 +172,7 @@ int		check_valid_num(char *argv[]);
 
 // -------- Initialization ---------
 // Structs //
-void	init_program(t_program *prog, char *argv[]);
+int	init_program(t_program *prog, char *argv[]);
 int	init_dongles(int total_dongles, t_dongle **dongles);
 int	init_coders(t_program *prog, t_dongle *dongles, char *argv[]);
 int	init_scheduler(t_program *prog, char *argv[]);
@@ -176,9 +190,13 @@ void	clean_failed_mutex(t_dongle **dongles, int total_dongles, int i);
 void	clean_dongles(t_dongle **dongles, int total_dongles);
 void	cleanup_pre_threads(t_program *prog, t_dongle *dongles);
 void	cleanup_after_monitor(t_program *prog, t_dongle *dongles);
+void	free_scheduler(t_schedule **scheduler);
 
 // ----------- Schedule ------------
+size_t	compute_key(t_schedule *s, t_coder *coder);
 void	*sched_routine(void *pointer);
+int	wait_for_turn(t_coder *coder);
+void	wake_scheduler(t_schedule *s);
 
 // ------------ Monitor ------------
 void	*monitor(void *pointer);
@@ -215,6 +233,8 @@ void	*ft_memset(void *s, int c, size_t n);
 void	*ft_calloc(size_t nmemb, size_t size);
 bool	is_cooldown(size_t last_release, size_t cooldown);
 size_t	ft_strlen(const char *s);
+t_coder	*heap_pop(t_schedule *s);
+int		heap_push(t_schedule *s, t_coder *coder);
 
 // --------- Print Errors ----------
 void	invalid_num_of_args(void);
