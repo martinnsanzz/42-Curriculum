@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 14:57:12 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/02 12:15:07 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,12 @@ typedef enum e_coder_state
 	BURNOUT
 }	t_coder_state;
 
+typedef enum e_dongle_state
+{
+	DONGLE_FREE,
+	DONGLE_TAKEN
+}	t_dongle_state;
+
 // -------------------- //
 //		STRUCTURES		//
 // -------------------- //
@@ -117,11 +123,10 @@ typedef struct s_schedule
 
 typedef struct s_dongle
 {
+	t_dongle_state	state;
 	size_t			last_release;
 
 	pthread_mutex_t	lock;
-
-	pthread_cond_t	cond;
 }	t_dongle;
 
 typedef struct s_coder
@@ -185,8 +190,7 @@ int	init_coder_threads(t_program *prog);
 // ----------- Clean up ------------
 void	clean_values(t_program *prog, t_dongle *dongles);
 void	destroy_all(t_program *prog, t_dongle *dongles);
-void	clean_failed_cond(t_dongle **dongles, int i);
-void	clean_failed_mutex(t_dongle **dongles, int total_dongles, int i);
+void	clean_failed_mutex(t_dongle **dongles, int i);
 void	clean_dongles(t_dongle **dongles, int total_dongles);
 void	cleanup_pre_threads(t_program *prog, t_dongle *dongles);
 void	cleanup_after_monitor(t_program *prog, t_dongle *dongles);
@@ -205,11 +209,14 @@ void	*monitor(void *pointer);
 void	*coder_routine(void *arg);
 
 // ------------- Dongles -------------
-void	lock_dongles(t_coder *coder);
+void	take_dongles(t_coder *coder);
 void	unlock_dongles(t_coder *coder);
+void	reserve_dongles(t_coder *coder);
+bool	can_grant(t_coder *coder, size_t *wake_at);
 
 // ------------- Setters -------------
-void	set_state(t_coder *coder, t_coder_state state);
+void	set_coder_state(t_coder *coder, t_coder_state state);
+void	set_dongle_state(t_dongle *dongle, t_dongle_state state);
 void	set_coder_dongles(t_coder *coder, t_dongle *dongles, int index);
 void	set_coder_rules(t_coder *coder, t_program *prog, char *argv[]);
 
@@ -217,7 +224,8 @@ void	set_coder_rules(t_coder *coder, t_program *prog, char *argv[]);
 int				get_total_compiles(t_coder *coder);
 size_t			get_program_time(size_t start);
 size_t 			get_current_time(void);
-t_coder_state	get_state(t_coder *coder);
+t_coder_state	get_coder_state(t_coder *coder);
+t_dongle_state	get_dongle_state(t_dongle *dongle, size_t *last_release);
 
 // ------------ Display ------------
 void	display_status(t_coder *coder);
@@ -243,7 +251,7 @@ void	wrong_scheduler(char *value);
 void	thread_errors(int error_id, int index);
 void	mutex_init_errors(int error_id, int index);
 void	mutex_destroy_errors(int error_id, int index);
-void	cond_erors(int error_id, int index);
+void	cond_erors(int error_id);
 void	time_error(int error_id);
 
 #endif

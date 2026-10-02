@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 14:15:59 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 11:30:34 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/02 12:00:39 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int	init_scheduler_thread(t_schedule *scheduler)
 	if (pthread_cond_init(&(*scheduler).turn_cond, NULL))
 	{
 		pthread_mutex_destroy(&(*scheduler).priority_lock);
-		return (cond_erors(3, 0), 1);
+		return (cond_erors(1), 1);
 	}
 	if (pthread_create(&(*scheduler).scheduler_thread, NULL, &sched_routine,
 			(void *)&(*scheduler)))

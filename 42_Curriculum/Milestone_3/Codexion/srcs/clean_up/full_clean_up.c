@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 10:39:49 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/02 12:00:56 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void destroy_all(t_program *prog, t_dongle *dongles)
 	if (pthread_mutex_destroy(&(*prog).scheduler->priority_lock))
 		mutex_destroy_errors(5, 0);
 	if (pthread_cond_destroy(&(*prog).scheduler->turn_cond))
-		cond_erors(4, 0);
+		cond_erors(2);
 	cleanup_after_monitor(prog, dongles);
 }
 
@@ -105,8 +105,6 @@ void	clean_dongles(t_dongle **dongles, int total_dongles)
 	i = 0;
 	while (i < total_dongles)
 	{
-		if (pthread_cond_destroy(&(*dongles)[i].cond))
-			cond_erors(2, i + 1);
 		if (pthread_mutex_destroy(&(*dongles)[i].lock))
 			mutex_destroy_errors(1, i + 1);
 		i++;

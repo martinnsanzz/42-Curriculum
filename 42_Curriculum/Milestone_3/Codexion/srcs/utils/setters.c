@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setters.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 11:15:17 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:19:30 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/02 12:54:09 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,26 @@
 /**
  * @brief Safely sets the state of @p coder.
  */
-void	set_state(t_coder *coder, t_coder_state state)
+void	set_coder_state(t_coder *coder, t_coder_state state)
 {
 	pthread_mutex_lock(coder->state_lock);
 	coder->state = state;
 	pthread_mutex_unlock(coder->state_lock);
+}
+
+/**
+ * @brief Safaly sets the state of @p dongle.
+ *
+ * If the @p state is `DONGLE_FREE` it sets the @c release_time
+ * of the @p dongle to the current time in ms.
+ */
+void	set_dongle_state(t_dongle *dongle, t_dongle_state state)
+{
+	pthread_mutex_lock(&dongle->lock);
+	dongle->state = state;
+	if (state == DONGLE_FREE)
+		dongle->last_release = get_current_time();
+	pthread_mutex_unlock(&dongle->lock);
 }
 
 /**

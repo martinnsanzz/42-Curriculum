@@ -3,115 +3,116 @@
 /*                                                        :::      ::::::::   */
 /*   dongles.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
+/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 13:37:13 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:17:17 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/02 12:38:38 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
-static void wait_for_dongle(t_dongle *dongle, size_t cooldown);
-
 /**
- * @brief Locks a coder's left and right dongles in a fixed order,
- *        blocking on each until it is free and its cooldown has
- *        elapsed.
- *
- * Even-numbered coders lock their left dongle before their right;
- * odd-numbered coders lock right before left. This consistent,
- * opposite ordering between neighbors is what prevents circular
- * wait: two coders sharing a dongle can never both be holding one
- * mutex while blocked on the other's. Each dongle is acquired via
- * @c wait_for_dongle, which blocks until both the mutex is free and
- * @c dongle_cooldown milliseconds have passed since it was last
- * released.
- *
- * @param coder Pointer to the coder acquiring its dongles. Blocks
- *              until both @c l_dongle->lock and @c r_dongle->lock
- *              are held and out of cooldown.
+ * @brief Announce that a granted coder has taken both dongles.
  */
-void	lock_dongles(t_coder *coder)
+void	take_dongles(t_coder *coder)
 {
-	if (coder->id % 2 == 0)
-	{
-		wait_for_dongle(coder->l_dongle, (*coder).dongle_cooldown);
-		display_dongle(coder, "left");
-		wait_for_dongle(coder->r_dongle, (*coder).dongle_cooldown);
-		display_dongle(coder, "right");
-	}
-	else
-	{
-		wait_for_dongle(coder->r_dongle, (*coder).dongle_cooldown);
-		display_dongle(coder, "right");
-		wait_for_dongle(coder->l_dongle, (*coder).dongle_cooldown);
-		display_dongle(coder, "left");
-	}
+	display_dongle(coder, "left");
+	display_dongle(coder, "right");
 }
 
 /**
- * @brief Locks a dongle and blocks until its cooldown has elapsed.
+ * @brief Release both of a coder's dongles and wake the scheduler.
  *
- * Locks @p dongle->lock, then checks whether the dongle is still cooling
- * down. If it is, computes the absolute deadline at which the
- * cooldown expires and sleeps on @p dongle->cond via
- * pthread_cond_timedwait, which atomically releases the lock while
- * waiting and reacquires it on wake. The check is re-evaluated in a
- * while loop (not if) to guard against spurious wakeups and against
- * @c last_release changing between iterations. Returns with
- * @p dongle->lock held.
+ * Sets the left and then the right dongle to DONGLE_FREE through
+ * set_dongle_state(), which also records last_release under each
+ * dongle's own lock. Then calls wake_scheduler(), so a scheduler that
+ * is waiting for a release re-checks the root coder. No dongle lock
+ * is held when wake_scheduler() takes priority_lock.
  *
- * @param dongle   Pointer to the dongle to acquire.
- * @param cooldown Cooldown duration in milliseconds.
- */
-static void wait_for_dongle(t_dongle *dongle, size_t cooldown)
-{
-	struct timespec	deadline;
-	size_t			wake_at;
-
-	pthread_mutex_lock(&dongle->lock);
-	while(is_cooldown(dongle->last_release, cooldown))
-	{
-		wake_at = dongle->last_release + cooldown;
-		deadline.tv_sec = wake_at / 1000;
-		deadline.tv_nsec = (wake_at % 1000) * 1000000;
-		pthread_cond_timedwait(&dongle->cond, &dongle->lock, &deadline);
-	}
-}
-
-/**
- * @brief Releases a coder's dongles, recording the release time.
- *
- * For each dongle, while still holding its lock, writes the current
- * time into @c last_release and broadcasts on its condition
- * variable to wake any coder waiting on that dongle, then unlocks
- * it. Writing the timestamp and broadcasting before unlocking
- * guarantees the next thread to acquire the lock always observes an
- * up-to-date @c last_release, with no window where a stale value
- * could be read. Dongles are released in the same left/right order
- * used by @c lock_dongles, mirrored by coder parity.
- *
- * @param coder Pointer to the coder releasing its dongles.
+ * @param coder Coder releasing its dongles.
  */
 void	unlock_dongles(t_coder *coder)
 {
-	if (coder->id % 2 == 0)
+	set_dongle_state(coder->l_dongle, DONGLE_FREE);
+	set_dongle_state(coder->r_dongle, DONGLE_FREE);
+	wake_scheduler(coder->schedule);
+}
+
+/**
+ * @brief Mark both of a coder's dongles as taken.
+ *
+ * Sets the left and then the right dongle to DONGLE_TAKEN through
+ * set_dongle_state(). Only the scheduler calls it, after can_grant()
+ * returned true. Coders only ever set dongles back to free, so
+ * nothing can invalidate the check between the two calls.
+ * Caller must hold priority_lock.
+ *
+ * @param coder Coder whose dongles are reserved.
+ */
+void	reserve_dongles(t_coder *coder)
+{
+	set_dongle_state(coder->l_dongle, DONGLE_TAKEN);
+	set_dongle_state(coder->r_dongle, DONGLE_TAKEN);
+}
+
+/**
+ * @brief Check whether a coder can take both dongles right now.
+ *
+ * Reads each dongle with get_dongle_state(). It changes nothing.
+ * - Either dongle TAKEN: returns false and sets @p wake_at to 0, which
+ *   means "wait for a release", since no time can be predicted.
+ * - Both FREE but still cooling down: returns false and sets
+ *   @p wake_at to the later of the two cooldown end times, as an
+ *   absolute time in ms.
+ * - Both FREE and out of cooldown: returns true.
+ *
+ * Caller must hold priority_lock.
+ *
+ * @param coder   Coder at the root of the heap.
+ * @param wake_at Output. 0 to wait for a release, otherwise the
+ *                absolute time at which to check again.
+ *
+ * @return true if the coder can take both dongles.
+ * @return false otherwise.
+ */
+bool	can_grant(t_coder *coder, size_t *wake_at)
+{
+	size_t	l_release;
+	size_t	r_release;
+	size_t	l_end;
+	size_t	r_end;
+
+	*wake_at = 0;
+	if (get_dongle_state(coder->l_dongle, &l_release) == DONGLE_TAKEN)
+		return (0);
+	if (get_dongle_state(coder->r_dongle, &r_release) == DONGLE_TAKEN)
+		return (0);
+	l_end = l_release + coder->dongle_cooldown;
+	r_end = r_release + coder->dongle_cooldown;
+	if (r_end > l_end)
+		l_end = r_end;
+	if (l_end > get_current_time())
 	{
-		coder->l_dongle->last_release = get_current_time();
-		pthread_cond_broadcast(&coder->l_dongle->cond);
-		pthread_mutex_unlock(&coder->l_dongle->lock);
-		coder->r_dongle->last_release = get_current_time();
-		pthread_cond_broadcast(&coder->r_dongle->cond);
-		pthread_mutex_unlock(&coder->r_dongle->lock);
+		*wake_at = l_end;
+		return (0);
 	}
-	else
-	{
-		coder->r_dongle->last_release = get_current_time();
-		pthread_cond_broadcast(&coder->r_dongle->cond);
-		pthread_mutex_unlock(&coder->r_dongle->lock);
-		coder->l_dongle->last_release = get_current_time();
-		pthread_cond_broadcast(&coder->l_dongle->cond);
-		pthread_mutex_unlock(&coder->l_dongle->lock);
-	}
+	return (1);
+}
+
+/**
+ * @brief Wake the scheduler and every coder sleeping on turn_cond.
+ *
+ * Called by the monitor after setting burn_out_flag or all_finish, and
+ * by unlock_dongles after a release. Takes priority_lock around the
+ * broadcast so a thread that has just checked its predicate but not
+ * yet slept cannot miss the wakeup.
+ *
+ * @param s Scheduler whose turn_cond is broadcast.
+ */
+void	wake_scheduler(t_schedule *s)
+{
+	pthread_mutex_lock(&s->priority_lock);
+	pthread_cond_broadcast(&s->turn_cond);
+	pthread_mutex_unlock(&s->priority_lock);
 }

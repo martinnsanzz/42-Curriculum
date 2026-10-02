@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 11:20:13 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 15:21:57 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/02 12:20:10 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,16 +95,8 @@ int	init_scheduler(t_program *prog, char *argv[])
  * @brief Initializes and allocates the dongles array (t_dongle).
  *
  * Allocates an array of @p total_dongles structs, then initializes
- * every condition variable first, and every mutex second, each in
- * its own pass. Splitting the two passes means that if a mutex
- * fails to initialize partway through, every condition variable is
- * already known to be valid (all of them were initialized in the
- * first pass), and only the mutexes initialized so far in the
- * second pass need destroying. If a condition variable fails to
- * initialize partway through the first pass, no mutex has been
- * touched yet, so only the condition variables initialized so far
- * need destroying. Either way, the caller never receives a
- * partially-initialized array.
+ * and every mutex. The caller never receives a partially-initialized
+ * array.
  *
  * @param total_dongles Number of dongles to allocate and initialize
  *                       (equal to the number of coders).
@@ -128,18 +120,11 @@ int	init_dongles(int total_dongles, t_dongle **dongles)
 	i = 0;
 	while (i < total_dongles)
 	{
+		(*dongles)[i].state = DONGLE_FREE;
 		(*dongles)[i].last_release = 0;
-		error = pthread_cond_init(&(*dongles)[i].cond, NULL);
-		if (error)
-			return (clean_failed_cond(dongles, i), 1);
-		i++;
-	}
-	i = 0;
-	while (i < total_dongles)
-	{
 		error = pthread_mutex_init(&(*dongles)[i].lock, NULL);
 		if (error)
-			return (clean_failed_mutex(dongles, total_dongles, i), 1);
+			return (clean_failed_mutex(dongles, i), 1);
 		i++;
 	}
 	return (0);

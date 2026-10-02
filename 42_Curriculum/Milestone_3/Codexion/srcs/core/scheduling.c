@@ -6,21 +6,21 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 13:22:37 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 15:05:26 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/02 12:20:27 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
+static void	wait_until(t_schedule *s, size_t wake_at);
+static void	grant_or_wait(t_schedule *s);
+
 /**
- * @brief Scheduler thread entry point: grants dongle access in key order.
+ * @brief Scheduler thread entry point: grants dongles in key order.
  *
  * Holds priority_lock for the whole run, releasing it only while
- * sleeping in pthread_cond_wait. While the heap is empty it sleeps on
- * turn_cond. Otherwise it pops the coder with the smallest key, sets
- * its priority flag and broadcasts turn_cond so the waiting coders
- * re-check their predicate. Stops when burn_out or all_finish is set,
- * and broadcasts once more so no coder stays asleep in wait_for_turn.
+ * sleeping. Loops grant_or_wait() until burn_out or all_finish is set,
+ * then broadcasts once more so no coder stays asleep in wait_for_turn.
  *
  * @param pointer Cast to @c t_schedule*; the scheduler to run.
  *
@@ -29,22 +29,12 @@
 void	*sched_routine(void *pointer)
 {
 	t_schedule	*s;
-	t_coder		*next;
 
 	s = (t_schedule *)pointer;
 	pthread_mutex_lock(&s->priority_lock);
-	while(!(*(s->burn_out) || *(s->all_finish)))
-	{
-		if (s->heap_size == 0)
-		{
-			pthread_cond_wait(&s->turn_cond, &s->priority_lock);
-			continue ;
-		}
-		next = heap_pop(s);
-		next->priority = true;
-		pthread_cond_broadcast(&s->turn_cond);
-	}
-		pthread_cond_broadcast(&s->turn_cond);
+	while (!(*s->burn_out || *s->all_finish))
+		grant_or_wait(s);
+	pthread_cond_broadcast(&s->turn_cond);
 	pthread_mutex_unlock(&s->priority_lock);
 	return (NULL);
 }
@@ -78,8 +68,9 @@ size_t	compute_key(t_schedule *s, t_coder *coder)
  * Under priority_lock: clears the coder's priority flag, pushes it
  * into the heap and broadcasts turn_cond to wake the scheduler. Then
  * sleeps on turn_cond until priority is set or burn_out is raised. The
- * wait is a loop, so spurious wakeups are harmless. The lock is
- * released exactly once on every exit path.
+ * wait is a loop, so spurious wakeups are harmless. When priority is
+ * set, the scheduler has already reserved both dongles for this coder.
+ * The lock is released exactly once on every exit path.
  *
  * @param coder Coder requesting its turn.
  *
@@ -108,17 +99,51 @@ int	wait_for_turn(t_coder *coder)
 }
 
 /**
- * @brief Wake the scheduler and every coder sleeping on turn_cond.
+ * @brief Sleep on turn_cond until an absolute time or a wakeup.
  *
- * Called by the monitor after setting burn_out_flag or all_finish.
- * Takes priority_lock around the broadcast so a thread that has just
- * checked the flag but not yet slept cannot miss the wakeup.
+ * Used when the root coder's dongles are free but still cooling down.
+ * Caller must hold priority_lock. Returns early if turn_cond is
+ * broadcast, and the caller's loop re-evaluates everything.
  *
- * @param s Scheduler whose turn_cond is broadcast.
+ * @param s       Scheduler owning turn_cond and priority_lock.
+ * @param wake_at Absolute time in ms since the epoch.
  */
-void	wake_scheduler(t_schedule *s)
+static void	wait_until(t_schedule *s, size_t wake_at)
 {
-	pthread_mutex_lock(&s->priority_lock);
-	pthread_cond_broadcast(&s->turn_cond);
-	pthread_mutex_unlock(&s->priority_lock);
+	struct timespec	deadline;
+
+	deadline.tv_sec = wake_at / 1000;
+	deadline.tv_nsec = (wake_at % 1000) * 1000000;
+	pthread_cond_timedwait(&s->turn_cond, &s->priority_lock, &deadline);
 }
+
+/**
+ * @brief One scheduler step: grant the root coder or sleep.
+ *
+ * Empty heap: wait for a request. Root coder can go: reserve its
+ * dongles, pop it, set its priority and broadcast. Otherwise wait for
+ * a release (wake_at == 0) or until the cooldown ends (wake_at > 0).
+ * Caller must hold priority_lock.
+ *
+ * @param s Scheduler owning the heap.
+ */
+static void	grant_or_wait(t_schedule *s)
+{
+	size_t	wake_at;
+	t_coder	*next;
+
+	if (s->heap_size == 0)
+		pthread_cond_wait(&s->turn_cond, &s->priority_lock);
+	else if (can_grant(s->heap[0].coder, &wake_at))
+	{
+		reserve_dongles(s->heap[0].coder);
+		next = heap_pop(s);
+		next->priority = true;
+		pthread_cond_broadcast(&s->turn_cond);
+	}
+	else if (wake_at == 0)
+		pthread_cond_wait(&s->turn_cond, &s->priority_lock);
+	else
+		wait_until(s, wake_at);
+}
+
