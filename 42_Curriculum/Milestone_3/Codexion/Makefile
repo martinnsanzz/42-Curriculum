@@ -18,7 +18,7 @@ UNDERLINE			:= \033[4m
 CC					:= cc
 C_FLAGS				:= -Wall -Werror -Wextra
 GDB_FLAG			:= -g
-LPTHREAD_FLAG		:= -lpthread
+LPTHREAD_FLAG		:= -pthread
 RM					:= rm -rf
 
 
