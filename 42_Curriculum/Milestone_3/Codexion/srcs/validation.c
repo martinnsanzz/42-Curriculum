@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 12:16:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:55:09 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:33:07 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,12 @@ static int	ft_isnumber(char *s);
  * @return 0 on parsing success.
  * @return 1 on error found in any argument.
  */
-int     check_argv(int argc, char *argv[])
+int	check_argv(int argc, char *argv[])
 {
 	if (argc != 9)
 		return (invalid_num_of_args(), 1);
 	else if ((ft_strcmp(argv[8], FIFO)) && (ft_strcmp(argv[8], EDF)))
 		return (wrong_scheduler(argv[8]), 1);
-
 	if (check_valid_num(argv) == 1)
 		return (1);
 	return (0);
@@ -53,11 +52,11 @@ int     check_argv(int argc, char *argv[])
  * @return 1 if number is not valid or if number of coders
  * 			is == 0.
  */
-int check_valid_num(char *argv[])
+int	check_valid_num(char *argv[])
 {
-	int i;
+	int	i;
 
-    i = 0;
+	i = 0;
 	while (i++ < 7)
 	{
 		if (ft_isnumber(argv[i]) == 1)
@@ -88,13 +87,13 @@ int check_valid_num(char *argv[])
  */
 static int	ft_isnumber(char *s)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (s[i] != '\0')
 	{
 		if (!(s[i] >= '0' && s[i] <= '9') && (s[i] == '-' && i != 0))
-				return (1);
+			return (1);
 		i++;
 	}
 	return (0);

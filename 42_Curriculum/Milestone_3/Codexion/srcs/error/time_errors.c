@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_errors.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 12:10:11 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 11:02:40 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:14:27 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /**
  * @brief Prints error msg specific if @fn gettimeofday() fails.
  */
-void time_error(int error_id)
+void	time_error(int error_id)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)

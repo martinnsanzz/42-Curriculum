@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_threads.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 14:15:59 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:00:39 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:22:11 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ int	init_monitor_thread(t_program *prog)
 {
 	int	error;
 
-	error = pthread_create(&(*prog).monitor_thread, NULL, &monitor, (void *)&(*prog));
+	error = pthread_create(&(*prog).monitor_thread, NULL, &monitor,
+			(void *)&(*prog));
 	if (error)
 	{
 		thread_errors(3, 0);

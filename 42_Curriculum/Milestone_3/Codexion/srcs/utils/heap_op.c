@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   heap_op.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 12:52:23 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:21:06 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:25:04 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../codexion.h"
 
-static void	sift_down(t_schedule *s);
+static void		sift_down(t_schedule *s);
 static size_t	smallest_child(t_schedule *s, size_t i);
-static void	heap_swap(t_request *a, t_request *b);
+static void		heap_swap(t_request *a, t_request *b);
 
 /**
  * @brief Insert a coder into the scheduler's min-heap.
@@ -64,7 +64,7 @@ int	heap_push(t_schedule *s, t_coder *coder)
  */
 t_coder	*heap_pop(t_schedule *s)
 {
-	t_coder *top;
+	t_coder	*top;
 
 	if (s->heap_size == 0)
 		return (NULL);
@@ -82,7 +82,7 @@ t_coder	*heap_pop(t_schedule *s)
  */
 static void	heap_swap(t_request *a, t_request *b)
 {
-	t_request tmp;
+	t_request	tmp;
 
 	tmp = *a;
 	*a = *b;

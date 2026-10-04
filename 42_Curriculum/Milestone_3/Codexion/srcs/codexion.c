@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 12:47:12 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/01 15:07:56 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:28:09 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static int	program_initializer(char **argv, t_program *prog, t_dongle **dongles);
+static int	program_initializer(char **argv, t_program *prog,
+				t_dongle **dongles);
 
 /**
  * @brief Program entry point: validates the arguments and runs the
@@ -33,13 +34,13 @@ static int	program_initializer(char **argv, t_program *prog, t_dongle **dongles)
  * @return 1 if the arguments are invalid or an initialisation stage
  *         failed.
  */
-int     main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
-    t_program	prog;
+	t_program	prog;
 	t_dongle	*dongles;
 
 	if (check_argv(argc, argv) == 1)
-        return (1);
+		return (1);
 	prog.total_coders = ft_atoi(argv[1]);
 	if (program_initializer(argv, &prog, &dongles))
 		return (1);
@@ -80,7 +81,8 @@ int     main(int argc, char *argv[])
  * @return 1 if a stage failed. The stages that had already succeeded
  *         are cleaned up, except those noted below.
  */
-static int	program_initializer(char **argv, t_program *prog, t_dongle **dongles)
+static int	program_initializer(char **argv, t_program *prog,
+				t_dongle **dongles)
 {
 	if (init_program(prog, argv))
 		return (1);

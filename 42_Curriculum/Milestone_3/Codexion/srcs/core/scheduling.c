@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   scheduling.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 13:22:37 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:20:27 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:26:41 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,4 +146,3 @@ static void	grant_or_wait(t_schedule *s)
 	else
 		wait_until(s, wake_at);
 }
-

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 09:32:06 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/28 14:24:51 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:26:06 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
  * @param cooldown	Time in (ms) for a dongle to be available to
  * 					use again after being released.
  */
-bool is_cooldown(size_t last_release, size_t cooldown)
+bool	is_cooldown(size_t last_release, size_t cooldown)
 {
 	return (get_current_time() - last_release < cooldown);
 }
@@ -32,12 +32,12 @@ bool is_cooldown(size_t last_release, size_t cooldown)
  * @return 0 If delays hasnt being interrumpted.
  * @return 1 If delay is interrupted.
  */
-int interruptible_sleep(t_coder *coder, int miliseconds)
+int	interruptible_sleep(t_coder *coder, int miliseconds)
 {
-	size_t start;
+	size_t	start;
 
 	start = get_current_time();
-	while((int)(get_current_time() - start) < miliseconds)
+	while ((int)(get_current_time() - start) < miliseconds)
 	{
 		if (*(*coder).burn_out == true)
 			return (1);
