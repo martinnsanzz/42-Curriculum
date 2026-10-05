@@ -6,7 +6,7 @@
 /*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 13:22:37 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/05 13:13:06 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/05 13:52:47 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,6 @@ static void	wait_until(t_schedule *s, size_t wake_at)
 	deadline.tv_nsec = (wake_at % 1000) * 1000000;
 	pthread_cond_timedwait(&s->turn_cond, &s->priority_lock, &deadline);
 }
-
 
 static void	grant_or_wait(t_schedule *s)
 {
