@@ -6,7 +6,7 @@
 /*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/04 19:31:03 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/05 13:08:44 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,6 +165,7 @@ typedef struct s_request
 {
 	t_coder	*coder;
 	size_t	key;
+	size_t	seq;
 }	t_request;
 
 // -------------------- //
@@ -243,6 +244,10 @@ bool			is_cooldown(size_t last_release, size_t cooldown);
 size_t			ft_strlen(const char *s);
 t_coder			*heap_pop(t_schedule *s);
 int				heap_push(t_schedule *s, t_coder *coder);
+void			heap_swap(t_request *a, t_request *b);
+void			sift_down(t_schedule *s, size_t i);
+void			heap_remove_at(t_schedule *s, size_t i);
+int				find_grantable(t_schedule *s, size_t *wake_at);
 
 // --------- Print Errors ----------
 void			invalid_num_of_args(void);

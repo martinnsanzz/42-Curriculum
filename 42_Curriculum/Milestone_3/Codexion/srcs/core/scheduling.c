@@ -6,7 +6,7 @@
 /*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 13:22:37 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/04 19:26:41 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/05 13:13:06 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	*sched_routine(void *pointer)
 size_t	compute_key(t_schedule *s, t_coder *coder)
 {
 	if (ft_strcmp(s->sched_arg, FIFO) == 0)
-		return (s->next_seq++);
+		return (s->next_seq);
 	else
 		return (coder->last_compile + coder->time_to_burn_out);
 }
@@ -117,32 +117,29 @@ static void	wait_until(t_schedule *s, size_t wake_at)
 	pthread_cond_timedwait(&s->turn_cond, &s->priority_lock, &deadline);
 }
 
-/**
- * @brief One scheduler step: grant the root coder or sleep.
- *
- * Empty heap: wait for a request. Root coder can go: reserve its
- * dongles, pop it, set its priority and broadcast. Otherwise wait for
- * a release (wake_at == 0) or until the cooldown ends (wake_at > 0).
- * Caller must hold priority_lock.
- *
- * @param s Scheduler owning the heap.
- */
+
 static void	grant_or_wait(t_schedule *s)
 {
 	size_t	wake_at;
+	int		index;
 	t_coder	*next;
 
 	if (s->heap_size == 0)
 		pthread_cond_wait(&s->turn_cond, &s->priority_lock);
-	else if (can_grant(s->heap[0].coder, &wake_at))
-	{
-		reserve_dongles(s->heap[0].coder);
-		next = heap_pop(s);
-		next->priority = true;
-		pthread_cond_broadcast(&s->turn_cond);
-	}
-	else if (wake_at == 0)
-		pthread_cond_wait(&s->turn_cond, &s->priority_lock);
 	else
-		wait_until(s, wake_at);
+	{
+		index = find_grantable(s, &wake_at);
+		if (index >= 0)
+		{
+			next = s->heap[index].coder;
+			reserve_dongles(next);
+			heap_remove_at(s, (size_t)index);
+			next->priority = true;
+			pthread_cond_broadcast(&s->turn_cond);
+		}
+		else if (wake_at == 0)
+			pthread_cond_wait(&s->turn_cond, &s->priority_lock);
+		else
+			wait_until(s, wake_at);
+	}
 }

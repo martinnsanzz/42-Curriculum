@@ -38,6 +38,7 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 utils/ft_string.c \
 												 utils/time.c \
 												 utils/heap_op.c \
+												 utils/heap_scan.c \
 												 utils/setters.c \
 												 utils/getters.c \
 												 error/validation_errors.c \
