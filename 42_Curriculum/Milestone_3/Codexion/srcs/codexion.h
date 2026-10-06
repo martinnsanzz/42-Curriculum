@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:15:51 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/06 09:52:28 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/06 11:32:48 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,12 @@
 # define LOG_SUCCESS		"\n%sAll coders have compiled.%s\n"
 
 // Coders limits //
-# define MIN_CODERS 	1
-# define MAX_CODERS 	200
+# define MIN_CODERS 		1
+# define MAX_CODERS 		200
 
 // Scheduler //
-# define FIFO			"fifo"
-# define EDF			"edf"
+# define FIFO				"fifo"
+# define EDF				"edf"
 
 // -------------------- //
 //		   ENUM			//

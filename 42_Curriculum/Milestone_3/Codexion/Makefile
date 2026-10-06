@@ -94,8 +94,16 @@ $(OBJS_DIR_DEBUG)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR_DEBUG)
 # ------------------ Commands ------------------ #
 help:
 	@echo "${BOLD}Available commands:${RESET}"
-	@echo "${CYAN}  make clean${RESET}      - Remove cache folders"
-	@echo "${CYAN}  make fclean${RESET}     - Remove venv and cache"
+	@echo "${CYAN}  make${RESET} / ${CYAN}make all${RESET}  - Compile the program"
+	@echo "${CYAN}  make debug${RESET}      - Compile the debug version of the program"
+	@echo "${CYAN}  make valgrind${RESET}   - Run valgrind (memory leaks) with default arguments"
+	@echo "${CYAN}  make helgrind${RESET}   - Run helgrind (race conditions) with default arguments"
+	@echo "${CYAN}  make norminette${RESET} - Check the norm on the 'srcs' folder"
+	@echo "${CYAN}  make clean${RESET}      - Remove object folders, valgrind.log and helgrind.log"
+	@echo "${CYAN}  make fclean${RESET}     - Remove everything clean removes, plus the program and the debug executable"
+	@echo "${CYAN}  make re${RESET}         - Run fclean, then compile again"
+	@echo "${CYAN}  make re-debug${RESET}   - Run fclean, then compile the debug version"
+	@echo "${CYAN}  make help-run${RESET}   - Show the arguments needed to run the program"
 
 help-run:
 	@echo "${CYAN}To run the program the following arguments must be passed:${RESET}\n"

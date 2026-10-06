@@ -6,7 +6,7 @@
 /*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 12:02:04 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/06 09:51:53 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/06 11:31:33 by masanz-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	invalid_num(int error_id, int index, char *value)
 	(void)value;
 	if (error_id == 4)
 		fprintf(stderr, "Number of coders must be greater"
-			"than %d\n", MIN_CODERS - 1);
+			" than %d\n", MIN_CODERS - 1);
 	if (error_id == 5)
 		fprintf(stderr, "Number of coders limit is %d\n", MAX_CODERS);
 	fprintf(stderr, RESET);
