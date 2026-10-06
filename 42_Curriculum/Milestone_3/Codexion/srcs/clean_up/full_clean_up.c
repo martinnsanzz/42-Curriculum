@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   full_clean_up.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 11:56:00 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:00:56 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:20:57 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	clean_values(t_program *prog, t_dongle *dongles)
 	if (pthread_join((*prog).scheduler->scheduler_thread, NULL))
 		thread_errors(6, 0);
 	i = 0;
-	while(i < (*prog).total_coders)
+	while (i < (*prog).total_coders)
 	{
 		error = pthread_join((*prog).coders[i].thread, NULL);
 		if (error)
@@ -73,7 +73,7 @@ void	clean_values(t_program *prog, t_dongle *dongles)
  * @param dongles Array of dongles whose mutexes/conds are destroyed;
  *                the array itself is freed.
  */
-void destroy_all(t_program *prog, t_dongle *dongles)
+void	destroy_all(t_program *prog, t_dongle *dongles)
 {
 	if (pthread_mutex_destroy(&(*prog).scheduler->priority_lock))
 		mutex_destroy_errors(5, 0);

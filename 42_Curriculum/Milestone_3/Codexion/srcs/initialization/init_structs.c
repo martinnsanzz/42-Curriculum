@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_structs.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 11:20:13 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:20:10 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:21:57 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ int	init_program(t_program *prog, char *argv[])
 	(*prog).start_time = get_current_time();
 	(*prog).burn_out_flag = false;
 	(*prog).all_finish = false;
-
 	if (pthread_mutex_init(&(*prog).compile_lock, NULL))
 		return (mutex_init_errors(2, 0), 1);
 	if (pthread_mutex_init(&(*prog).write_lock, NULL))
@@ -78,7 +77,8 @@ int	init_scheduler(t_program *prog, char *argv[])
 	(*prog).scheduler = ft_calloc(1, sizeof(t_schedule));
 	if ((*prog).scheduler == NULL)
 		return (1);
-	(*prog).scheduler->heap = ft_calloc((*prog).total_coders, sizeof(t_request));
+	(*prog).scheduler->heap = ft_calloc((*prog).total_coders,
+			sizeof(t_request));
 	if ((*prog).scheduler->heap == NULL)
 	{
 		free((*prog).scheduler);
@@ -179,4 +179,3 @@ int	init_coders(t_program *prog, t_dongle *dongles, char *argv[])
 	}
 	return (0);
 }
-

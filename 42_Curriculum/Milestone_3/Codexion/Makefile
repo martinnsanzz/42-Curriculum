@@ -38,6 +38,7 @@ SRCS				:= $(addprefix $(SRCS_DIR)/, codexion.c \
                                    				 utils/ft_string.c \
 												 utils/time.c \
 												 utils/heap_op.c \
+												 utils/heap_scan.c \
 												 utils/setters.c \
 												 utils/getters.c \
 												 error/validation_errors.c \
@@ -143,6 +144,12 @@ helgrind: $(NAME)
 				echo "$(GREEN)\nNo race conditions found$(RESET)"; \
 			  fi
 
+norminette:
+	@echo "$(YELLOW)Running norminette in the 'srcs' file...\n$(RESET)"
+	@out=$$(norminette ./*) \
+		&& echo "${GREEN}✓ Norminette passed${RESET}" \
+		|| { printf '%s\n' "$$out" | grep -v ': OK!$$'; echo "${RED}\n✗ Norminette failed${RESET}"; }
+
 debug: $(DEBUGEXEC)
 	@echo "${GREEN}Debug program is compiled and ready to use !! $(DEBUGGER)...${RESET}"
 
@@ -171,4 +178,4 @@ re: fclean all
 
 re-debug: fclean debug
 
-.PHONY: help help-run all valgrind helgrind debug clean fclean re re-debug
+.PHONY: help help-run all valgrind helgrind norminette debug clean fclean re re-debug

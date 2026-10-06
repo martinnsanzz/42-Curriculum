@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setters.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 11:15:17 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 12:54:09 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:25:35 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,10 @@ void	set_coder_dongles(t_coder *coder, t_dongle *dongles, int index)
  */
 void	set_coder_rules(t_coder *coder, t_program *prog, char *argv[])
 {
-		(*coder).time_to_burn_out = (size_t)ft_atoi(argv[2]);
-		(*coder).time_to_compile = (size_t)ft_atoi(argv[3]);
-		(*coder).time_to_debug = (size_t)ft_atoi(argv[4]);
-		(*coder).time_to_refactor = (size_t)ft_atoi(argv[5]);
-		(*coder).dongle_cooldown = (size_t)ft_atoi(argv[7]);
-		(*coder).compiles_required = &(*prog).compiles_required;
+	(*coder).time_to_burn_out = (size_t)ft_atoi(argv[2]);
+	(*coder).time_to_compile = (size_t)ft_atoi(argv[3]);
+	(*coder).time_to_debug = (size_t)ft_atoi(argv[4]);
+	(*coder).time_to_refactor = (size_t)ft_atoi(argv[5]);
+	(*coder).dongle_cooldown = (size_t)ft_atoi(argv[7]);
+	(*coder).compiles_required = &(*prog).compiles_required;
 }

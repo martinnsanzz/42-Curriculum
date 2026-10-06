@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   threading_errors.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 13:54:43 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/10/02 11:00:48 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:14:17 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /**
  * @brief Prints error msg specific to threads based on an ID into stderr
  */
-void thread_errors(int error_id, int index)
+void	thread_errors(int error_id, int index)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)
@@ -37,7 +37,7 @@ void thread_errors(int error_id, int index)
 /**
  * @brief Prints error msg specific to mutexes based on an ID into stderr
  */
-void mutex_init_errors(int error_id, int index)
+void	mutex_init_errors(int error_id, int index)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)
@@ -57,7 +57,7 @@ void mutex_init_errors(int error_id, int index)
 /**
  * @brief Prints error msg specific to mutexes based on an ID into stderr
  */
-void mutex_destroy_errors(int error_id, int index)
+void	mutex_destroy_errors(int error_id, int index)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)
@@ -77,7 +77,7 @@ void mutex_destroy_errors(int error_id, int index)
 /**
  * @brief Prints error msg specific to cond variables based on an ID into stderr
  */
-void cond_erors(int error_id)
+void	cond_erors(int error_id)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)

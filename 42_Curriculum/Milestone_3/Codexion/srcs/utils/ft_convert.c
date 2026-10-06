@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_convert.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masanz-s <masanz-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:45 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/25 10:13:45 by masanz-s         ###   ########.fr       */
+/*   Updated: 2026/10/04 19:24:11 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,31 +24,31 @@ static size_t	num_len(int num);
  *
  * @return The parsed integer value, or 0 if the parsed value exceeds INT_MAX.
  */
-int    ft_atoi(const char *nptr)
+int	ft_atoi(const char *nptr)
 {
-    long long    num;
-    int          sign;
-	int			 val;
+	long long	num;
+	int			sign;
+	int			val;
 
-    num = 0;
-    sign = 1;
-    while (*nptr == ' ' || (*nptr >= 9 && *nptr <= 13))
-        nptr++;
-    if (*nptr == '+' || *nptr == '-')
-    {
-        if (*nptr == '-')
-            sign = -1;
-        nptr++;
-    }
-    while (*nptr >= '0' && *nptr <= '9')
-    {
-        num = num * 10 + (*nptr - '0');
-        nptr++;
-    }
-    if (num > INT_MAX)
+	num = 0;
+	sign = 1;
+	while (*nptr == ' ' || (*nptr >= 9 && *nptr <= 13))
+		nptr++;
+	if (*nptr == '+' || *nptr == '-')
+	{
+		if (*nptr == '-')
+			sign = -1;
+		nptr++;
+	}
+	while (*nptr >= '0' && *nptr <= '9')
+	{
+		num = num * 10 + (*nptr - '0');
+		nptr++;
+	}
+	if (num > INT_MAX)
 		return (0);
 	val = (int)num;
-    return (val * sign);
+	return (val * sign);
 }
 
 /**
@@ -59,9 +59,9 @@ int    ft_atoi(const char *nptr)
  * @return Heap-allocated string representation of @p n, or NULL if
  *         allocation fails. Caller is responsible for freeing it.
  */
-char    *ft_itoa(int n)
+char	*ft_itoa(int n)
 {
-    char	*num;
+	char	*num;
 	long	nb;
 	size_t	len;
 

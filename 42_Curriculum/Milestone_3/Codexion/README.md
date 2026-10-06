@@ -160,9 +160,11 @@ every code least 10 times.
 ./codexion 5 3000 200 200 200 10 50 edf
 ```
 
->In order to test stress cases, try to put a small amount of `time_to_burnout` so the sum of
->compile+debug+ref+(dongle_cooldown * 2) is close to it. Usually time_to_burnout should be 100ms
->bigger than the total to work. Depends on the OS and computer architecture.
+> To stress-test, set `time_to_burnout` slightly above the feasible minimum:
+> `ceil(n / floor(n/2)) * (time_to_compile + dongle_cooldown)`, and never below
+> compile + debug + refactor. Run each case many times, since OS scheduling adds
+> a few ms of drift per round. Parameters within a few ms of the minimum can burn
+> out for that reason alone.
 
 ## Additional requirements
 
@@ -190,9 +192,10 @@ a pointer to the program structure.
 
 <u>Scheduler Thread</u>
 
-The scheduler thread is in charge of telling a coder when they can compile. The coder will push itself to a
-min-heap binary tree. The scheduler will give priority to a coder of grabing 2 dongles or none based on the policy
-`EDF` or `FIFO`.
+The scheduler thread is in charge of telling a coder when they can compile. Each coder 
+pushes a request into a min-heap binary tree. The scheduler scans the waiting requests and 
+grants the best one (by `EDF` deadline or `FIFO` arrival, with arrival order as tie-break) 
+whose two dongles are both free and out of cooldown. A coder gets both dongles or none.
 
 3. **Clean-up:**
 Once all coders have finished compiling or a coder has burnout all threads will be joined, all
@@ -216,25 +219,47 @@ for the following concurrency issues.
 
 - **Starvation Prevention:** Starvation happens when a coder keeps losing the race for its 
 dongles. Without coordination, a coder that releases both dongles can immediately grab them 
-again, before a neighbour that has been waiting gets a chance, and that neighbour may never get 
-to compile and burn out.
+again, before a neighbour that has been waiting gets a chance, and that neighbour may never 
+get to compile and burn out.
 
-  To prevent this, every request goes through a priority queue managed by the scheduler thread. Both policies use the same binary min-heap, and the coder with the **smallest key** is served first. The only difference is how the key is computed:
+  To prevent this, every request goes through a priority queue managed by the scheduler 
+  thread. Each request stores a **key** and an **arrival number** (`seq`). The coder with 
+  the smallest key is served first, and equal keys fall back to the smaller arrival number. 
+  The only difference between the policies is how the key is computed:
 
-  - **FIFO:** each request gets an increasing sequence number (starting at 0) when it is pushed into the heap. The oldest request has the smallest number, so coders are served strictly in arrival order and nobody can overtake a waiting coder.
-  - **EDF:** each request gets its deadline as key, `last_compile + time_to_burnout`, meaning the moment the coder would burn out. The coder closest to burning out has the smallest key and is served first. This is what keeps coders alive when the parameters are feasible.
+  - **FIFO:** the key is the arrival sequence number (starting at 0). The oldest waiting 
+  request has the smallest key, so among the coders that can take their dongles, the one 
+  that asked first is served first.
+  - **EDF:** the key is the deadline, `last_compile + time_to_burnout`, meaning the moment 
+  the coder would burn out. The coder closest to burning out is served first. Coders with 
+  equal deadlines (for example at the start, when all of them share the same `last_compile`) 
+  are served in arrival order.
 
-  Since the scheduler is the only one that hands out dongles, a coder that just released them has to queue up again like everyone else, so it cannot starve its neighbours.
+  Since the scheduler is the only one that hands out dongles, a coder that just released 
+  them has to queue up again like everyone else, so it cannot starve its neighbours. A coder 
+  whose dongles are busy is passed over only while they are busy. The scheduler re-checks on 
+  every release, so it is served as soon as they are free, and only coders whose dongles are 
+  free anyway can go ahead of it.
 
 - **Cooldown handling:** Each dongle has a state, `DONGLE_FREE` or `DONGLE_TAKEN`, protected by its own mutex, and a `last_release` timestamp. All dongles start free. When a coder finishes compiling it sets both dongles back to free, and each dongle records the current time as its `last_release`.
 
-  A dongle can be used again only once `dongle_cooldown` ms have passed since `last_release`. When the coder with the highest priority reaches the root of the heap, the scheduler checks both of its dongles:
+  A dongle can be used again only once `dongle_cooldown` ms have passed since 
+  `last_release`. The scheduler checks every waiting coder in the heap, not only the root, 
+  so a coder whose dongles are busy never holds back a coder whose dongles are free. For 
+  each waiting coder it looks at both dongles:
 
-  - **Either dongle is taken:** the scheduler sleeps until a coder releases a dongle and wakes it.
-  - **Both are free but still cooling down:** the scheduler sleeps until the later of the two cooldowns ends (`pthread_cond_timedwait`). The coder stays at the root of the heap, and the dongles are not reserved yet.
-  - **Both are free and out of cooldown:** the scheduler marks both as taken, pops the coder and wakes it up.
+  - **Either dongle is taken:** that coder cannot go yet.
+  - **Both are free but still cooling down:** that coder cannot go yet, and its cooldown end 
+  time is remembered.
+  - **Both are free and out of cooldown:** that coder can go.
 
-  Since only the scheduler ever marks a dongle as taken, a dongle it has seen as free cannot be taken by anyone else before it reserves it.
+  Among the coders that can go, the scheduler picks the one with the smallest `(key, seq)`, 
+  marks both of its dongles as taken, removes it from the heap and wakes it up. If nobody 
+  can go, the scheduler sleeps until a coder releases a dongle, or until the earliest 
+  remembered cooldown end (`pthread_cond_timedwait`), whichever comes first.
+
+  Since only the scheduler ever marks a dongle as taken, a dongle it has seen as free cannot 
+  be taken by anyone else before it reserves it.
 
 - **Precise burnout detection:** A dedicated monitor thread checks every coder in a loop, sleeping 1 ms between rounds so it does not spin on a CPU core. For each coder it reads the state once and skips coders that are `FINISH` or `COMPILING`, since a compile in progress already resets the burnout clock. For the others, it reads `last_compile` under `compile_lock` (the lock the coder writes it under) and compares `now - last_compile` with `time_to_burnout`.
 
@@ -266,11 +291,18 @@ The project uses only `pthread_mutex_t` and `pthread_cond_t`. There is no separa
 
 <u>How threads coordinate</u>
 
-**Coder to scheduler.** A coder calls `wait_for_turn`. Under `priority_lock` it pushes its request into the heap, broadcasts `turn_cond`, and sleeps in a `while (!coder->priority && !burn_out)` loop. The scheduler pops the root, sets `priority = true` and broadcasts. The wait is a loop on a predicate, so spurious wake-ups and broadcasts meant for other coders are harmless: the coder re-checks and goes back to sleep.
+**Coder to scheduler.** A coder calls `wait_for_turn`. Under `priority_lock` it pushes its 
+request into the heap, broadcasts `turn_cond`, and sleeps in a `while (!coder->priority && 
+!burn_out)` loop. The scheduler picks the best coder that can take its dongles, removes its 
+request from the heap (`heap_remove_at`), sets `priority = true` and broadcasts. The wait is 
+a loop on a predicate, so spurious wake-ups and broadcasts meant for other coders are 
+harmless: the coder re-checks and goes back to sleep.
 
 **Coder to scheduler on release.** When a coder finishes compiling, `unlock_dongles` sets both dongles to `DONGLE_FREE` and then calls `wake_scheduler`, so a scheduler that was waiting for a release re-checks the root coder.
 
-**Cooldown.** If the root coder's dongles are free but cooling down, the scheduler sleeps with `pthread_cond_timedwait` on `turn_cond` until the cooldown ends. Any broadcast wakes it earlier, and it re-evaluates.
+**Cooldown.** If nobody in the heap can go but some dongles are only cooling down, the 
+scheduler sleeps with `pthread_cond_timedwait` on `turn_cond` until the earliest cooldown 
+ends. Any broadcast wakes it earlier, and it re-evaluates.
 
 **Monitor to everyone.** When the monitor finds a burnout or all coders finished, `raise_flag` writes the flag under `priority_lock` and broadcasts `turn_cond` in the same critical section. The scheduler and every coder waiting for a turn wake up, see the flag, and exit.
 

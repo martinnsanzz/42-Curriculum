@@ -6,7 +6,7 @@
 /*   By: 2002mssm02 <2002mssm02@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 12:02:04 by masanz-s          #+#    #+#             */
-/*   Updated: 2026/09/30 17:04:10 by 2002mssm02       ###   ########.fr       */
+/*   Updated: 2026/10/04 19:18:53 by 2002mssm02       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 /**
  * @brief Prints error msg if number of args is not 8
  */
-void invalid_num_of_args()
+void	invalid_num_of_args(void)
 {
 	fprintf(stderr, RED);
 	fprintf(stderr, "Program must have 8 arguments !!\n "
-					"Run 'make help-run'.\n");
+		"Run 'make help-run'.\n");
 	fprintf(stderr, RESET);
 }
 
@@ -33,18 +33,18 @@ void invalid_num_of_args()
  * 	- Is number of coders is <= 0
  *  - Number of coders is higher than the limit (200 per eval sheet)
  */
-void invalid_num(int error_id, int index, char *value)
+void	invalid_num(int error_id, int index, char *value)
 {
 	fprintf(stderr, RED);
 	if (error_id == 1)
 	{
 		fprintf(stderr, "Argument %d is an invalid "
-						"int: {%s}\n", index, value);
+			"int: {%s}\n", index, value);
 	}
 	else if (error_id == 2)
 	{
 		fprintf(stderr, "Value '%d' can't be a greater "
-						"than INT_MAX: {%s}\n", index, value);
+			"than INT_MAX: {%s}\n", index, value);
 	}
 	else if (error_id == 3)
 	{
@@ -54,7 +54,8 @@ void invalid_num(int error_id, int index, char *value)
 	(void)index;
 	(void)value;
 	if (error_id == 4)
-		fprintf(stderr, "Number of coders must be greater than %d\n", MIN_CODERS - 1);
+		fprintf(stderr, "Number of coders must be greater"
+			"than %d\n", MIN_CODERS - 1);
 	if (error_id == 5)
 		fprintf(stderr, "Number of coders limit is %d\n", MAX_CODERS);
 	fprintf(stderr, RESET);
@@ -63,9 +64,10 @@ void invalid_num(int error_id, int index, char *value)
 /**
  * @brief Prints error msg if the scheduler is one of the expected.
  */
-void wrong_scheduler(char *value)
+void	wrong_scheduler(char *value)
 {
 	fprintf(stderr, RED);
-	fprintf(stderr, "Wrong scheduler {%s}: Allowed ['fifo', 'edf']\n", value);
+	fprintf(stderr, "Wrong scheduler {%s}: Allowed "
+		"['fifo', 'edf']\n", value);
 	fprintf(stderr, RESET);
 }
