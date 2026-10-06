@@ -330,7 +330,7 @@ The program produces:
 
 ---
 
-## Resources
+## 📖 Resources
 This is a list of multiple resources use through out the life-cycle of the project
 
 ### LLM

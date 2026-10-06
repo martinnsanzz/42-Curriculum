@@ -13,7 +13,7 @@ with the computer science `Dining Philosophers Problem` which introduces thread 
 as a concept. For the project instead of **philosophers** we have **coders** and instead of
 **forks** we have dongles.
 
-### 📊 The Challenge:**
+### 📊 The Challenge:
 There is one or more coders sit down in a round table with a dongle in their left or right
 side. Each of them have 3 actions:
 
@@ -328,7 +328,7 @@ A coder never holds a dongle lock while taking `priority_lock`, which is why `un
 
 The program is run under `valgrind` (memory) and `valgrind --tool=helgrind` (data races) with parameters that avoid false burnouts caused by the tool's slowdown.
 
-## Resources
+## 📖 Resources
 This is a list of multiple resources use through out the life-cycle of the project
 
 ### C Specifics

@@ -113,7 +113,7 @@ help-run:
 5:'time_to_refactor (in milliseconds)' 6:'number_of_compiles_required' \
 7:'dongle_cooldown (in milliseconds)' 8:'scheduler (fifo or edf)'${RESET}\n"
 
-	@echo "${YELLOW} For more information go to subject.pdf page 8."
+	@echo "${YELLOW} For more information go to README.md '### 📝 Rules' section."
 
 all: $(NAME)
 	@echo "${GREEN}Program is compiled and ready to use !! $(DEBUGGER)...${RESET}"
