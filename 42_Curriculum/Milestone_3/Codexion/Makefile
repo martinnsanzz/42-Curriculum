@@ -146,7 +146,7 @@ helgrind: $(NAME)
 
 norminette:
 	@echo "$(YELLOW)Running norminette in the 'srcs' file...\n$(RESET)"
-	@out=$$(norminette ./*) \
+	@out=$$(norminette ./srcs/*) \
 		&& echo "${GREEN}✓ Norminette passed${RESET}" \
 		|| { printf '%s\n' "$$out" | grep -v ': OK!$$'; echo "${RED}\n✗ Norminette failed${RESET}"; }
 
