@@ -1,0 +1,36 @@
+[project]
+name = "Fly-in"
+version = "0.1.0"
+requires-python = ">=3.13"
+readme = "README.md"
+description = """
+Multi-drone pathfinding and scheduling simulation (42 Network, Python) — routes
+a fleet of drones from a start hub to an end hub across a graph of zones,
+minimizing total simulation turns.
+"""
+authors = [
+    {name = "masanz-s",email = "masanz-s@student.codam.nl"}
+]
+dependencies = [
+
+]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "flake8-pyproject>=1.2.4",
+    "mypy>=2.3.0",
+    "pytest>=9.1.1",
+    "uv>=0.12.1",
+    "pudb>=2025.1.5",
+]
+
+[tool.mypy]
+exclude = [
+    '^.venv',
+]
+
+[tool.flake8]
+exclude = [
+    ".venv/",
+]
