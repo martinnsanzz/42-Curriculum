@@ -11,17 +11,14 @@ minimizing total simulation turns.
 authors = [
     {name = "masanz-s",email = "masanz-s@student.codam.nl"}
 ]
-dependencies = [
-
-]
+dependencies = []
 
 [dependency-groups]
 dev = [
-    "flake8>=7.3.0",
+    "flake8>=7.4.1",
     "flake8-pyproject>=1.2.4",
     "mypy>=2.3.0",
     "pytest>=9.1.1",
-    "uv>=0.12.1",
     "pudb>=2025.1.5",
 ]
 

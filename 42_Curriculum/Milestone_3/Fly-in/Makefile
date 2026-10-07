@@ -14,18 +14,36 @@ BOLD				:= \033[1m
 UNDERLINE			:= \033[4m
 
 # ------------------ Tools  ------------------ #
-VENV				:= .venv
-UV					:= ${VENV}/bin/uv
+UV					:= uv
 RUN_COMM			:= ${UV} run python
 DEBUGGER			:= pdb
 
-# ------------------ Commands ------------------ #
-install:
-	@echo "${YELLOW}Installing dependencies...${RESET}"
-	@uv sync 2>/dev/null
+# ------------------ Paths  ------------------ #
+MAP_PATH			:= maps/easy/01_linear_path.txtt
 
-	@echo "${GREEN}\nEverything installed ${RESET}"
-run:
+# ------------------ FLAGS  ------------------ #
+MAP_FLAG			:= -map ${MAP_PATH}
+
+# ------------------ Commands ------------------ #
+help:
+	@echo "${BOLD}Available commands:${RESET}"
+
+check_uv:
+	@command -v ${UV} >/dev/null 2>&1 || { \
+		echo "${RED}uv not found. Install it: https://docs.astral.sh/uv/${RESET}"; \
+		exit 1; \
+	}
+
+install: check_uv
+	@if ! ${UV} sync --check >/dev/null 2>&1; then \
+		echo "${YELLOW}Installing dependencies...${RESET}"; \
+		${UV} sync >/dev/null 2>&1 || exit 1; \
+	fi
+	@echo "${GREEN}Everything installed${RESET}"
+
+run: install
+	@echo "${GREEN}\nRunning program... !!\n${RESET}"
+	@${RUN_COMM} -m src ${MAP_FLAG}
 
 debug:
 
@@ -35,6 +53,9 @@ clean:
 
 	@echo "${RED}Removing '__pycache__' folders.${RESET}"
 	@find . -type d -name __pycache__ -exec rm -rf {} +
+
+	@echo "${RED}Removing '.pytest_cache' folders.${RESET}"
+	@find . -type d -name .pytest_cache -exec rm -rf {} +
 
 	@echo "${RED}Removing '.pyc' files.${RESET}"
 	@find . -type f -name "*.pyc" -exec rm -rf {} +
@@ -60,4 +81,4 @@ lint-strict:
 	@echo "${YELLOW}Running mypy --strict...${RESET}"
 	@mypy ${MYPY_STRICT_FLAGS} && echo "${GREEN}✓ mypy --strict passed${RESET}"|| true
 
-.PHONY: install, run, debug, clean, fclean, lint, lint-strict
+.PHONY: help, check_uv, install, run, debug, clean, fclean, lint, lint-strict

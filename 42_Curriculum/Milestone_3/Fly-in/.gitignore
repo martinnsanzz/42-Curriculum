@@ -9,3 +9,6 @@ __pycache__
 
 # Mypy cache
 .mypy_cache
+
+# Pytest cache
+.pytest_cache
