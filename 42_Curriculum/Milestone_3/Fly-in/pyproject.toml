@@ -31,3 +31,7 @@ exclude = [
 exclude = [
     ".venv/",
 ]
+
+[tool.pytest]
+pythonpath = ["."]
+testpaths = ["tests"]

@@ -1,7 +1,6 @@
 # Built-in modules
 from enum import StrEnum
-from typing import Any
-import sys
+from sys import stdout, stderr
 
 
 class Color(StrEnum):
@@ -15,7 +14,12 @@ class Color(StrEnum):
     RESET = "\033[0m"
 
 
-def paint(text: str, color: Color, stream: Any =sys.stdout) -> str:
-    if not stream.isatty():
+def paint(text: str, color: Color) -> str:
+    if not stdout.isatty():
         return text
     return f"{color}{text}{Color.RESET}"
+
+def print_error(text: str) -> None:
+    if not stderr.isatty():
+        print(text, file=stderr)
+    print(f"{Color.RED}{text}{Color.RESET}", file=stderr)

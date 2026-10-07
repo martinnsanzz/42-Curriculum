@@ -4,8 +4,9 @@ from pathlib import Path
 from sys import stderr
 
 # Local modules
-from .backend import load_map, FlyInError
-from .colors import Color, paint
+from .backend import load_map
+from .colors import print_error
+from .exceptions import FlyInError
 
 
 def _main() -> int:
@@ -13,7 +14,7 @@ def _main() -> int:
         args = parse_args()
         fly_map = load_map(args.map)
     except (FlyInError, ArgumentError) as e:
-        print(paint(f"Error: {e}", Color.RED, stderr), file=stderr)
+        print_error(f"Error: {e}")
         return 1
     return 0
 

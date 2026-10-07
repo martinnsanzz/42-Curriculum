@@ -1,6 +1,6 @@
 .ONESHELL:
 
-.DEFAULT_GOAL		:= help
+.DEFAULT_GOAL		:= run
 
 # ------------------ Colors ------------------ #
 GREEN				:= \033[1;92m
@@ -14,6 +14,7 @@ BOLD				:= \033[1m
 UNDERLINE			:= \033[4m
 
 # ------------------ Tools  ------------------ #
+VENV				:= .venv
 UV					:= uv
 RUN_COMM			:= ${UV} run python
 DEBUGGER			:= pdb
@@ -22,7 +23,7 @@ DEBUGGER			:= pdb
 MAP_PATH			:= maps/easy/01_linear_path.txtt
 
 # ------------------ FLAGS  ------------------ #
-MAP_FLAG			:= -map ${MAP_PATH}
+MAP_FLAG			:= --map ${MAP_PATH}
 
 # ------------------ Commands ------------------ #
 help:

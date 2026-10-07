@@ -2,7 +2,7 @@
 from pathlib import Path
 
 # Local modules
-from .exceptions import MapError
+from ..exceptions import MapError
 
 
 def load_map(map_path: Path) -> str:
@@ -10,10 +10,10 @@ def load_map(map_path: Path) -> str:
         with open(map_path, "r") as f:
             content = f.read()
     except OSError as e:
-        raise MapError(f"{map_path}: {e.strerror}") from e
+        raise MapError(f"{e.strerror} '{map_path}'") from e
     except UnicodeDecodeError as e:
-        raise MapError(f"{map_path}: not a valid text file") from e
+        raise MapError(f"Not a valid text file '{map_path}") from e
 
     if not content.strip():
-        raise MapError(f"{map_path}: file is empty")
+        raise MapError(f"File is empty '{map_path}")
     return content
