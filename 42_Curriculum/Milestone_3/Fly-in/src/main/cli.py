@@ -1,29 +1,36 @@
 # Built-in Modules
 from argparse import Namespace, ArgumentParser, ArgumentError
 from pathlib import Path
-from sys import stderr
 
 # Local modules
-from .backend import load_map
+from .backend import parse_map
 from .colors import print_error
 from .exceptions import FlyInError
 
+ERROR = "------ERROR FOUND------"
 
-def _main() -> int:
+def main() -> int:
     try:
         args = parse_args()
-        fly_map = load_map(args.map)
+        fly_map = parse_map(args.map)
+        # print(fly_map)
     except (FlyInError, ArgumentError) as e:
-        print_error(f"Error: {e}")
+        print_error(f"{ERROR}\n{e}")
         return 1
     return 0
 
 def parse_args() -> Namespace:
-    parser = ArgumentParser()
+    parser = ArgumentParser(exit_on_error=False)
     parser.add_argument("--map",
                         type=Path,
+                        required=True,
                         metavar="PATH_TO_MAP")
-    known, unknown = parser.parse_known_args()
+    
+    try:
+        known, unknown = parser.parse_known_args()
+    except ArgumentError as e:
+        msg = str(e)
+        raise ArgumentError(None, msg.capitalize()) from e
 
     if unknown:
         raise ArgumentError(None,

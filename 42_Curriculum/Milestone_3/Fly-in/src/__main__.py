@@ -1,5 +1,5 @@
 # Local modules
-from .main import _main
+from .main import main
 
 if __name__ == "__main__":
-    _main()
+    main()

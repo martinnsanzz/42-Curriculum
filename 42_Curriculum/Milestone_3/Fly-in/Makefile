@@ -20,7 +20,7 @@ RUN_COMM			:= ${UV} run python
 DEBUGGER			:= pdb
 
 # ------------------ Paths  ------------------ #
-MAP_PATH			:= maps/easy/01_linear_path.txtt
+MAP_PATH			:= maps/easy/01_linear_path.txt
 
 # ------------------ FLAGS  ------------------ #
 MAP_FLAG			:= --map ${MAP_PATH}

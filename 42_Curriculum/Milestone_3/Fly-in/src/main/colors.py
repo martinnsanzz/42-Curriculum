@@ -22,4 +22,4 @@ def paint(text: str, color: Color) -> str:
 def print_error(text: str) -> None:
     if not stderr.isatty():
         print(text, file=stderr)
-    print(f"{Color.RED}{text}{Color.RESET}", file=stderr)
+    print(f"{Color.RED}{text}{Color.RESET}", file=stderr, end="")

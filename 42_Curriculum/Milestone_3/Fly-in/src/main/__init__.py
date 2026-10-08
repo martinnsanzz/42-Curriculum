@@ -1,6 +1,6 @@
 # Local modules
-from .cli import _main
+from .cli import main
 
 __all__ = [
-    "_main"
+    "main"
 ]

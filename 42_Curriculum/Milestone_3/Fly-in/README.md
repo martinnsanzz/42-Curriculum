@@ -21,6 +21,7 @@
 This is a list of multiple resources use through out the life-cycle of the project
 
 ### 🐍 Python
+- [Pydantic vs Dataclass](https://medium.com/@nishthakukreti.01/pydantic-vs-dataclass-640ed78a5f7c)
 
 ### 🧪 Pytest
 [Pytest Docs](https://docs.pytest.org/en/stable/)
@@ -38,3 +39,16 @@ This is a list of multiple resources use through out the life-cycle of the proje
 
 This README.md file was done by **human fingers, sweat and tears**. No AI wrote a single
 line of text :)
+
+
+# Working On
+- Map Parser: Metadata parsing. Currently failing on [ ] settings
+ 
+Need to fix this error:
+
+```txt
+Hub settings must follow this format:
+    - hub_name x_cord y_cord [metadata]Incorrect setting found at line 4 -> ['start', '0', '0', '[color=green', 'hello=gerg]'].
+```
+
+# Things to do

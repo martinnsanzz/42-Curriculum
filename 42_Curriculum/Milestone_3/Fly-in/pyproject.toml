@@ -11,7 +11,9 @@ minimizing total simulation turns.
 authors = [
     {name = "masanz-s",email = "masanz-s@student.codam.nl"}
 ]
-dependencies = []
+dependencies = [
+    "pydantic>=2.13.5",
+]
 
 [dependency-groups]
 dev = [

@@ -1,6 +1,6 @@
 # Local modules
-from .loader import load_map
+from .validation.parser import parse_map
 
 __all__ = [
-    "load_map",
+    "parse_map",
 ]
