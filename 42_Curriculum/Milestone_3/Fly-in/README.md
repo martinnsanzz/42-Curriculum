@@ -43,13 +43,6 @@ line of text :)
 
 
 # Working On
-- Map Parser: Metadata parsing. Currently failing on [ ] settings
- 
-Need to fix this error:
-
-```txt
-Hub settings must follow this format:
-    - hub_name x_cord y_cord [metadata]Incorrect setting found at line 4 -> ['start', '0', '0', '[color=green', 'hello=gerg]'].
-```
+- Need to work on the testing for the new validaitons
 
 # Things to do
