@@ -6,7 +6,7 @@ from argparse import ArgumentError
 import pytest
 
 # Local modules
-from src.main.cli import parse_args
+from src.fly-in.cli import parse_args
 
 def test_wrong_flag(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("sys.argv", ["src", "--unknown_flag", "random"])

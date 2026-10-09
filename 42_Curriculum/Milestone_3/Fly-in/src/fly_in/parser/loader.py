@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 # Local modules
-from ..exceptions import MapError
+from fly_in.exceptions import MapError
 
 ALLOWED_KEYS = ["nb_drones", "start_hub", "end_hub", "hub", "connection"]
 
@@ -22,15 +22,15 @@ def load_map(map_path: Path) -> list[RawLine]:
         raise MapError(f"{e.strerror} '{map_path}'") from e
     except UnicodeDecodeError as e:
         raise MapError(f"Not a valid text file '{map_path}'") from e
-    
+
     for i, line in enumerate(content):
         if not line.startswith("#") and not line.strip() == "":
             if ": " not in line:
                  raise MapError("Incorrect line format:\n" \
                                 "   - Correct -> 'name': 'parameters'\n" \
                                 f"Line to fix -> {line}\n")
-            
-            tmp = line.strip().split(": ", 1)
+
+            tmp = line.strip().split(": ")
 
             if len(tmp) == 1:
                 raise MapError("Key must be followed by arguments:\n"

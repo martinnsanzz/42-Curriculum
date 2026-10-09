@@ -1,0 +1,116 @@
+# # Local modules
+# from .parser.parse_map import RawLine
+# from ...exceptions import MapError
+
+# SPECIAL_HUBS = ["start_hub", "end_hub"]
+# ALLOWED_SPECIAL_METADATA = {"color"}
+# ALLOWED_HUB_METADATA = {"color", "max_drones", "zone"}
+
+# def check_special_hubs(special_hubs: list[RawLine]) -> None:
+#     start_cord: list[str] = []
+#     end_cord: list[str] = []
+
+#     if len(special_hubs) != 2:
+#         raise MapError("Maps must only have 1 start hub and 1 end hub. " \
+#                        "Example:\n" \
+#                        "    - start_hub: start 0 0 [color=green]\n" \
+#                        "    - end_hub: goal 3 0 [color=red]\n")
+
+#     for hub in special_hubs:
+#         hub_settings: list[str] = hub.value.split()
+
+#         if len(hub_settings) != 4:
+#             raise MapError("Hub settings must follow this format:\n" \
+#                             "    - hub_name x_cord y_cord [metadata]" \
+#                             f"Incorrect setting found at line {hub.line} -> " \
+#                             f"{hub_settings}.\n")
+#         hub_name = hub_settings[0]
+
+#         if hub.key == "start_hub":
+#             start_cord = [hub_settings[1], hub_settings[2]]
+#             if hub_name != "start":
+#                 raise MapError("Start_hub name must be 'start'.\n")
+#         if hub.key == "end_hub":
+#             end_cord = [hub_settings[1], hub_settings[2]]
+#             if hub_name != "goal":
+#                 raise MapError("Start_hub name must be 'goal'.\n")
+
+#     if start_cord == end_cord:
+#         raise MapError("Start and end coordinates can't be the same.\n")
+
+# def check_dup_hub_names(hubs: list[RawLine]) -> None:
+#     seen_name: list[str] = []
+
+#     for line in hubs:
+#         if line.key in SPECIAL_HUBS and line.key in seen_name:
+#             if line.key == "start_hub":
+#                 raise MapError(f"Can't have 2 'start_hub':\n "
+#                                f"   -'{line.key}' found again "
+#                                f"at line [{line.line}]\n")
+#             if line.key == "end_hub":
+#                 raise MapError(f"Can't have 2 'end_hub':\n "
+#                                f"   -'{line.key}' found again "
+#                                f"at line [{line.line}]\n")
+#         seen_name.append(line.key)
+
+#         hub_settings: list[str] = line.value.split()
+#         if len(hub_settings) != 4:
+#             raise MapError("Hub settings must follow this format:\n" \
+#                             "    - hub_name x_cord y_cord [metadata]" \
+#                             f"Incorrect setting found at line {line.line} -> " \
+#                             f"{hub_settings}\n")
+        
+#         hub_name = hub_settings[0]
+
+#         if hub_name.isdigit():
+#             raise MapError(f"Hub at line {line.line} name must " \
+#                             "be a proper identifier:\n" \
+#                             f"   - Just a number is invalid -> {hub_name}\n")
+
+#         if hub_name in seen_name:
+#             raise MapError(f"Can't have 2 hubs with same name:\n "
+#                             f"   -'{hub_name}' found again "
+#                             f"at line [{line.line}]\n")
+#         seen_name.append(hub_name)
+
+# def check_hub_coordinates(hubs: list[RawLine]) -> None:
+#     seen_cordinates: list[list[str]] = []
+
+#     for line in hubs:
+#         hub_settings: list[str] = line.value.split()
+#         cords = [hub_settings[1], hub_settings[2]]
+
+#         if cords in seen_cordinates:
+#             raise MapError("Found 2 hubs with the same coordinates:\n" \
+#                             f"   - Duplicate {cords} found in " \
+#                             f"line {line.line}\n")
+#         seen_cordinates.append(cords)
+
+# def check_hub_metadata(hubs: list[RawLine]) -> None:
+#     for hub in hubs:
+#         if hub.key in SPECIAL_HUBS:
+#             meta = parse_hub_metadata(hub.value, hub.line)
+
+#             if meta.keys() - ALLOWED_SPECIAL_METADATA:
+#                 raise MapError("Start and end hubs are only allowed " \
+#                                "'color' metadata !!\n" \
+#                                f"Change line {hub.line}\n")
+#         else:
+#             meta = parse_hub_metadata(hub.value, hub.line)
+
+#             extra = meta.keys() - ALLOWED_HUB_METADATA
+#             if extra:
+#                 raise MapError(f"Unknown metadata found on hub '{hub.key}'\n" \
+#                                f"   - Remove '{extra}' in line {hub.line}\n")
+
+# def parse_hub_metadata(value: str, line_i: int) -> dict[str, str]:
+#     _, bracket, raw = value.partition("[")
+#     if not bracket:
+#         raise MapError(f"Metadata must start with '[' (line {line_i})\n")
+#     if not raw.endswith("]"):
+#         raise MapError(f"Missing closing ']' (line {line_i})\n")
+#     try:
+#         return dict(p.split("=", 1) for p in raw[:-1].split())
+#     except ValueError as e:
+#         raise MapError(
+#             f"Metadata must be key=value (line {line_i})") from e

@@ -1,19 +1,22 @@
+[build-system]
+requires = ["uv_build>=0.8,<0.10"]
+build-backend = "uv_build"
+
 [project]
-name = "Fly-in"
+name = "fly-in"
 version = "0.1.0"
 requires-python = ">=3.13"
 readme = "README.md"
-description = """
-Multi-drone pathfinding and scheduling simulation (42 Network, Python) — routes
-a fleet of drones from a start hub to an end hub across a graph of zones,
-minimizing total simulation turns.
-"""
+description = "Multi-drone pathfinding and scheduling simulation (42 Network, Python): routes a fleet of drones from a start hub to an end hub, minimizing total turns."
 authors = [
-    {name = "masanz-s",email = "masanz-s@student.codam.nl"}
+    {name = "masanz-s", email = "masanz-s@student.codam.nl"}
 ]
 dependencies = [
     "pydantic>=2.13.5",
 ]
+
+[project.scripts]
+fly-in = "fly_in.cli:main"
 
 [dependency-groups]
 dev = [
@@ -24,16 +27,20 @@ dev = [
     "pudb>=2025.1.5",
 ]
 
+[tool.uv.build-backend]
+module-name = "fly_in"
+
 [tool.mypy]
+strict = true
 exclude = [
     '^.venv',
 ]
+plugins = ["pydantic.mypy"]
 
 [tool.flake8]
 exclude = [
     ".venv/",
 ]
 
-[tool.pytest]
-pythonpath = ["."]
+[tool.pytest.ini_options]
 testpaths = ["tests"]

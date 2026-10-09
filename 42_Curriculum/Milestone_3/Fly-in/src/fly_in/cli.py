@@ -3,9 +3,9 @@ from argparse import Namespace, ArgumentParser, ArgumentError
 from pathlib import Path
 
 # Local modules
-from .backend import parse_map
-from .colors import print_error
-from .exceptions import FlyInError
+from fly_in.parser import parse_map
+from fly_in.colors import print_error
+from fly_in.exceptions import FlyInError
 
 ERROR = "------ERROR FOUND------"
 

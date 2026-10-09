@@ -3,8 +3,8 @@ import pytest
 from pathlib import Path
 
 # Local modules
-from src.main.backend.loader import load_map
-from src.main.exceptions import MapError
+from fly-in.parser.map_parser import load_map
+from src.fly-in.exceptions import MapError
 
 def test_missing_file(tmp_path: Path):
     with pytest.raises(MapError, match="No such file"):

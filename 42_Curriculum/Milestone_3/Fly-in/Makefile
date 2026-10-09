@@ -44,7 +44,7 @@ install: check_uv
 
 run: install
 	@echo "${GREEN}\nRunning program... !!\n${RESET}"
-	@${RUN_COMM} -m src ${MAP_FLAG}
+	@${RUN_COMM} -m fly_in ${MAP_FLAG}
 
 debug:
 

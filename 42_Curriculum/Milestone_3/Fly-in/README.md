@@ -22,6 +22,7 @@ This is a list of multiple resources use through out the life-cycle of the proje
 
 ### 🐍 Python
 - [Pydantic vs Dataclass](https://medium.com/@nishthakukreti.01/pydantic-vs-dataclass-640ed78a5f7c)
+- [Pydanctic Validation Doc's](https://pydantic.dev/docs/validation/latest/get-started/)
 
 ### 🧪 Pytest
 [Pytest Docs](https://docs.pytest.org/en/stable/)
