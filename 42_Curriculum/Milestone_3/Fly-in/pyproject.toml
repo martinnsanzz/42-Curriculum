@@ -1,7 +1,3 @@
-[build-system]
-requires = ["uv_build>=0.8,<0.10"]
-build-backend = "uv_build"
-
 [project]
 name = "fly-in"
 version = "0.1.0"
@@ -15,9 +11,6 @@ dependencies = [
     "pydantic>=2.13.5",
 ]
 
-[project.scripts]
-fly-in = "fly_in.cli:main"
-
 [dependency-groups]
 dev = [
     "flake8>=7.4.1",
@@ -26,9 +19,6 @@ dev = [
     "pytest>=9.1.1",
     "pudb>=2025.1.5",
 ]
-
-[tool.uv.build-backend]
-module-name = "fly_in"
 
 [tool.mypy]
 strict = true
@@ -44,3 +34,5 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--import-mode=importlib"

@@ -7,19 +7,19 @@ from re import compile, fullmatch
 from pydantic import PositiveInt, TypeAdapter, ValidationError, BaseModel
 
 # Local modules
-from fly_in.models import Connection, Hub, HubMetadata, DroneMap, \
+from ..models import Connection, Hub, HubMetadata, DroneMap, \
                           ConnectionMetadata, Zone
-from fly_in.exceptions import MapError
+from ..exceptions import MapError
 from .loader import load_map, RawLine
 
 _DRONES = TypeAdapter(PositiveInt)
 
 HUB_PATTERN = compile(
-    r'(?P<name>[!-,.-~]+) (?P<x>-?[0-9]+) (?P<y>-?[0-9]+)'
-    r'(?: \[(?P<meta>[^\]]*)\])?'
+    r'(?P<name>[\x21-\x7e]+) (?P<x>-?[0-9]+) (?P<y>-?[0-9]+)'
+    r'(?: (?P<meta>\[[^\]]*\]))?'
 )
 CONNECTION_PATTERN = compile(
-    r'(?P<name1>[!-,.-~]+)-(?P<name2>[!-,.-~]+)'
+    r'(?P<name1>[\x21-\x7e]+)-(?P<name2>[!-,.-~]+)'
     r'(?: (?P<meta>\[[^\]]*\]))?'
 )
 KV = r'[^\s=]+=[^\s=]+'
@@ -29,8 +29,8 @@ VALID_HUB_METADATA = {"color", "zone", "max_drones"}
 VALID_CONNECTION_METADATA = {"max_link_capacity"}
 
 def parse_map(map_path: Path) -> DroneMap:
-    start: Optional[Hub] = None
-    end: Optional[Hub] = None
+    start_hub: Optional[Hub] = None
+    end_hub: Optional[Hub] = None
     hubs: list[Hub] = []
     connections: list[Connection] = []
 
@@ -48,26 +48,26 @@ def parse_map(map_path: Path) -> DroneMap:
             case "nb_drones":
                 raise MapError(f"line {raw.line}: duplicate 'nb_drones'\n")
             case "start_hub":
-                if start is not None:
+                if start_hub is not None:
                     raise MapError(f"line {raw.line}: duplicate 'start_hub'\n")
-                start = parse_hub(raw)
+                start_hub = parse_hub(raw)
             case "end_hub":
-                if end is not None:
+                if end_hub is not None:
                     raise MapError(f"line {raw.line}: duplicate 'end_hub'\n")
-                end = parse_hub(raw)
+                end_hub = parse_hub(raw)
             case "hub":
                 hubs.append(parse_hub(raw))
             case "connection":
                 connections.append(parse_connection(raw))
 
-    if start is None or end is None:
+    if start_hub is None or end_hub is None:
         raise MapError("Map needs one 'start_hub' and one 'end_hub'\n")
 
     try:
         drone_map = DroneMap(
             nb_drones=nb_drones,
-            start=start,
-            end=end,
+            start=start_hub,
+            end=end_hub,
             hubs=hubs,
             connections=connections
         )
@@ -98,9 +98,9 @@ def parse_hub(raw: RawLine) -> Hub:
         return Hub(
             line=raw.line,
             name=m["name"],
-            x=m["x"],
-            y=m["y"],
-            metadata=parse_meta(raw, m["meta"], HubMetadata),
+            x=int(m["x"]),
+            y=int(m["y"]),
+            metadata=parse_meta(raw, m["meta"], HubMetadata()),
         )
     except ValidationError as e:
         err = e.errors()[0]
@@ -121,7 +121,7 @@ def parse_connection(raw: RawLine) -> Connection:
             line=raw.line,
             name1=m["name1"],
             name2=m["name2"],
-            metadata=parse_meta(raw, m["meta"], ConnectionMetadata)
+            metadata=parse_meta(raw, m["meta"], ConnectionMetadata())
         )
     except ValidationError as e:
         err = e.errors()[0]
@@ -135,7 +135,8 @@ def parse_meta[M: BaseModel](raw: RawLine, meta: Optional[str],
         return None
     if meta == "[]":
         raise MapError(f"Found metadata field empty at line {raw.line}\n")
-
+    
+    meta = meta.strip("[]")
     m = METADATA_PATTERN.fullmatch(meta)
     if meta and m is None:
         raise MapError(f"Incorrect metadata format at line {raw.line}.\n" \

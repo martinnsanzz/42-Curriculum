@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 # Local modules
-from fly_in.exceptions import MapError
+from ..exceptions import MapError
 
 ALLOWED_KEYS = ["nb_drones", "start_hub", "end_hub", "hub", "connection"]
 

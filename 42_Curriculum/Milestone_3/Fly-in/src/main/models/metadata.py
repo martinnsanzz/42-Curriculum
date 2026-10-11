@@ -13,8 +13,8 @@ class Zone(str, Enum):
     PRIORITY = "priority"
 
 class HubMetadata(BaseModel):
-    zone: Zone = Zone.NORMAL
-    color: Optional[str] = None
+    zone: Zone = Field(default=Zone.NORMAL)
+    color: Optional[str] = Field(default=None)
     max_drones: int = Field(default=1, ge=1)
 
 class ConnectionMetadata(BaseModel):
