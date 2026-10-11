@@ -46,9 +46,13 @@ line of text :)
 Currently working on Parsing.
 
 # Things to do
-Things that still need to be done:
+Things that still need to be done from parsing:
 - Hubs unique names (Check for duplicates in Drone Map)
 - Check for hub valid integers. This includes (Start and end cant be equal, all other hubs must be between start and end they cant be outisde those boundaries, hubs cant have same position)
 - Check connections links only contain valid hub names
 - Connection cant have same link as others (a-b is the same as b-a. This is invalid)
 - Start and end hubs ignore max_drones capacity (This is not an error, its ignored)
+
+Test that still need to be written:
+- Drone map class test suite
+- All possible test for map_parser
