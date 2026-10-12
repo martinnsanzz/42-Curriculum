@@ -1,9 +1,11 @@
-# Installed modules
-import pytest
+# Built-in modules
 from pathlib import Path
 
+# Installed modules
+import pytest
+
 # Local modules
-from main.parser.map_parser import load_map, RawLine
+from main.parser.loader import load_map, RawLine
 from main.exceptions import MapError
 
 def test_missing_file(tmp_path: Path) -> None:

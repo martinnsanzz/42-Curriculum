@@ -22,6 +22,8 @@ dev = [
 
 [tool.mypy]
 strict = true
+mypy_path = "src"
+explicit_package_bases = true
 exclude = [
     '^.venv',
 ]

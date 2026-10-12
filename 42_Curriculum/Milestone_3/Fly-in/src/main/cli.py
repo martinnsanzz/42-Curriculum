@@ -13,7 +13,6 @@ def main() -> int:
     try:
         args = parse_args()
         fly_map = parse_map(args.map)
-        # print(fly_map)
     except (FlyInError, ArgumentError) as e:
         print_error(f"{ERROR}\n{e}")
         return 1
@@ -25,7 +24,7 @@ def parse_args() -> Namespace:
                         type=Path,
                         required=True,
                         metavar="PATH_TO_MAP")
-    
+
     try:
         known, unknown = parser.parse_known_args()
     except ArgumentError as e:

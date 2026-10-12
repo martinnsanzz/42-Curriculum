@@ -2,7 +2,7 @@
 from typing import Optional
 
 # Installed modules
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Local modules
 from .metadata import ConnectionMetadata
@@ -11,4 +11,4 @@ class Connection(BaseModel):
     line: int
     name1: str
     name2: str
-    metadata: Optional[ConnectionMetadata]
+    metadata: ConnectionMetadata = Field(default_factory=ConnectionMetadata)

@@ -19,7 +19,7 @@ HUB_PATTERN = compile(
     r'(?: (?P<meta>\[[^\]]*\]))?'
 )
 CONNECTION_PATTERN = compile(
-    r'(?P<name1>[\x21-\x7e]+)-(?P<name2>[!-,.-~]+)'
+    r'(?P<name1>[\x21-\x7e]+)-(?P<name2>[\x21-\x7e]+)'
     r'(?: (?P<meta>\[[^\]]*\]))?'
 )
 KV = r'[^\s=]+=[^\s=]+'
@@ -63,6 +63,10 @@ def parse_map(map_path: Path) -> DroneMap:
     if start_hub is None or end_hub is None:
         raise MapError("Map needs one 'start_hub' and one 'end_hub'\n")
 
+    if len(connections) < (len(hubs) + 2) - 1:
+        raise MapError("Map has less connections than expected.\n" \
+                       "    - Min connections should be (Total hubs - 1).\n")
+
     try:
         drone_map = DroneMap(
             nb_drones=nb_drones,
@@ -72,45 +76,39 @@ def parse_map(map_path: Path) -> DroneMap:
             connections=connections
         )
     except ValidationError as e:
-        err = e.errors()[0]
-        field = ".".join(str(p) for p in err["loc"])
-        raise MapError(f"Unexpected error happened parsing the map.\n" \
-                       f"   Invalid '{field}'\n" \
-                       f"{err['msg']}\n") from e
+        msg = e.errors()[0]["msg"].removeprefix("Value error, ")
+        raise MapError(f"Invalid map:\n{msg}") from e
     return drone_map
 
 def parse_nb_drones(raw: RawLine) -> int:
     try:
         return _DRONES.validate_python(raw.value)
     except ValidationError as e:
-        raise MapError(
-            f"Line {raw.line}: nb_drones {e.errors()[0]['msg']}\n"
-        ) from e
+        msg = e.errors()[0]["msg"].removeprefix("Value error, ")
+        raise MapError(f"Invalid nb_drones:\n   {msg}\n") from e
 
 def parse_hub(raw: RawLine) -> Hub:
-    m = HUB_PATTERN.fullmatch(raw.value)
+    m = fullmatch(HUB_PATTERN, raw.value)
 
     if m is None:
         raise MapError(f"Incorrect hub format at line {raw.line}.\n" \
                        "    Correct format: name x y [metadata]\n" \
-                       "Note: [metadata] is optional\n")
+                       "Note: [metadata] is optional.\n")
     try:
         return Hub(
             line=raw.line,
             name=m["name"],
             x=int(m["x"]),
             y=int(m["y"]),
-            metadata=parse_meta(raw, m["meta"], HubMetadata()),
+            metadata=parse_meta(raw, m["meta"], HubMetadata),
         )
     except ValidationError as e:
-        err = e.errors()[0]
-        print(err)
-        field = ".".join(str(p) for p in err["loc"])
-        raise MapError(f"Line {raw.line}: invalid '{field}': "
-                       f"{err['msg']}\n") from e
+        msg = e.errors()[0]["msg"].removeprefix("Value error, ")
+        raise MapError(f"Invalid hub at line {raw.line}:\n" \
+                       f"{msg}\n") from e
 
 def parse_connection(raw: RawLine) -> Connection:
-    m = CONNECTION_PATTERN.fullmatch(raw.value)
+    m = fullmatch(CONNECTION_PATTERN, raw.value)
 
     if m is None:
         raise MapError(f"Incorrect connection format at line {raw.line}.\n" \
@@ -121,23 +119,22 @@ def parse_connection(raw: RawLine) -> Connection:
             line=raw.line,
             name1=m["name1"],
             name2=m["name2"],
-            metadata=parse_meta(raw, m["meta"], ConnectionMetadata())
+            metadata=parse_meta(raw, m["meta"], ConnectionMetadata)
         )
     except ValidationError as e:
-        err = e.errors()[0]
-        field = ".".join(str(p) for p in err["loc"])
-        raise MapError(f"Line {raw.line}: invalid '{field}': "
-                       f"{err['msg']}\n") from e
+        msg = e.errors()[0]["msg"].removeprefix("Value error, ")
+        raise MapError(f"Invalid connection at line {raw.line}:\n" \
+                       f"{msg}\n") from e
 
 def parse_meta[M: BaseModel](raw: RawLine, meta: Optional[str],
-                             model: M) -> Optional[M]:
+                             model: type[M]) -> M:
     if not meta:
-        return None
+        return model()
     if meta == "[]":
         raise MapError(f"Found metadata field empty at line {raw.line}\n")
-    
+
     meta = meta.strip("[]")
-    m = METADATA_PATTERN.fullmatch(meta)
+    m = fullmatch(METADATA_PATTERN, meta)
     if meta and m is None:
         raise MapError(f"Incorrect metadata format at line {raw.line}.\n" \
                         "    metadata must be 1 to 3 key=value " \
@@ -167,8 +164,6 @@ def parse_meta[M: BaseModel](raw: RawLine, meta: Optional[str],
     try:
         return model.model_validate(dict(pairs), extra="forbid")
     except ValidationError as e:
-        err = e.errors()[0]
-        field = ".".join(str(p) for p in err["loc"])
-        raise MapError(f"Found invalid metadata at line '{raw.line}'.\n" \
-                       f"   Invalid '{field}'.\n"\
-                       f"{err['msg']}\n") from e
+        msg = e.errors()[0]["msg"].removeprefix("Value error, ")
+        raise MapError(f"Invalid metadata at line {raw.line}:\n" \
+                       f"{msg}\n") from e
