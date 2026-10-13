@@ -10,17 +10,15 @@ from pydantic import ValidationError
 from main.parser.loader import RawLine
 from main.parser.map_parser import parse_map, parse_connection, parse_hub, \
                                    parse_meta, parse_nb_drones
-from main.models import HubMetadata, ConnectionMetadata, Zone
+from main.models import HubMetadata, ConnectionMetadata, Zone, Hub, Connection
 from main.exceptions import MapError
 
-class TestParseMap():
-    HEADER = "nb_drones: 2"
-    START = "start_hub: start 0 0"
-    END = "end_hub: goal 2 0"
-    HUB = "hub: mid 1 0"
-    CONNS = ["connection: start-mid", "connection: mid-goal"]
-    VALID = [HEADER, START, END, HUB, *CONNS]
-
+HEADER = "nb_drones: 2"
+START = "start_hub: start 0 0"
+END = "end_hub: goal 2 0"
+HUB = "hub: mid 1 0"
+CONNS = ["connection: start-mid", "connection: mid-goal"]
+VALID = [HEADER, START, END, HUB, *CONNS]
 
 @pytest.fixture
 def make_map(tmp_path: Path) -> Callable[..., Path]:
@@ -29,6 +27,50 @@ def make_map(tmp_path: Path) -> Callable[..., Path]:
         path.write_text("\n".join(lines) + "\n")
         return path
     return _make
+
+class TestParseMap():
+    def test_missing_end(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Map is missing an 'end_hub'"):
+            parse_map(make_map(HEADER, START, HUB, *CONNS))
+
+    def test_duplicate_end(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Found duplicate key"):
+            parse_map(make_map(HEADER, START, HUB, END, END, *CONNS))
+
+    def test_missing_start(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Map is missing an 'start_hub'"):
+            parse_map(make_map(HEADER, HUB, END, *CONNS))
+
+    def test_duplicate_start(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Found duplicate key"):
+            parse_map(make_map(HEADER, START, START, HUB, END, *CONNS))
+
+    def test_missing_nb_drones(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Number of drones must be on top of file"):
+            parse_map(make_map(START, HUB, END, *CONNS))
+
+    def test_duplicate_nb_drones(self, make_map: Callable) -> None:
+        with pytest.raises(MapError,match="Found duplicate key"):
+            parse_map(make_map(HEADER, HEADER, START, HUB, END, *CONNS))
+
+    def test_missing_connections(self, make_map: Callable) -> None:
+        with pytest.raises(MapError, match="Map has less connections than expected."):
+            parse_map(make_map(HEADER, START, HUB, END))
+
+    def test_model_error_becomes_map_error(self, make_map: Callable[..., Path]) -> None:
+      with pytest.raises(MapError, match="Invalid map"):
+          parse_map(make_map(HEADER, START, HUB, "hub: mid 5 5", END,
+                             *CONNS, "connection: mid-mid"))
+
+    def test_valid_parse_map(self, make_map: Callable) -> None:
+        map = parse_map(make_map(HEADER, START, HUB, END, *CONNS))
+        assert map.nb_drones == 2
+        assert map.start.name == "start"
+        assert (map.start.x, map.start.y) == (0, 0)
+        assert map.end.name == "goal"
+        assert [h.name for h in map.hubs] == ["mid"]
+        assert len(map.connections) == 2
+
 
 class TestParseNbDrones():
     def test_negative_nb_drones(self) -> None:

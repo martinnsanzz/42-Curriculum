@@ -8,7 +8,7 @@ from main.models import HubMetadata, ConnectionMetadata, Zone
 class TestHubClass:
     def test_invalid_metadata(self) -> None:
         with pytest.raises(ValidationError):
-            HubMetadata(zone="Normal")
+            HubMetadata(zone="Normal") # type: ignore[call-arg]  # intentional: testing bad input
 
     def test_empty_metadata(self) -> None:
         meta = HubMetadata()
@@ -25,7 +25,7 @@ class TestHubClass:
 class TestConnectionClass:
     def test_invalid_metadata(self) -> None:
         with pytest.raises(ValidationError):
-            ConnectionMetadata(max_link_capacity="two")
+            ConnectionMetadata(max_link_capacity="two") # type: ignore[call-arg]  # intentional: testing bad input
 
     def test_empty_metadata(self) -> None:
         meta = ConnectionMetadata()

@@ -30,22 +30,22 @@ class DroneMap(BaseModel):
 
         if self.start.name not in start_names:
                     raise ValueError("Start hub name must be 'start'.\n" \
-                                   f"   Current -> '{self.start.name}'\n")
+                                   f"Current -> '{self.start.name}'\n")
         elif self.end.name not in end_names:
             raise ValueError(f"End hub name must be '{end_names[0]}' " \
                             f"or '{end_names[1]}'\n" \
-                            f"   Current -> '{self.end.name}'\n")
+                            f"Current -> '{self.end.name}'\n")
         for hub in self.hubs:
             if hub.name in start_names:
                 raise ValueError(f"Non start_hub can't have name 'start'.\n" \
-                               f"   Check hub at line '{hub.line}'.\n")
+                               f"Check hub at line '{hub.line}'.\n")
             if hub.name in end_names:
                 raise ValueError(f"Non end_hub can't have any of the following " \
                                f"names -> {end_names}.\n" \
-                               f"   Check hub at line '{hub.line}'.\n")
+                               f"Check hub at line '{hub.line}'.\n")
             if hub.name in seen_names:
                 raise ValueError(f"Found hub with duplicate name '{hub.name}'.\n" \
-                               f"   Check hub at line '{hub.line}'.\n")
+                               f"Check hub at line '{hub.line}'.\n")
             seen_names.append(hub.name)
         return self
 
@@ -82,18 +82,22 @@ class DroneMap(BaseModel):
         for conn in self.connections:
             key = tuple(sorted((conn.name1, conn.name2)))
 
+            if conn.name1 == conn.name2:
+                raise ValueError(f"Connection at line '{conn.line}' connects " \
+                                 "connects a hub to itself. !!\n")
+
             if conn.name1 not in hub_names:
                 raise ValueError(f"Connection at line '{conn.line}' has a " \
                                  f"non-existing hub name.\n" \
-                                 f" - Invalid name -> {conn.name1}\n")
+                                 f"- Invalid name -> {conn.name1}\n")
             elif conn.name2 not in hub_names:
                 raise ValueError(f"Connection at line '{conn.line}' has a " \
                                  f"non-existing hub name.\n" \
-                                 f" - Invalid name -> {conn.name2}\n")
+                                 f"- Invalid name -> {conn.name2}\n")
             if key in seen:
                 first = seen[key]
-                raise ValueError(f"Found dupplicate connection '{conn.name1}-" \
+                raise ValueError(f"Found duplicate connection '{conn.name1}-" \
                                  f"{conn.name2}' at line {conn.line}.\n" \
-                                 f"     - Same as line '{first.line}'\n")
+                                 f"- Same as line '{first.line}'\n")
             seen[key] = conn
         return self

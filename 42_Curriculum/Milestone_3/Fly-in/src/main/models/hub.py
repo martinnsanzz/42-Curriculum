@@ -18,6 +18,6 @@ class Hub(BaseModel):
     def check_valid_name(self) -> Self:
         if "-" in self.name:
             raise ValueError("Illegal character found on the hub at line " \
-                           f"'{self.line}'.\n   " \
+                           f"'{self.line}'.\n" \
                             "Names can't contain '-' within the name.\n")
         return self
