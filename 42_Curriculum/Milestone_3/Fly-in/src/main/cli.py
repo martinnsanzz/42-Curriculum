@@ -6,7 +6,7 @@ from pathlib import Path
 from .parser import parse_map
 from .colors import print_error
 from .exceptions import FlyInError
-from .backend import Graph
+from .backend import Graph, dijkstra_alg
 
 ERROR = "------ERROR FOUND------"
 
@@ -16,7 +16,7 @@ def main() -> int:
         drone_map = parse_map(args.map)
         graph = Graph.from_drone_map(drone_map)
 
-        print(bfs(graph, "start"))
+        print(dijkstra_alg(graph, "start", "goal"))
     except (FlyInError, ArgumentError) as e:
         print_error(f"{ERROR}\n{e}")
         return 1

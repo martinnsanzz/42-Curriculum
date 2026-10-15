@@ -1,10 +1,11 @@
 # Local modules
 from collections import deque
+from math import inf
 
 # Built-in modules
 from .graph import Graph
 
-def bfs(graph: Graph, start: str) -> list[str]:
+def bfs_traversal(graph: Graph, start: str) -> list[str]:
     visited = [start]
     result = list()
     queue = deque()
@@ -24,5 +25,9 @@ def bfs(graph: Graph, start: str) -> list[str]:
     return result
 
 
-def find_path(graph: Graph, start: str, end: str) -> list[str]:
-    path = [start]
+def dijkstra_alg(graph: Graph, start: str, end: str) -> list[str]:
+    dist: dict[str, int] = {hub: inf for hub in graph._hubs}
+    visited: dict[str, bool] = {hub: False for hub in graph._hubs}
+
+    dist[start] = 0
+    
