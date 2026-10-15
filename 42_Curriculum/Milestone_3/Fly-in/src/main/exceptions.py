@@ -4,3 +4,6 @@ class FlyInError(Exception):
 
 class MapError(FlyInError):
     """The map file is unreadable or its content is invalid."""
+
+class GraphError(FlyInError):
+    """The graph or algorithm isnt working accordingly"""
