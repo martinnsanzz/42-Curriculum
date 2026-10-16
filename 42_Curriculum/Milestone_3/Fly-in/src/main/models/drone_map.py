@@ -7,7 +7,6 @@ from pydantic import BaseModel, model_validator
 # Local modules
 from .hub import Hub
 from .connection import Connection
-from ..exceptions import MapError
 
 class DroneMap(BaseModel):
     nb_drones: int

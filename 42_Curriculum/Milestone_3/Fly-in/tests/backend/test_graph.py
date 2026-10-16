@@ -64,7 +64,7 @@ class TestFromDroneMap:
 
     def test_constructor_stores_start_and_end(self) -> None:
         h = {"s": hub("s", 0, 0), "e": hub("e", 1, 0)}
-        g = Graph(h, {"s": ["e"], "e": ["s"]}, {}, "s", "e")
+        g = Graph(5, h, {"s": ["e"], "e": ["s"]}, {}, "s", "e")
         assert (g.start, g.end) == ("s", "e")
 
 
@@ -170,6 +170,17 @@ class TestCost:
                 assert zone in ZONE_COST
         assert Zone.BLOCKED not in ZONE_COST
 
+class TestCheckHubPriority:
+    def test_priority_zone_is_negative_one(self, graph: Graph) -> None:
+        assert graph.check_hub_priority("c") == -1
+
+    @pytest.mark.parametrize("name", ["start", "a", "b", "x", "goal", "island"])
+    def test_other_zones_are_zero(self, graph: Graph, name: str) -> None:
+        assert graph.check_hub_priority(name) == 0
+
+    def test_unknown_zone(self, graph: Graph) -> None:
+        with pytest.raises(KeyError):
+            graph.check_hub_priority("nope")
 
 class TestZoneCapacity:
     def test_default_is_one(self, graph: Graph) -> None:

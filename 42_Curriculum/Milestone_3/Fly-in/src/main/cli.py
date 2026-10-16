@@ -6,7 +6,7 @@ from pathlib import Path
 from .parser import parse_map
 from .colors import print_error
 from .exceptions import FlyInError
-from .backend import Graph, PathFinder
+from .backend import Graph, PathFinder, Simulation
 
 ERROR = "------ERROR FOUND------"
 
@@ -16,9 +16,11 @@ def main() -> int:
         drone_map = parse_map(args.map)
         graph = Graph.from_drone_map(drone_map)
         path_finder = PathFinder(graph)
-        print(path_finder.compute_distance())
-        print("-----------------------")
-        print(path_finder.shortest_path())
+        simulation = Simulation(graph, path_finder)
+
+        while simulation.available_drones:
+            simulation.step()
+
     except (FlyInError, ArgumentError) as e:
         print_error(f"{ERROR}\n{e}")
         return 1

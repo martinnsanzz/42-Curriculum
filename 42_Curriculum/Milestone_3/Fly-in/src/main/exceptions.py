@@ -7,3 +7,6 @@ class MapError(FlyInError):
 
 class GraphError(FlyInError):
     """The graph or algorithm isnt working accordingly"""
+
+class SimulationError(FlyInError):
+    """The graph or algorithm isnt working accordingly"""

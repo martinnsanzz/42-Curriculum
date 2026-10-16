@@ -8,11 +8,12 @@ ZONE_COST: dict[Zone, int] = {
     Zone.RESTRICTED: 2,
 }
 
-class Graph():
-    def __init__(self, hubs: dict[str, Hub],
+class Graph:
+    def __init__(self, nb_drones: int, hubs: dict[str, Hub],
                  adjacency: dict[str, list[str]],
                  link_caps: dict[frozenset[str], int],
                  start: str, end: str) -> None:
+        self._nb_drones = nb_drones
         self._hubs = hubs
         self._adjacency = adjacency
         self._link_caps = link_caps
@@ -21,11 +22,12 @@ class Graph():
 
     @classmethod
     def from_drone_map(cls, drone_map: DroneMap) -> "Graph":
+        nb_drones = drone_map.nb_drones
         hubs = cls._build_hubs(drone_map)
         adjacency = cls._build_adjacency(hubs, drone_map.connections)
         link_caps = cls._build_link_caps(drone_map.connections)
 
-        return cls(hubs, adjacency, link_caps,
+        return cls(nb_drones, hubs, adjacency, link_caps,
                    drone_map.start.name, drone_map.end.name)
 
     @staticmethod
@@ -80,6 +82,11 @@ class Graph():
             raise GraphError(f"Algorithm tried to enter '{name}', " \
                          f"a zone of type '{zone.value}'")
         return ZONE_COST[zone]
+
+    def check_hub_priority(self, name:str) -> int:
+        if self._hubs[name].metadata.zone == Zone.PRIORITY:
+            return -1
+        return 0
 
     def zone_capacity(self, name: str) -> int:
         return self._hubs[name].metadata.max_drones
