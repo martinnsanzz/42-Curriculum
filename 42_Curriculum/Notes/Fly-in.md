@@ -77,19 +77,73 @@ The problem is also sometimes called the **single-pair shortest path problem**, 
 - **All-pairs shortest path:** find the shortest paths between every pair of vertices `v`, `v'` in the graph.
 
 
-#### Algorithms
-Several well-known algorithms solve the shortest path problem and its variants.
+#### Shortest Path Algorithms
 
-## Overview
+**Directed vs undirected**
 
-| Algorithm | Solves | Notes |
-|---|---|---|
-| **Dijkstra** | Single-source | Non-negative edge weights only |
-| **Bellman-Ford** | Single-source | Edge weights may be negative |
-| **A\*** | Single-pair | Uses heuristics to speed up the search |
-| **Floyd-Warshall** | All-pairs | |
-| **Johnson's** | All-pairs | May be faster than Floyd-Warshall on sparse graphs |
-| **Viterbi** | Shortest stochastic path | Adds a probabilistic weight on each node |
+- **Directed:** each edge has a direction and its own weight.
+- **Undirected:** an edge works both ways with the same weight. Treat it as two directed edges, one per direction.
+- **Negative weights:** a negative undirected edge is already a negative cycle (`a→b→a`), so negative weights only make sense on directed graphs.
+- **Negative cycle:** a cycle whose total weight is below 0. No shortest path exists, because you can keep looping to lower the cost.
+
+**Algorithms**
+
+| Algorithm | Problem | Weights | Time | Notes |
+|---|---|---|---|---|
+| **BFS** | Single-source | Unweighted (all equal) | `O(V + E)` | Fewest edges |
+| **0-1 BFS** | Single-source | Only 0 or 1 | `O(V + E)` | BFS with a deque |
+| **Dijkstra** (array) | Single-source | Non-negative | `O(V²)` | Fine for dense graphs |
+| **Dijkstra** (binary heap) | Single-source | Non-negative | `O((V + E) log V)` | The usual choice (`heapq`) |
+| **Dijkstra** (Fibonacci heap) | Single-source | Non-negative | `O(E + V log V)` | Best bound, rarely worth it |
+| **Dial's** | Single-source | Small non-negative integers | `O(E + L·V)` | Bucket queue, `L` = max weight |
+| **Bellman-Ford** | Single-source | Any, negatives allowed | `O(V·E)` | Detects negative cycles |
+| **DAG relaxation** | Single-source | Any | `O(V + E)` | Process in topological order |
+| **A\*** | Single-pair | Non-negative | depends on heuristic | Dijkstra guided by a heuristic |
+| **Floyd-Warshall** | All-pairs | Any, no negative cycles | `O(V³)` | Simple, good for small dense graphs |
+| **Johnson's** | All-pairs | Any, no negative cycles | `O(V² log V + V·E)` | Better on sparse graphs |
+
+<u>Dijkstra</u>
+
+1. Set `dist[start] = 0` and every other distance to infinity.
+2. Push `(0, start)` onto a min-heap.
+3. Pop the cheapest entry. Skip it if its cost is worse than `dist` (stale entry).
+4. For each neighbour, compute `new = dist[u] + weight`. If `new < dist[neighbour]`, update `dist`, set `came_from[neighbour] = u`, and push it.
+5. Stop at the goal, or when the heap is empty (goal unreachable).
+6. Rebuild the path by walking back through `came_from`, then reverse it.
+
+**Why it needs non-negative weights:** once a node is popped, its distance is final, because no later path can be cheaper. A negative edge breaks that guarantee.
+
+<u>Bellman-Ford</u>
+
+- Relax every edge `V - 1` times: `if dist[u] + w < dist[v]: dist[v] = dist[u] + w`.
+- Run one more pass. If any distance still improves, there is a negative cycle reachable from the source.
+- Slower than Dijkstra, so use it only when negative weights exist.
+
+<u>A\*</u>
+
+- Same as Dijkstra, but the heap is ordered by `g + h`:
+  - `g` = cost so far
+  - `h` = heuristic estimate of the cost to the goal
+- **Admissible:** `h` never overestimates, so the result is optimal.
+- **Consistent:** `h(u) <= w(u, v) + h(v)`, so a node never needs to be reopened.
+- With `h = 0` it is exactly Dijkstra.
+
+<u>Floyd-Warshall and Johnson's</u>
+
+- **Floyd-Warshall:** a 3-nested loop over `k, i, j` with `dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])`.
+- **Johnson's:** run Bellman-Ford once to reweight the edges so none are negative, then run Dijkstra from every vertex. Faster than Floyd-Warshall on sparse graphs.
+
+**Choosing one**
+
+| Situation | Use |
+|---|---|
+| All edges cost the same | BFS |
+| Costs are 0 or 1 | 0-1 BFS |
+| Non-negative weights, one source | Dijkstra with a heap |
+| One start and one goal, with a good heuristic | A\* |
+| Negative weights | Bellman-Ford |
+| Directed acyclic graph | Relax in topological order |
+| Distances between every pair | Floyd-Warshall, or Johnson's if sparse |
 
 
 ### Representing a graph in Python
