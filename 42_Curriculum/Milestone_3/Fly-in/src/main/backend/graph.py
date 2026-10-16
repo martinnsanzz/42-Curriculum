@@ -63,7 +63,7 @@ class Graph():
         return [x for x in self._adjacency[name] if not self.is_blocked(x)]
 
     def all_neighbours(self, name: str) -> list[str]:
-        return self._adjacency[name]
+        return list(self._adjacency[name])
 
     def is_blocked(self, name: str) -> bool:
         if self._hubs[name].metadata.zone == Zone.BLOCKED:

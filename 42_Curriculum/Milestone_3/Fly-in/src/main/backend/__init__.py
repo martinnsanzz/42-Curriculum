@@ -1,8 +1,8 @@
 # Local modules
 from .graph import Graph
-from .pathfinder import dijkstra_alg
+from .pathfinder import PathFinder
 
 __all__ = [
     "Graph",
-    "dijkstra_alg"
+    "PathFinder"
 ]
