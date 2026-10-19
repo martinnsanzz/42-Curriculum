@@ -10,15 +10,15 @@ from main.cli import parse_args
 
 def test_wrong_flag(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("sys.argv", ["src", "--unknown_flag", "random"])
-    with pytest.raises(ArgumentError, match="The following arguments are required"):
+    with pytest.raises(ArgumentError, match="Incorrect argument on command line"):
         parse_args()
 
-def test_flag_with_no_arg(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr("sys.argv", ["src", "--map"])
-    with pytest.raises(ArgumentError, match="expected one argument"):
-        parse_args()
-
-def test_right_cli(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr("sys.argv", ["src", "--map", "x.txt"])
+def test_with_cli(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr("sys.argv", ["src", "--visual"])
     args = parse_args()
-    assert args.map == Path("x.txt")
+    assert args.visual == True
+
+def test_without_cli(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr("sys.argv", ["src"])
+    args = parse_args()
+    assert args.visual == False

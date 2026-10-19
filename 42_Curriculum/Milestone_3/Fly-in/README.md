@@ -29,6 +29,9 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [Hashable](https://realpython.com/ref/glossary/hashable/)
 - [Queue in Python](https://www.geeksforgeeks.org/python/queue-in-python/)
 - [Priority Queue](https://www.geeksforgeeks.org/python/priority-queue-in-python/)
+- [Argparse Docs](https://docs.python.org/3/library/argparse.html)
+- [Find files, folders in your directory with Python](https://richard-taujenis.medium.com/find-files-folders-in-your-directory-with-python-2ff11081e373)
+- [Curses Menu docs](https://curses-menu.readthedocs.io/en/latest/usage.html)
 
 ### 📋 Other Stuff
 - [Multi-Agent Path Finding with Capacity Constraints](https://arxiv.org/pdf/1907.12648)
@@ -45,6 +48,8 @@ This is a list of multiple resources use through out the life-cycle of the proje
 - [How Dijkstra's Algorithm Works](https://www.youtube.com/watch?v=EFg3u_E6eHU)
 - [Dijsktras Algorithm how to use it](https://medium.com/@singhatul1155/dijkstras-algorithm-navigating-the-shortest-path-how-to-use-it-and-its-importance-8924295fe690)
 - [DSA Dijkstra's Algorithm](https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
+- [Terminal Colors](https://chrisyeh96.github.io/2020/03/28/terminal-colors.html)
+- [RGB](https://rgbcolorpicker.com/)
 
 ## 🤖 AI Usage
 

@@ -10,7 +10,7 @@ from main.backend.graph import Graph
 from main.backend.pathfinder import PathFinder
 from main.exceptions import GraphError
 from main.models import (Connection, ConnectionMetadata, DroneMap, Hub,
-                         HubMetadata, Zone)
+                         HubMetadata, ZoneType)
 from main.parser.map_parser import parse_map
 
 
@@ -43,8 +43,8 @@ def make_graph(zones: dict[str, dict[str, Any]],
     return PathFinder(Graph.from_drone_map(drone_map))
 
 
-RESTRICTED: dict[str, Any] = {"zone": Zone.RESTRICTED}
-BLOCKED: dict[str, Any] = {"zone": Zone.BLOCKED}
+RESTRICTED: dict[str, Any] = {"zone_type": ZoneType.RESTRICTED}
+BLOCKED: dict[str, Any] = {"zone_type": ZoneType.BLOCKED}
 
 
 class TestComputeDistance:

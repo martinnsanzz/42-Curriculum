@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from main.parser.loader import RawLine
 from main.parser.map_parser import parse_map, parse_connection, parse_hub, \
                                    parse_meta, parse_nb_drones
-from main.models import HubMetadata, ConnectionMetadata, Zone, Hub, Connection
+from main.models import HubMetadata, ConnectionMetadata, ZoneType, Hub, Connection
 from main.exceptions import MapError
 
 HEADER = "nb_drones: 2"
@@ -176,7 +176,7 @@ class TestParseMeta():
         meta = parse_meta(raw_line, "color=green zone=normal max_drones=2",
                           HubMetadata)
         assert meta == HubMetadata(color="green",
-                                   zone=Zone.NORMAL,
+                                   zone=ZoneType.NORMAL,
                                    max_drones=2)
 
     def test_invalid_connection_meta(self) -> None:

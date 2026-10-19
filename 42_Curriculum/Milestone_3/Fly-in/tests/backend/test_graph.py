@@ -1,20 +1,32 @@
 # Built-in modules
-from typing import Any
+from typing import Any, Optional
 
 # Installed modules
 import pytest
 
 # Local modules
 from main.backend.graph import ZONE_COST, Graph
+from main.backend.zone import Zone
 from main.exceptions import GraphError
 from main.models import (Connection, ConnectionMetadata, DroneMap, Hub,
-                         HubMetadata, Zone)
+                         HubMetadata, ZoneType)
 
 NAMES = ["start", "a", "b", "c", "x", "goal", "island"]
 
 
 def hub(name: str, x: int, y: int, line: int = 1, **meta: Any) -> Hub:
     return Hub(line=line, name=name, x=x, y=y, metadata=HubMetadata(**meta))
+
+
+def zone(name: str, x: int, y: int, zone_type: ZoneType = ZoneType.NORMAL,
+         color: Optional[str] = None, max_drones: int = 1) -> Zone:
+    return Zone(name=name, x=x, y=y, zone_type=zone_type,
+                color=color, max_drones=max_drones)
+
+
+def convert_to_zone(h: Hub) -> Zone:
+    return zone(h.name, h.x, h.y, h.metadata.zone_type,
+                h.metadata.color, h.metadata.max_drones)
 
 
 def conn(a: str, b: str, line: int = 1, cap: int = 1) -> Connection:
@@ -32,9 +44,9 @@ def drone_map() -> DroneMap:
         end=hub("goal", 3, 0, line=3),
         hubs=[
             hub("a", 1, 0, line=4),
-            hub("b", 2, 0, line=5, zone=Zone.RESTRICTED, max_drones=2),
-            hub("c", 1, 1, line=6, zone=Zone.PRIORITY),
-            hub("x", 2, 1, line=7, zone=Zone.BLOCKED),
+            hub("b", 2, 0, line=5, zone_type=ZoneType.RESTRICTED, max_drones=2),
+            hub("c", 1, 1, line=6, zone_type=ZoneType.PRIORITY),
+            hub("x", 2, 1, line=7, zone_type=ZoneType.BLOCKED),
             hub("island", 5, 5, line=8, max_drones=4),
         ],
         connections=[
@@ -63,8 +75,8 @@ class TestFromDroneMap:
             graph.all_neighbours(name)   # raises KeyError if missing
 
     def test_constructor_stores_start_and_end(self) -> None:
-        h = {"s": hub("s", 0, 0), "e": hub("e", 1, 0)}
-        g = Graph(5, h, {"s": ["e"], "e": ["s"]}, {}, "s", "e")
+        zones = {"s": zone("s", 0, 0), "e": zone("e", 1, 0)}
+        g = Graph(5, zones, {"s": ["e"], "e": ["s"]}, {}, "s", "e")
         assert (g.start, g.end) == ("s", "e")
 
 
@@ -84,9 +96,10 @@ class TestAdjacency:
         assert graph.valid_neighbours("island") == []
 
     def test_connections_to_unknown_zones_are_skipped(self) -> None:
-        hubs = {"a": hub("a", 0, 0), "b": hub("b", 1, 0)}
+        zones = {"a": convert_to_zone(hub("a", 0, 0)),
+                 "b": convert_to_zone(hub("b", 1, 0))}
         adjacency = Graph._build_adjacency(
-            hubs, [conn("a", "b"), conn("a", "ghost")])
+            zones, [conn("a", "b"), conn("a", "ghost")])
         assert adjacency == {"a": ["b"], "b": ["a"]}
 
 
@@ -165,22 +178,25 @@ class TestCost:
             graph.cost("nope")
 
     def test_every_enterable_zone_type_has_a_cost(self) -> None:
-        for zone in Zone:
-            if zone != Zone.BLOCKED:
-                assert zone in ZONE_COST
-        assert Zone.BLOCKED not in ZONE_COST
+        for zone_type in ZoneType:
+            if zone_type != ZoneType.BLOCKED:
+                assert zone_type in ZONE_COST
+        assert ZoneType.BLOCKED not in ZONE_COST
+
 
 class TestCheckHubPriority:
     def test_priority_zone_is_negative_one(self, graph: Graph) -> None:
         assert graph.check_hub_priority("c") == -1
 
-    @pytest.mark.parametrize("name", ["start", "a", "b", "x", "goal", "island"])
+    @pytest.mark.parametrize("name",
+                             ["start", "a", "b", "x", "goal", "island"])
     def test_other_zones_are_zero(self, graph: Graph, name: str) -> None:
         assert graph.check_hub_priority(name) == 0
 
     def test_unknown_zone(self, graph: Graph) -> None:
         with pytest.raises(KeyError):
             graph.check_hub_priority("nope")
+
 
 class TestZoneCapacity:
     def test_default_is_one(self, graph: Graph) -> None:

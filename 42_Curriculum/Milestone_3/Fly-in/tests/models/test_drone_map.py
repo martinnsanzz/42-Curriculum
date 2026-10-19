@@ -3,7 +3,7 @@ import pytest
 from pydantic import ValidationError
 
 # Local modules
-from main.models import DroneMap, Hub, Connection, HubMetadata, ConnectionMetadata, Zone
+from main.models import DroneMap, Hub, Connection
 
 def hub(name: str, x: int, y: int, line: int = 1) -> Hub:
     return Hub(line=line, name=name, x=x, y=y)

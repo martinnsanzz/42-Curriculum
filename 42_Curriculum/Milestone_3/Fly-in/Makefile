@@ -19,11 +19,12 @@ UV					:= uv
 RUN_COMM			:= ${UV} run python
 DEBUGGER			:= pdb
 
-# ------------------ Paths  ------------------ #
+# ---------------- Map Path ----------------- #
 MAP_PATH			:= maps/easy/01_linear_path.txt
 
-# ------------------ FLAGS  ------------------ #
+# ------------------ Flags ------------------ #
 MAP_FLAG			:= --map ${MAP_PATH}
+VISUAL_FLAG			:= --visual
 
 # ------------------ Commands ------------------ #
 help:
@@ -45,6 +46,14 @@ install: check_uv
 run: install
 	@echo "${GREEN}\nRunning program... !!\n${RESET}"
 	@${RUN_COMM} -m src ${MAP_FLAG}
+
+run_curses: install
+	@echo "${GREEN}\nRunning program... !!\n${RESET}"
+	@${RUN_COMM} -m src
+
+visual: install
+	@echo "${GREEN}\nRunning program with visual activated... !!\n${RESET}"
+	@${RUN_COMM} -m src${VISUAL_FLAG}
 
 debug:
 

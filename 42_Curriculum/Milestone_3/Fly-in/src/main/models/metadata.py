@@ -3,17 +3,20 @@ from typing import Optional
 from enum import Enum
 
 # Installed modules
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
-class Zone(str, Enum):
+class ZoneType(str, Enum):
     NORMAL = "normal"
     BLOCKED = "blocked"
     RESTRICTED = "restricted"
     PRIORITY = "priority"
 
 class HubMetadata(BaseModel):
-    zone: Zone = Field(default=Zone.NORMAL)
+    model_config = ConfigDict(validate_by_name=True,
+                              validate_by_alias=True)
+
+    zone_type: ZoneType = Field(default=ZoneType.NORMAL, alias="zone")
     color: Optional[str] = Field(default=None)
     max_drones: int = Field(default=1, ge=1)
 

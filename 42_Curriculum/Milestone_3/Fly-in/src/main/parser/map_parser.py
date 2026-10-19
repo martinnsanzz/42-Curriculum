@@ -8,7 +8,7 @@ from pydantic import PositiveInt, TypeAdapter, ValidationError, BaseModel
 
 # Local modules
 from ..models import Connection, Hub, HubMetadata, DroneMap, \
-                          ConnectionMetadata, Zone
+                          ConnectionMetadata
 from ..exceptions import MapError
 from .loader import load_map, RawLine
 
