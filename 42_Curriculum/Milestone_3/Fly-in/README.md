@@ -62,58 +62,14 @@ This README.md file was done by **human fingers, sweat and tears**. No AI wrote 
 line of text :)
 
 
-# Project Guide (To be deleted)
+## Things to do
 
-| Status | Task |
-|---|---|
-| ✅ Done | Loader, models, `parse_map`, parser and `DroneMap` tests |
-| 🔄 Doing | Read the subject's movement rules |
-| ✅ Done | Graph object (neighbours, zone costs, capacities, blocked zones) |
-| 🔄 Doing | Drone object (id, position, path, state) |
-| ✅ Done | Shortest path for one drone (BFS, then Dijkstra) |
-| ⬜ To do | Turn simulator (capacity checks, drones wait when full) |
-| ⬜ To do | Multiple paths for bottlenecks |
-| ⬜ To do | Output format and terminal display |
-| ⬜ To do | Run all maps, mypy, flake8 |
+- Dont pass terminalprinter function to run, make run return moves since the visual will 
+also need the list of moves. 
+- Makethe main cleaner
+- Write docstrings to all code.
+- Write pytest of some functions
+- Fix mypy and flake8
 
-
-## Subject Requirements
-Implementation must hablde:
-1. Distribution of drones across multiple paths
-2. Strategic waiting when movement isn't possible
-3. Avoidance of path conflicts and deadlocks
-
-**Zone Occupance Rules**
-- By default, a zone may contain at most one drone at any given simulation turn.
-- Zones with max_drones=N metadata can contain up to N drones simultaneously.
-- The only special exceptions to occupancy rules are:
-    ◦ The start zone: all drones begin here and may share the space initially.
-    ◦ The end zone: multiple drones can arrive here and are considered delivered.
-- Two drones may not enter the same zone on the same turn unless the zone’s capacity
-allows it.
-- A drone may not move into a zone that would exceed its maximum capacity.
-- Connection capacity (max_link_capacity) defined on connections limits how many
-drones can traverse the same connection simultaneously.
-- Drones may move simultaneously, as long as all capacity constraints are respected.
-
-**Movement rules from the subject**
-The simulation runs in discrete turns. At each turn every drone may:
-- Move to an adjacent neighbour (if capacity allows)
-- Move to a connection towards a restricted zone (That requires 2 turns to be reached).
-In this case, the drone MUST reach its destination during the next turn. It can't wait extra turns on the connection
-- Stay in place (To wait or if movement is blocked)
-
-Simulation must prevent conflicts and ensure valid movement scheduling based on 
-turn-by-turn state evaluation:
-- Drones moving out of a zone free up capacity for the same turn
-- A zone must have available capacity for a drone to move into it (After all drones 
-moving out have freed up space)
-
-**Algorithm needs to understand**
-- Path lengths including movement cost associated with zone types
-- Turn scheduling, to prevent drones from colliding or blocking each other
-- Graph structure, to determine available disjoint or overlapping paths
-- Zone capacity constrains (max_drones) and connections capacity (ma_link_capacity)
-
-> Algorithm must be adaptable: Different maps require different routing strategies
+- Start thinking on the visual
 

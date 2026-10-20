@@ -179,3 +179,84 @@ In code, an undirected edge is stored twice, once in each direction:
 graph = {"a": ["b"], "b": ["a"]}   # undirected a-b
 graph = {"a": ["b"], "b": []}      # directed a→b
 ```
+
+### Color in Terminal
+Terminal traditionally take an input of bytes and display them as white text on a
+black background. If the input contain specific **control characters**, then the
+terminal may alter certain display properties of the text (Color or font).
+Old terminal could only display a max of `8 colors`. However modern terminals can 
+display `24-bit RGB color`.
+
+<u>ASCII Escape Character</u>
+
+The **ANSI ASCII standard** represents the escape `ESC` char by the decimal `27 (33 in octal, 1B in hex)`. This char is part of the *control characters (0-31 and 127)* not 
+one of the printables *(32-126)*.
+
+Most shells recognize the `Escape Key` as a control character (Usually fo keyboard 
+shortcut). So, each programing language has its own method of representing the escape
+char within a string
+
+| | Bash | C | Python 3 |
+|---|---|---|---|
+| Literal | \e, \E | \e (non-standard) | Python 3.3+ only: \N{ESCAPE}, \N{escape}, \N{ESC}, \N{esc} |
+| Octal | \033 | \33, \033 | \33, \033 |
+| Hex | \x1b | \x1b | \x1b |
+| Unicode | \u1b, \U1b | - | \u001b, \U0000001b |
+
+>**Notes:** The one used the most is the `octal` representation `\033`
+
+<u>ANSI Escape Codes for Terminal Graphics</u>
+
+The `ANSI escape code standard` defines a series of control sequences. Each control
+sequence begins with a **Control Sequence Inducer (CSI)**, define as `ESC[`. This is 
+then followed by a number of `parameter byestes` (ASCII 0-9:;<=>?) then the leter m
+which forms a control sequence known as **Select Graphic Rendition (SGR)**. If no
+parameter is given, then 0 will be selected which will reset all SGR effects to their
+default. 
+
+>**Notes:** SGR parameter can be chained together with a semicolon `;` as the delimeter.
+
+Some common SGR parameters are shown below:
+| Parameter	| Effect |
+|---|---|
+0 |	reset all SGR effects to their default |
+1 |	bold or increased intensity |
+2 |	faint or decreased intensity |
+4 |	singly underlined |
+5 |	slow blink |
+30-37 |	foreground color (8 colors) |
+38;5;x |	foreground color (256 colors, non-standard) |
+38;2;r;g;b |	foreground color (RGB, non-standard) |
+40-47 |	background color (8 colors) |
+48;5;x |	background color (256 colors, non-standard) |
+48;2;r;g;b |	background color (RGB, non-standard) |
+90-97 |	bright foreground color (non-standard) |
+100-107 |	bright background color (non-standard) |
+
+**Can all terminal display color?**
+Unfortunately not all terminals can display colors. Modern terminals generally support
+8, 16 or 256 different colors, and many support `True Color (24-bit RGB). This depends
+on the specific terminal emulators, its config and the underlying system.
+
+Legacy and basic terminals may only support 8 colors or no colors at old. Too check
+if a terminal can support colors the following command can be used"
+
+```bash
+tput colors
+```
+
+
+**What is RGB?**
+RGB stand for Red, Green and Blue and is a type of color model widely used in digital
+marketing and computer graphics. It combines different intensities of these three 
+colors that create a total of `255^3` possible outcomes. The intensity of each color
+is represented with a value of 0-255, where 0 is the lowest and 255 is the highest
+intensity.
+
+When all three intensities are (255 each) it produces white and when theyre all (0) it
+produces black. When all three values are equal within the range it produces gray with
+different shades.
+
+RGB has a variant called `RGBA` where A stand for **ALPHA**. The alpha channel 
+represents the opacity of transparency of a color.
+

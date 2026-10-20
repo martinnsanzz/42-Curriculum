@@ -8,22 +8,23 @@ from ...backend import Move
 RGB = tuple[int, int, int]
 
 COLORS: dict[str, RGB] = {
-        "black": (40, 36, 1), "blue": (76, 118, 128), "brown": (104, 63, 46),
-        "crimson": (153, 0, 0), "cyan": (0, 255, 255),
-        "darkred": (162, 85, 74), "gold": (255, 200, 0),
-        "lime": (194, 209, 27), "magenta": (237, 106, 90),
-        "maroon": (132, 73, 56), "orange": (246, 153, 45),
-        "purple": (150, 0, 205), "red": (255, 0, 0),
-        "violet": (84, 22, 180), "yellow": (255, 231, 0),
-        "green": (124, 252, 0), "gray": (127, 127, 127),
+        "black": (0, 0, 0), "blue": (0, 0, 255), "brown": (165, 42, 42),
+        "crimson": (220, 20, 60), "cyan": (0, 255, 255),
+        "darkred": (139, 0, 0), "gold": (255, 215, 0),
+        "lime": (0, 255, 0), "magenta": (255, 0, 255),
+        "maroon": (128, 0, 0), "orange": (255, 165, 0),
+        "purple": (128, 0, 128), "red": (255, 50, 0),
+        "violet": (238, 130, 238), "yellow": (255, 255, 0),
+        "green": (0, 128, 0), "gray": (128, 128, 128),
         }
 
 DEFAULT_ZONE_COLOR = (128, 128, 128)
 
 RAINBOW: list[RGB] = [
-        COLORS["red"], COLORS["orange"], COLORS["yellow"],
-        COLORS["green"], COLORS["blue"], COLORS["violet"]
-        ]
+    COLORS["red"], COLORS["orange"], COLORS["gold"],
+    COLORS["green"], COLORS["cyan"], COLORS["blue"],
+    COLORS["violet"]
+]
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -33,15 +34,15 @@ class TerminalPrinter:
     def print_error(cls, text: str) -> None:
         if not stderr.isatty():
             print(text, file=stderr)
-        red = cls.build_ansi(COLORS["black"])
+        red = cls.build_ansi(COLORS["red"])
         print(f"{red}{text}{RESET}", file=stderr, end="")
 
     @classmethod
     def print_step(cls, step_nb: int, moves: list[Move]) -> None:
-        print(f"{BOLD}------- Step nb: {step_nb} -------{RESET}")
+        print(f"{BOLD}------- Turn nb: {step_nb} -------{RESET}")
         for move in moves:
             print(cls.format_move(move), end=" ")
-        print()
+        print("\n")
 
     @classmethod
     def build_ansi(cls, rgb: RGB) -> str:
@@ -70,4 +71,4 @@ class TerminalPrinter:
             zone = cls._paint_zone(move.zone.name, move.zone.color)
             return id + zone
         elif move.connection is not None:
-            return id + move.connection
+            return id + BOLD +"conn(" + move.connection + ")" + RESET

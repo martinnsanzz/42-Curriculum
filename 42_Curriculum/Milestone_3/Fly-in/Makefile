@@ -1,6 +1,6 @@
 .ONESHELL:
 
-.DEFAULT_GOAL		:= run
+.DEFAULT_GOAL		:= test
 
 # ------------------ Colors ------------------ #
 GREEN				:= \033[1;92m
@@ -43,11 +43,11 @@ install: check_uv
 	fi
 	@echo "${GREEN}Everything installed${RESET}"
 
-run: install
+test: install
 	@echo "${GREEN}\nRunning program... !!\n${RESET}"
 	@${RUN_COMM} -m src ${MAP_FLAG}
 
-run_curses: install
+terminal: install
 	@echo "${GREEN}\nRunning program... !!\n${RESET}"
 	@${RUN_COMM} -m src
 
