@@ -8,6 +8,17 @@ from pydantic import BaseModel, model_validator, Field
 from .metadata import HubMetadata
 
 class Hub(BaseModel):
+    """A hub (node) of the drone map, parsed from a hub line.
+
+    Attributes:
+        line (int): Line number in the source file, used in error
+            messages.
+        name (str): Hub name. Must not contain `'-'`.
+        x (int): X coordinate.
+        y (int): Y coordinate.
+        metadata (HubMetadata): Optional hub metadata. Defaults to a
+            `HubMetadata` with all default values.
+    """
     line: int
     name: str
     x: int
@@ -19,5 +30,5 @@ class Hub(BaseModel):
         if "-" in self.name:
             raise ValueError("Illegal character found on the hub at line " \
                            f"'{self.line}'.\n" \
-                            "Names can't contain '-' within the name.\n")
+                            "Names can't contain '-' within the name.")
         return self

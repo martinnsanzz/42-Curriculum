@@ -55,7 +55,7 @@ class PathFinder:
                     heapq.heappush(heap, (new_d, n))
 
         if self.graph.start not in distance:
-            raise GraphError("Starting point is unreachable\n")
+            raise GraphError("Starting point is unreachable")
         return distance
 
     # ------------------------ Not use ------------------------

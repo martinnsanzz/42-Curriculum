@@ -7,12 +7,26 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class ZoneType(str, Enum):
+    """Zone category of a hub."""
     NORMAL = "normal"
     BLOCKED = "blocked"
     RESTRICTED = "restricted"
     PRIORITY = "priority"
 
 class HubMetadata(BaseModel):
+    """Optional metadata attached to a hub line.
+
+    Fields can be populated by field name or by alias (`validate_by_name`
+    and `validate_by_alias` are both enabled).
+
+    Attributes:
+        zone_type (ZoneType): Zone category of the hub. Alias: `zone`.
+            Defaults to `ZoneType.NORMAL`.
+        color (Optional[str]): Display color. Any string is accepted, no
+            format is validated. Defaults to `None`.
+        max_drones (int): Maximum number of drones for the hub. Must be
+            at least 1. Defaults to 1. [INFERRED]
+    """
     model_config = ConfigDict(validate_by_name=True,
                               validate_by_alias=True)
 
@@ -21,4 +35,10 @@ class HubMetadata(BaseModel):
     max_drones: int = Field(default=1, ge=1)
 
 class ConnectionMetadata(BaseModel):
+    """Optional metadata attached to a connection line.
+
+    Attributes:
+        max_link_capacity (int): Maximum number of drones the link can
+            carry. Must be at least 1. Defaults to 1. [INFERRED]
+    """
     max_link_capacity: int = Field(default=1, ge=1)

@@ -56,29 +56,24 @@ class Simulation:
         self.occupancy[self.graph.start] = len(drones)
         return drones
 
-    def run(self, on_step: Optional[StepCallback]) -> int:
+    def run(self) -> list[list[Move]]:
         """Run the simulation until all drones have reached the end zone.
 
-        Args:
-            on_step: Optional Callback function to print moves to terminal
-                     invoked after each turn with the current turn
-                     number and the list of moves made during that turn.
-
         Returns:
-            The total number of turns taken.
+            A 2D list containing all the drones moves per step.
 
         Raises:
             SimulationError: If a turn produces no moves while drones are
                 still unfinished (deadlock).
         """
+        total_moves: list[list[Move]] = list(list())
+
         while not self._all_arrived():
-            moves = self._step()
-            if not moves:
-                raise SimulationError("No drone can move: deadlock\n")
-            self.total_turns += 1
-            if on_step is not None:
-                on_step(self.total_turns, moves)
-        return self.total_turns
+            step_moves = self._step()
+            if not step_moves:
+                raise SimulationError("No drone can move: deadlock")
+            total_moves.append(step_moves)
+        return total_moves
 
     def _step(self) -> list[Move]:
         """Advance the simulation by one turn.

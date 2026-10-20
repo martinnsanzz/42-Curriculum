@@ -68,7 +68,6 @@ line of text :)
 also need the list of moves. 
 - Makethe main cleaner
 - Write docstrings to all code.
-- Write pytest of some functions
 - Fix mypy and flake8
 
 - Start thinking on the visual

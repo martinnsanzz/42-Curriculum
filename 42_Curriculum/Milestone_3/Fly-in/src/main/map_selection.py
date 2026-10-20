@@ -1,11 +1,21 @@
 # Built-in modules
 from typing import Optional
 from pathlib import Path
+from argparse import Namespace
 import curses as c
 import os
 
 # Local modules
 from .exceptions import MapSelectionError
+
+def resolve_map(args: Namespace) -> Optional[Path]:
+    """Return the map file path from the CLI arguments.
+    
+    If user quits on the interactive menu it will return None.
+    """
+    if args.map is not None:
+        return Path(args.map)
+    return choose_map()
 
 def choose_map() -> Optional[Path]:
     """Prompt the user to select a map through an interactive curses menu.
@@ -44,13 +54,13 @@ def read_map_folder() -> dict[str, list[str]]:
             files.
     """
     if not Path("maps").is_dir():
-        raise MapSelectionError("Couldn't find 'maps' directory in project.\n")
+        raise MapSelectionError("Couldn't find 'maps' directory in project.")
 
     subdirs = ["maps/" + dir for dir in os.listdir("maps")
                 if os.path.isdir("maps/" + dir)]
 
     if not subdirs:
-        raise MapSelectionError("Folder 'maps' does not contain any subdirectories.\n")
+        raise MapSelectionError("Folder 'maps' does not contain any subdirectories.")
 
     map_struct: dict[str, list[str]] = {}
     for dir in subdirs:
@@ -59,7 +69,7 @@ def read_map_folder() -> dict[str, list[str]]:
 
         if not maps:
              raise MapSelectionError(f"Folder '{dir}' doesn't contain any maps.\n"
-                                     "  Delete it or add maps to it.\n")
+                                     "  Delete it or add maps to it.")
         map_struct.update({dir: sorted(maps)})
     return map_struct
 
