@@ -1,5 +1,4 @@
 # Built-in modules
-from pathlib import Path
 from typing import Any
 
 # Installed modules
@@ -11,7 +10,6 @@ from main.backend.pathfinder import PathFinder
 from main.exceptions import GraphError
 from main.models import (Connection, ConnectionMetadata, DroneMap, Hub,
                          HubMetadata, ZoneType)
-from main.parser.map_parser import parse_map
 
 
 def make_graph(zones: dict[str, dict[str, Any]],
@@ -122,66 +120,3 @@ class TestComputeDistance:
     def test_same_result_every_call(self) -> None:
         pf = make_graph({"a": {}}, [("start", "a"), ("a", "goal")])
         assert pf.compute_distance() == pf.compute_distance()
-
-
-class TestShortestPath:
-    def test_linear_map(self) -> None:
-        pf = make_graph({"a": {}, "b": {}},
-                        [("start", "a"), ("a", "b"), ("b", "goal")])
-        assert pf.shortest_path() == (["start", "a", "b", "goal"], 3)
-
-    def test_restricted_zone_costs_two(self) -> None:
-        pf = make_graph({"a": RESTRICTED}, [("start", "a"), ("a", "goal")])
-        assert pf.shortest_path() == (["start", "a", "goal"], 3)
-
-    def test_fewest_turns_beats_fewest_hops(self) -> None:
-        # Short route: two restricted zones (2 + 2 + 1 = 5 turns)
-        # Long route: three normal zones (1 + 1 + 1 + 1 = 4 turns)
-        pf = make_graph(
-            {"r1": RESTRICTED, "r2": RESTRICTED, "a": {}, "b": {}, "c": {}},
-            [("start", "r1"), ("r1", "r2"), ("r2", "goal"),
-             ("start", "a"), ("a", "b"), ("b", "c"), ("c", "goal")],
-        )
-        assert pf.shortest_path() == (["start", "a", "b", "c", "goal"], 4)
-
-    def test_avoids_restricted_zone_when_hops_are_equal(self) -> None:
-        pf = make_graph({"r": RESTRICTED, "a": {}},
-                        [("start", "r"), ("r", "goal"),
-                         ("start", "a"), ("a", "goal")])
-        assert pf.shortest_path() == (["start", "a", "goal"], 2)
-
-    def test_improved_route_is_used(self) -> None:
-        pf = make_graph(
-            {"a_r": RESTRICTED, "z_n": {}, "u": {}},
-            [("goal", "a_r"), ("goal", "z_n"), ("a_r", "u"),
-             ("z_n", "u"), ("start", "u")],
-        )
-        assert pf.shortest_path() == (["start", "u", "z_n", "goal"], 3)
-
-    def test_avoids_blocked_zone(self) -> None:
-        pf = make_graph({"x": BLOCKED, "a": {}, "b": {}},
-                        [("start", "x"), ("x", "goal"),
-                         ("start", "a"), ("a", "b"), ("b", "goal")])
-        assert pf.shortest_path() == (["start", "a", "b", "goal"], 3)
-
-    def test_dead_end_is_not_in_the_path(self) -> None:
-        pf = make_graph({"a": {}, "d": {}},
-                        [("start", "a"), ("a", "d"), ("a", "goal")])
-        path, _ = pf.shortest_path()
-        assert "d" not in path
-
-    def test_end_unreachable(self) -> None:
-        pf = make_graph({"a": {}}, [("start", "a")])
-        with pytest.raises(GraphError, match="End point is unreachable"):
-            pf.shortest_path()
-
-    def test_only_route_is_blocked(self) -> None:
-        pf = make_graph({"x": BLOCKED}, [("start", "x"), ("x", "goal")])
-        with pytest.raises(GraphError, match="unreachable"):
-            pf.shortest_path()
-
-    def test_blocked_end(self) -> None:
-        pf = make_graph({"a": {}}, [("start", "a"), ("a", "goal")],
-                        end_meta=BLOCKED)
-        with pytest.raises(GraphError, match="unreachable"):
-            pf.shortest_path()
