@@ -5,6 +5,7 @@ import heapq
 from .graph import Graph
 from ..exceptions import GraphError
 
+
 class PathFinder:
     """Compute shortest paths on a weighted graph using Dijkstra's algorithm.
 
@@ -20,7 +21,6 @@ class PathFinder:
     """
     def __init__(self, graph: Graph) -> None:
         self.graph = graph
-
 
     def compute_distance(self) -> dict[str, int]:
         """Compute the cost from every reachable node to the end node.
@@ -68,8 +68,8 @@ class PathFinder:
     #     Run Dijkstra forwards from the start node and stop as soon as the
     #     end node is popped from the queue. The cost of a path is a pair
     #     ``(turns, priority)``, compared in that order. ``priority`` is the
-    #     negative count of priority zones entered, so among paths with equal
-    #     turns, the one through more priority zones wins.
+    #     negative count of priority hubs entered, so among paths with equal
+    #     turns, the one through more priority hubs wins.
 
     #     Returns:
     #         A tuple ``(path, turns)`` where ``path`` is the ordered list of

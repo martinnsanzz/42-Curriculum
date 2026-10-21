@@ -2,9 +2,10 @@
 from argparse import Namespace, ArgumentParser, ArgumentError
 from pathlib import Path
 
+
 def parse_args() -> Namespace:
     """Parse the command line arguments.
-    
+
     It takes 2 flags:
         --visual: bool -> If false it displays the result of the simulation
                           on the terminal, else on the visualizer.
@@ -12,7 +13,7 @@ def parse_args() -> Namespace:
                        This is an optional flag, since there's an interactive
                        map selector with curses. This is use for testing
                        purposes.
-    
+
     Notes:
         If `--visual` flag is True `--map` can't be present
     """
@@ -32,11 +33,9 @@ def parse_args() -> Namespace:
         raise ArgumentError(None, msg.capitalize()) from e
 
     if unknown:
-        raise ArgumentError(None,
-                    "Incorrect argument on command line:\n  - "
-                    "Correct usage: uv run python -m src")
+        raise ArgumentError(None, "Incorrect argument on command line:\n  - "
+                                  "Correct usage: uv run python -m src")
     elif known.visual and known.map:
-        raise ArgumentError(None,
-                    "If `--visual` flag is present `--map` shouldn't"
-                    "be present on the CLI.")
+        raise ArgumentError(None, "If `--visual` flag is present `--map` "
+                                  "shouldn't be present on the CLI.")
     return known

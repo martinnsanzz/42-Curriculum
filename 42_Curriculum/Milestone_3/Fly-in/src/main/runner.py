@@ -7,6 +7,7 @@ from .map_selection import resolve_map
 from .frontend import TerminalPrinter
 from .backend import Graph, PathFinder, Simulation
 
+
 def run_terminal(args: Namespace) -> int:
     """Run the drone simulation and print each step to the terminal.
 
@@ -25,13 +26,14 @@ def run_terminal(args: Namespace) -> int:
     map_path = resolve_map(args)
     if map_path is None:
         return 0
-    
+
     graph = Graph.from_drone_map(parse_map(map_path))
     simulation = Simulation(graph, PathFinder(graph))
     steps = simulation.run()
     TerminalPrinter.output_simulation(steps)
     return 0
 
+
 def run_visual() -> int:
     """Run the simulation and display the results in a different window"""
-    ...
+    return 0

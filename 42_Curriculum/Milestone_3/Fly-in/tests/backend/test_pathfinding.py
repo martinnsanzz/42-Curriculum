@@ -5,14 +5,14 @@ from typing import Any
 import pytest
 
 # Local modules
-from main.backend.graph import Graph
-from main.backend.pathfinder import PathFinder
-from main.exceptions import GraphError
-from main.models import (Connection, ConnectionMetadata, DroneMap, Hub,
-                         HubMetadata, ZoneType)
+from src.main.backend.graph import Graph
+from src.main.backend.pathfinder import PathFinder
+from src.main.exceptions import GraphError
+from src.main.models import (Connection, ConnectionMetadata, DroneMap, Hub,
+                             HubMetadata, HubType)
 
 
-def make_graph(zones: dict[str, dict[str, Any]],
+def make_graph(hubs: dict[str, dict[str, Any]],
                links: list[tuple[str, str]],
                end: str = "goal",
                end_meta: dict[str, Any] | None = None) -> PathFinder:
@@ -21,17 +21,17 @@ def make_graph(zones: dict[str, dict[str, Any]],
     Start is always 'start' and the end is 'goal' (or `end`). Coordinates
     are generated, so they never clash.
     """
-    hubs = [
+    hub_models = [
         Hub(line=i + 3, name=name, x=i + 1, y=1,
             metadata=HubMetadata(**meta))
-        for i, (name, meta) in enumerate(zones.items())
+        for i, (name, meta) in enumerate(hubs.items())
     ]
     drone_map = DroneMap(
         nb_drones=2,
         start=Hub(line=2, name="start", x=0, y=0, metadata=HubMetadata()),
         end=Hub(line=1, name=end, x=100, y=0,
                 metadata=HubMetadata(**(end_meta or {}))),
-        hubs=hubs,
+        hubs=hub_models,
         connections=[
             Connection(line=100 + i, name1=a, name2=b,
                        metadata=ConnectionMetadata())
@@ -41,8 +41,8 @@ def make_graph(zones: dict[str, dict[str, Any]],
     return PathFinder(Graph.from_drone_map(drone_map))
 
 
-RESTRICTED: dict[str, Any] = {"zone_type": ZoneType.RESTRICTED}
-BLOCKED: dict[str, Any] = {"zone_type": ZoneType.BLOCKED}
+RESTRICTED: dict[str, Any] = {"hub_type": HubType.RESTRICTED}
+BLOCKED: dict[str, Any] = {"hub_type": HubType.BLOCKED}
 
 
 class TestComputeDistance:
@@ -114,7 +114,7 @@ class TestComputeDistance:
     def test_blocked_end(self) -> None:
         pf = make_graph({"a": {}}, [("start", "a"), ("a", "goal")],
                         end_meta=BLOCKED)
-        with pytest.raises(GraphError, match="blocked zone"):
+        with pytest.raises(GraphError, match="blocked hub"):
             pf.compute_distance()
 
     def test_same_result_every_call(self) -> None:

@@ -21,7 +21,7 @@ dev = [
 
 [tool.mypy]
 strict = true
-mypy_path = "src"
+mypy_path = "."
 explicit_package_bases = true
 exclude = [
     '^.venv',
@@ -35,5 +35,5 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["."]
 addopts = "--import-mode=importlib"

@@ -1,11 +1,12 @@
 # Built-in modules
-from typing import Optional, Self
+from typing import Self
 
 # Installed modules
 from pydantic import BaseModel, model_validator, Field
 
 # Local modules
 from .metadata import HubMetadata
+
 
 class Hub(BaseModel):
     """A hub (node) of the drone map, parsed from a hub line.
@@ -28,7 +29,7 @@ class Hub(BaseModel):
     @model_validator(mode="after")
     def check_valid_name(self) -> Self:
         if "-" in self.name:
-            raise ValueError("Illegal character found on the hub at line " \
-                           f"'{self.line}'.\n" \
-                            "Names can't contain '-' within the name.")
+            raise ValueError("Illegal character found on the hub at line "
+                             f"'{self.line}'.\n"
+                             "Names can't contain '-' within the name.")
         return self

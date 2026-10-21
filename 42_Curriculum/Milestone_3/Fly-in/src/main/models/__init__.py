@@ -2,7 +2,7 @@
 from .connection import Connection
 from .drone_map import DroneMap
 from .hub import Hub
-from .metadata import HubMetadata, ConnectionMetadata, ZoneType
+from .metadata import HubMetadata, ConnectionMetadata, HubType
 
 __all__ = [
     "Connection",
@@ -10,5 +10,5 @@ __all__ = [
     "Hub",
     "HubMetadata",
     "ConnectionMetadata",
-    "ZoneType"
+    "HubType"
 ]

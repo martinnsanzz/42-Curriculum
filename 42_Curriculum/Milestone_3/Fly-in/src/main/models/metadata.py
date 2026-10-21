@@ -6,12 +6,13 @@ from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
 
-class ZoneType(str, Enum):
-    """Zone category of a hub."""
+class HubType(str, Enum):
+    """Hub category of a hub."""
     NORMAL = "normal"
     BLOCKED = "blocked"
     RESTRICTED = "restricted"
     PRIORITY = "priority"
+
 
 class HubMetadata(BaseModel):
     """Optional metadata attached to a hub line.
@@ -20,8 +21,8 @@ class HubMetadata(BaseModel):
     and `validate_by_alias` are both enabled).
 
     Attributes:
-        zone_type (ZoneType): Zone category of the hub. Alias: `zone`.
-            Defaults to `ZoneType.NORMAL`.
+        hub_type (HubType): Hub category of the hub. Alias: `hub`.
+            Defaults to `Hub.NORMAL`.
         color (Optional[str]): Display color. Any string is accepted, no
             format is validated. Defaults to `None`.
         max_drones (int): Maximum number of drones for the hub. Must be
@@ -30,9 +31,10 @@ class HubMetadata(BaseModel):
     model_config = ConfigDict(validate_by_name=True,
                               validate_by_alias=True)
 
-    zone_type: ZoneType = Field(default=ZoneType.NORMAL, alias="zone")
+    hub_type: HubType = Field(default=HubType.NORMAL, alias="zone")
     color: Optional[str] = Field(default=None)
     max_drones: int = Field(default=1, ge=1)
+
 
 class ConnectionMetadata(BaseModel):
     """Optional metadata attached to a connection line.

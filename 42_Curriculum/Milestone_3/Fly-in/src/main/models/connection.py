@@ -1,11 +1,9 @@
-# Built-in modules
-from typing import Optional
-
 # Installed modules
 from pydantic import BaseModel, Field
 
 # Local modules
 from .metadata import ConnectionMetadata
+
 
 class Connection(BaseModel):
     """A connection (edge) between two hubs, parsed from a connection line.

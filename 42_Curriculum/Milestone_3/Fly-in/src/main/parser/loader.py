@@ -7,6 +7,7 @@ from ..exceptions import MapError
 
 ALLOWED_KEYS = ["nb_drones", "start_hub", "end_hub", "hub", "connection"]
 
+
 class RawLine(NamedTuple):
     """A non-comment, non-blank line of a map file, split into key and value.
 
@@ -19,6 +20,7 @@ class RawLine(NamedTuple):
     line: int
     key: str
     value: str
+
 
 def load_map(map_path: Path) -> list[RawLine]:
     """Read a map file and return its settings as raw key/value lines.
@@ -76,5 +78,5 @@ def load_map(map_path: Path) -> list[RawLine]:
             raw_map.append(RawLine(line=i + 1, key=key, value=value))
 
     if len(raw_map) == 0:
-            raise MapError(f"File is empty '{map_path}'")
+        raise MapError(f"File is empty '{map_path}'")
     return raw_map

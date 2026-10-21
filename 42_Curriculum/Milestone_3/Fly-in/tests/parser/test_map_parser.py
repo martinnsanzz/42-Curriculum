@@ -4,14 +4,14 @@ from typing import Callable
 
 # Installed modules
 import pytest
-from pydantic import ValidationError
 
 # Local modules
-from main.parser.loader import RawLine
-from main.parser.map_parser import parse_map, parse_connection, parse_hub, \
-                                   parse_meta, parse_nb_drones
-from main.models import HubMetadata, ConnectionMetadata, ZoneType, Hub, Connection
-from main.exceptions import MapError
+from src.main.parser.loader import RawLine
+from src.main.parser.map_parser import parse_map, parse_connection, \
+                                       parse_hub, parse_meta, \
+                                       parse_nb_drones
+from src.main.models import HubMetadata, ConnectionMetadata, HubType
+from src.main.exceptions import MapError
 
 HEADER = "nb_drones: 2"
 START = "start_hub: start 0 0"
@@ -19,6 +19,7 @@ END = "end_hub: goal 2 0"
 HUB = "hub: mid 1 0"
 CONNS = ["connection: start-mid", "connection: mid-goal"]
 VALID = [HEADER, START, END, HUB, *CONNS]
+
 
 @pytest.fixture
 def make_map(tmp_path: Path) -> Callable[..., Path]:
@@ -28,41 +29,46 @@ def make_map(tmp_path: Path) -> Callable[..., Path]:
         return path
     return _make
 
+
 class TestParseMap():
-    def test_missing_end(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Map is missing an 'end_hub'"):
+    def test_missing_end(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Map is missing an 'end_hub'"):
             parse_map(make_map(HEADER, START, HUB, *CONNS))
 
-    def test_duplicate_end(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Found duplicate key"):
+    def test_duplicate_end(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Found duplicate key"):
             parse_map(make_map(HEADER, START, HUB, END, END, *CONNS))
 
-    def test_missing_start(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Map is missing an 'start_hub'"):
+    def test_missing_start(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Map is missing an 'start_hub'"):
             parse_map(make_map(HEADER, HUB, END, *CONNS))
 
-    def test_duplicate_start(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Found duplicate key"):
+    def test_duplicate_start(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Found duplicate key"):
             parse_map(make_map(HEADER, START, START, HUB, END, *CONNS))
 
-    def test_missing_nb_drones(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Number of drones must be on top of file"):
+    def test_missing_nb_drones(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Number of drones must be on "
+                           "top of file"):
             parse_map(make_map(START, HUB, END, *CONNS))
 
-    def test_duplicate_nb_drones(self, make_map: Callable) -> None:
-        with pytest.raises(MapError,match="Found duplicate key"):
+    def test_duplicate_nb_drones(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Found duplicate key"):
             parse_map(make_map(HEADER, HEADER, START, HUB, END, *CONNS))
 
-    def test_missing_connections(self, make_map: Callable) -> None:
-        with pytest.raises(MapError, match="Map has less connections than expected."):
+    def test_missing_connections(self, make_map: Callable[..., Path]) -> None:
+        with pytest.raises(MapError, match="Map has less connections than "
+                           "expected."):
             parse_map(make_map(HEADER, START, HUB, END))
 
-    def test_model_error_becomes_map_error(self, make_map: Callable[..., Path]) -> None:
-      with pytest.raises(MapError, match="Invalid map"):
-          parse_map(make_map(HEADER, START, HUB, "hub: mid 5 5", END,
-                             *CONNS, "connection: mid-mid"))
+    def test_model_error_becomes_map_error(self,
+                                           make_map: Callable[..., Path]) \
+            -> None:
+        with pytest.raises(MapError, match="Invalid map"):
+            parse_map(make_map(HEADER, START, HUB, "hub: mid 5 5", END,
+                               *CONNS, "connection: mid-mid"))
 
-    def test_valid_parse_map(self, make_map: Callable) -> None:
+    def test_valid_parse_map(self, make_map: Callable[..., Path]) -> None:
         map = parse_map(make_map(HEADER, START, HUB, END, *CONNS))
         assert map.nb_drones == 2
         assert map.start.name == "start"
@@ -93,6 +99,7 @@ class TestParseNbDrones():
         nb_drones = parse_nb_drones(raw_line)
         assert nb_drones == 5
 
+
 class TestParseConnection():
     def test_invalid_connection(self) -> None:
         raw_line = RawLine(line=1, key="connection", value="name1 name2")
@@ -117,6 +124,7 @@ class TestParseConnection():
         assert conn.name2 == "name2"
         assert conn.metadata is not None
 
+
 class TestParseHub():
     def test_invalid_hub(self) -> None:
         raw_line = RawLine(line=1, key="hub", value="name x 0 color=green")
@@ -140,6 +148,7 @@ class TestParseHub():
         assert hub.x == 0
         assert hub.y == 0
         assert hub.metadata is not None
+
 
 class TestParseMeta():
     def test_none_meta(self) -> None:
@@ -171,18 +180,19 @@ class TestParseMeta():
 
     def test_valid_hub_meta(self) -> None:
         raw_line = RawLine(line=1, key="hub",
-                           value="name 0 0 [color=green, zone=normal," \
+                           value="name 0 0 [color=green, zone=normal,"
                                  "max_drones=2]")
         meta = parse_meta(raw_line, "color=green zone=normal max_drones=2",
                           HubMetadata)
         assert meta == HubMetadata(color="green",
-                                   zone=ZoneType.NORMAL,
+                                   zone=HubType.NORMAL,
                                    max_drones=2)
 
     def test_invalid_connection_meta(self) -> None:
         raw_line = RawLine(line=1, key="connection",
                            value="name1-name2 [color=green]")
-        with pytest.raises(MapError, match="Invalid connection metadata found"):
+        with pytest.raises(MapError, match="Invalid connection metadata "
+                           "found"):
             parse_meta(raw_line, "color=green", ConnectionMetadata)
 
     def test_valid_connection_meta(self) -> None:

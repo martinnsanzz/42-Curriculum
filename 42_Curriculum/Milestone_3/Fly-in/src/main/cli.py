@@ -7,9 +7,10 @@ from .exceptions import FlyInError
 from .runner import run_terminal, run_visual
 from .parser import parse_args
 
+
 def main() -> int:
     """Starting point of the program.
-    
+
     Based on the CLI it will display the simulation in the terminal
     or the visualizer.
     """

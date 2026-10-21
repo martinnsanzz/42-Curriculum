@@ -8,14 +8,16 @@ import os
 # Local modules
 from .exceptions import MapSelectionError
 
+
 def resolve_map(args: Namespace) -> Optional[Path]:
     """Return the map file path from the CLI arguments.
-    
+
     If user quits on the interactive menu it will return None.
     """
     if args.map is not None:
         return Path(args.map)
     return choose_map()
+
 
 def choose_map() -> Optional[Path]:
     """Prompt the user to select a map through an interactive curses menu.
@@ -35,6 +37,7 @@ def choose_map() -> Optional[Path]:
     """
     map_struct = read_map_folder()
     return c.wrapper(run_menu, map_struct)
+
 
 def read_map_folder() -> dict[str, list[str]]:
     """Read the 'maps' folder and index its subdirectories and .txt files.
@@ -57,10 +60,11 @@ def read_map_folder() -> dict[str, list[str]]:
         raise MapSelectionError("Couldn't find 'maps' directory in project.")
 
     subdirs = ["maps/" + dir for dir in os.listdir("maps")
-                if os.path.isdir("maps/" + dir)]
+               if os.path.isdir("maps/" + dir)]
 
     if not subdirs:
-        raise MapSelectionError("Folder 'maps' does not contain any subdirectories.")
+        raise MapSelectionError("Folder 'maps' does not contain any "
+                                "subdirectories.")
 
     map_struct: dict[str, list[str]] = {}
     for dir in subdirs:
@@ -68,12 +72,14 @@ def read_map_folder() -> dict[str, list[str]]:
                 if map.endswith(".txt")]
 
         if not maps:
-             raise MapSelectionError(f"Folder '{dir}' doesn't contain any maps.\n"
-                                     "  Delete it or add maps to it.")
+            raise MapSelectionError(f"Folder '{dir}' doesn't contain any "
+                                    "maps.\n Delete it or add maps to it.")
         map_struct.update({dir: sorted(maps)})
     return map_struct
 
-def run_menu(stdscr: c.window, map_struct: dict[str, list[str]]) -> Optional[Path]:
+
+def run_menu(stdscr: c.window,
+             map_struct: dict[str, list[str]]) -> Optional[Path]:
     """Run the interactive two-level map selection loop.
 
     Designed to be passed to `curses.wrapper`. Level 1 lists the map
@@ -119,7 +125,7 @@ def run_menu(stdscr: c.window, map_struct: dict[str, list[str]]) -> Optional[Pat
                 else:
                     return Path(current) / entries[idx]
             else:
-                if current != None:
+                if current is not None:
                     idx = dirs.index(current)
                 current = None
         elif key == ord("q"):
@@ -127,6 +133,7 @@ def run_menu(stdscr: c.window, map_struct: dict[str, list[str]]) -> Optional[Pat
         elif key == c.KEY_LEFT and current is not None:
             idx = dirs.index(current)
             current = None
+
 
 def draw_menu(stdscr: c.window, items: list[str], idx: int,
               current: Optional[str]) -> None:

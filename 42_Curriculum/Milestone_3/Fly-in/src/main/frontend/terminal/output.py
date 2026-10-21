@@ -18,7 +18,7 @@ COLORS: dict[str, RGB] = {
         "green": (0, 128, 0), "gray": (128, 128, 128),
         }
 
-DEFAULT_ZONE_COLOR = (128, 128, 128)
+DEFAULT_HUB_COLOR = (128, 128, 128)
 
 RAINBOW: list[RGB] = [
     COLORS["red"], COLORS["orange"], COLORS["gold"],
@@ -30,6 +30,7 @@ RESET = "\033[0m"
 BOLD = "\033[1m"
 
 ERROR = "------ERROR FOUND------"
+
 
 class TerminalPrinter:
     """Print simulation output and errors to the terminal using ANSI colors.
@@ -46,16 +47,16 @@ class TerminalPrinter:
         print(f"{red}{ERROR}\n{error}{RESET}", file=stderr, end="")
 
     @classmethod
-    def output_simulation(cls, steps: list[list[Move]]) -> None:
+    def output_simulation(cls, total_steps: list[list[Move]]) -> None:
         """Print the simulation turn by turn to stdout.
 
         For each turn, print a bold `Turn nb: <n>` header (1-based) and then
         all moves of that turn on one line, separated by spaces, followed
         by a blank line.
         """
-        for i, steps in enumerate(steps):
+        for i, t_steps in enumerate(total_steps):
             print(f"{BOLD}------- Turn nb: {i + 1} -------{RESET}")
-            for move in steps:
+            for move in t_steps:
                 print(cls.format_move(move), end=" ")
             print("\n")
 
@@ -66,11 +67,11 @@ class TerminalPrinter:
         return f"\033[38;2;{r};{g};{b}m"
 
     @classmethod
-    def _paint_zone(cls, name: str, color: Optional[str]) -> str:
-        """Return a zone name wrapped in the ANSI color for `color`.
-        
+    def _paint_hub(cls, name: str, color: Optional[str]) -> str:
+        """Return a hub name wrapped in the ANSI color for `color`.
+
         Use one color per character for `"rainbow"`, cycling through
-        `RAINBOW`. Use `DEFAULT_ZONE_COLOR` when `color` is `None` or not a
+        `RAINBOW`. Use `DEFAULT_hub_COLOR` when `color` is `None` or not a
         key of `COLORS`. Otherwise use `COLORS[color]`.
 
         Returns:
@@ -83,7 +84,7 @@ class TerminalPrinter:
                 rainbow.append(cls.build_ansi(rgb) + c)
             return "".join(rainbow) + RESET
         elif color is None or color not in COLORS:
-            return cls.build_ansi(DEFAULT_ZONE_COLOR) + name + RESET
+            return cls.build_ansi(DEFAULT_HUB_COLOR) + name + RESET
         else:
             return cls.build_ansi(COLORS[color]) + name + RESET
 
@@ -91,18 +92,20 @@ class TerminalPrinter:
     def format_move(cls, move: Move) -> str:
         """Format one drone move as a printable string.
 
-        The text starts with `D<id>-`. It is followed by the colored zone
-        name if the move has a zone, or by the connection name in bold
-        (`conn(<connection>)`) if it has a connection. The zone takes
+        The text starts with `D<id>-`. It is followed by the colored hub
+        name if the move has a hub, or by the connection name in bold
+        (`conn(<connection>)`) if it has a connection. The hub takes
         precedence if both are set.
 
         Returns:
             str: The formatted move
         """
         id = ("D" + str(move.id)) + "-"
-        zone = ""
+        hub = ""
 
-        if move.zone is not None:
-            zone = cls._paint_zone(move.zone.name, move.zone.color)
-            return id + zone
-        return id + BOLD +"conn(" + move.connection + ")" + RESET
+        if move.hub is not None:
+            hub = cls._paint_hub(move.hub.name, move.hub.metadata.color)
+            return id + hub
+        elif move.connection is not None:
+            return id + BOLD + "conn(" + move.connection + ")" + RESET
+        return ""
