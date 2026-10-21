@@ -260,3 +260,4 @@ different shades.
 RGB has a variant called `RGBA` where A stand for **ALPHA**. The alpha channel 
 represents the opacity of transparency of a color.
 
+### HTTP

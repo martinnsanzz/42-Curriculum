@@ -206,6 +206,10 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 - [Find files, folders in your directory with Python](https://richard-taujenis.medium.com/find-files-folders-in-your-directory-with-python-2ff11081e373)
 - [Curses Menu docs](https://curses-menu.readthedocs.io/en/latest/usage.html)
 
+### 🌐 Frontend (Web Visualizer)
+#### HTTP and local server
+- [Overview of HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview)
+
 ### 📋 Other Stuff
 - [Multi-Agent Path Finding with Capacity Constraints](https://arxiv.org/pdf/1907.12648)
 - [Multi-agent pathfinding](https://en.wikipedia.org/wiki/Multi-agent_pathfinding)
@@ -243,8 +247,48 @@ such as incompatible types in assignments and unresolved imports, and why each o
 `mypy_path` setting, missing `__init__.py` files, and the difference between `python -m src` 
 and running a file directly.
 - **README** → Helped proofread and structure this README.
+- **Graphics Interface** → Guided me through the process of building a local web
+visualizer, a technology I had not used before: drafted a step-by-step learning
+roadmap, explained how HTTP and a local Python server work, and suggested learning
+resources (HTTP, DevTools, HTML/CSS/JavaScript, Canvas). The interface code itself
+was written by me.
 
 **What AI was not used for**
 The design of the project (parser, graph, pathfinding and simulation logic) and the 
 algorithms were written by me. Every AI suggestion was read, tested and understood before 
 being kept in the code.
+
+# Fly-in Web Display Roadmap
+
+| # | Milestone | Tasks | What you learn | Done when |
+|---|-----------|-------|----------------|-----------|
+| 1 | Serve a static page | Create `index.html` with a heading. Run `python -m http.server 8000`. Open `localhost:8000`. Inspect the Network tab in DevTools. | HTTP request/response, localhost and ports, DevTools | Page loads and you can see the `GET /` request and its 200 status |
+| 2 | Draw with hardcoded data | Add `<canvas>` and `app.js`. Draw 3 circles and 2 lines. Write a world-to-screen transform (scale, offset, padding). | HTML, Canvas 2D API, coordinates (y-axis points down) | Zones and connections appear at the right positions |
+| 3 | Define the JSON contract | Handwrite `replay.json` with zones, connections and turns. Decide how a drone in flight on a restricted connection is encoded. | Data modeling, JSON | A short document or sample file describing every field |
+| 4 | Load and render the JSON | `fetch("replay.json")` with `async`/`await`. Draw all zones and connections from the data. Use zone colors and types. | Promises, `fetch`, `response.json()`, ES modules | Changing the JSON changes the drawing, with no hardcoded values left |
+| 5 | Show drones per turn | Draw drones at their positions for a chosen turn. Add a "next turn" button. | DOM events, `addEventListener`, state in JS | Clicking steps through the turns correctly |
+| 6 | Animate movement | Use `requestAnimationFrame` and lerp between turn states. Handle 2-turn restricted moves. Add easing. | Animation loop, timestamps, interpolation | Drones glide smoothly between zones |
+| 7 | Playback controls | Add play, pause, step back, a turn slider and a speed control. Model it as a small state machine. | `<input type="range">`, UI state management | You can scrub to any turn and playback behaves consistently |
+| 8 | Polish the visuals | Scale link thickness by `max_link_capacity`. Show zone occupancy vs `max_drones`. Add a hover tooltip. Handle HiDPI (`devicePixelRatio`). | CSS, canvas details, hit testing | Looks good on your screen and on a second one |
+| 9 | Info panel and metrics | Show current turn, delivered drones, drones per turn and average turns per drone. | DOM updates, layout with flexbox/grid | Panel stays in sync with playback |
+| 10 | Connect the real backend | Python serializer writes the JSON from your simulation. A small entry point starts the server and calls `webbrowser.open`. Bind to `127.0.0.1`. | Python `http.server`, `json`, `pathlib`, typed serializer classes | `python main.py map.txt --web` opens the animated viewer |
+| 11 | Test on all maps | Run every provided map plus your own edge cases. | Debugging in DevTools Console | No console errors and the replay matches the terminal output |
+| 12 | Document it | Add the visual features and how they help to the README. | Technical writing | README section is ready for peer review |
+
+## Optional extras
+
+| Idea | What it adds |
+|------|--------------|
+| WebSocket streaming | Live turn-by-turn updates from Python |
+| TypeScript | Type safety on the frontend |
+| Map picker dropdown | Switch maps without restarting |
+| SVG version of the renderer | Compare Canvas vs SVG trade-offs |
+
+## Common gotchas
+
+| Problem | Fix |
+|---------|-----|
+| `fetch` fails on `file://` pages | Always use the local server |
+| Old JS or JSON keeps loading | Hard reload, or enable "Disable cache" in DevTools |
+| "Address already in use" | Stop the previous server process or change the port |
+| Blurry canvas | Scale the canvas by `devicePixelRatio` |
