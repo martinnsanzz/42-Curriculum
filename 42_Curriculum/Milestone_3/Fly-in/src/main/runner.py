@@ -4,7 +4,7 @@ from argparse import Namespace
 # Local modules
 from .parser import parse_map
 from .map_selection import resolve_map
-from .frontend import TerminalPrinter
+from .frontend import TerminalPrinter, run_http_server
 from .backend import Graph, PathFinder, Simulation
 
 
@@ -36,4 +36,5 @@ def run_terminal(args: Namespace) -> int:
 
 def run_visual() -> int:
     """Run the simulation and display the results in a different window"""
+    run_http_server()
     return 0

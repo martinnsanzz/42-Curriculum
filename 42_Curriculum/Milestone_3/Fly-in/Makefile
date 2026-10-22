@@ -58,12 +58,14 @@ install: check_uv
 	@echo "${GREEN}Everything installed${RESET}"
 
 terminal: install
+	@clear
 	@echo "${GREEN}\nRunning program... !!\n${RESET}"
 	@${RUN_COMM} -m src
 
 visual: install
+	@clear
 	@echo "${GREEN}\nRunning program with visual activated... !!\n${RESET}"
-	@${RUN_COMM} -m src${VISUAL_FLAG}
+	@${RUN_COMM} -m src ${VISUAL_FLAG}
 
 debug: install
 	@echo "${GREEN}\nRunning program in debug mode... !!\n${RESET}"

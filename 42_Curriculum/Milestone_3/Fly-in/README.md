@@ -205,10 +205,26 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 - [Argparse Docs](https://docs.python.org/3/library/argparse.html)
 - [Find files, folders in your directory with Python](https://richard-taujenis.medium.com/find-files-folders-in-your-directory-with-python-2ff11081e373)
 - [Curses Menu docs](https://curses-menu.readthedocs.io/en/latest/usage.html)
+- [Simple HTTP Server in Python](https://www.youtube.com/watch?v=DeFST8tvtuI)
+- [How to Launch an HTTP Server in One Line of Python Code](https://realpython.com/python-http-server/)
+- [Set up local testing server with python](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/set_up_a_local_testing_server)
+- [http. server docs](https://docs.python.org/3/library/http.server.html)
+- [Pathlib](https://docs.python.org/3/library/pathlib.html)
 
 ### 🌐 Frontend (Web Visualizer)
-#### HTTP and local server
+#### HTTP
 - [Overview of HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview)
+- [What is HTTP? How the Internet Works!](https://www.youtube.com/watch?v=wW2A5SZ3GkI)
+- [Anatomy of an HTTP Request](https://medium.com/@elijahechekwu/anatomy-of-an-http-request-cb5ed9508b5f)
+- [Understanding HTTP Responses](https://medium.com/@pawani_/understanding-http-responses-the-backbone-of-web-communication-16b12baf6690)
+- [What are browser developer tools?](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/What_are_browser_developer_tools)
+- [What is index.html](https://www.geeksforgeeks.org/html/what-is-index-html/)
+
+#### HTML
+- [HTML Intro](https://www.w3schools.com/html/html_intro.asp)
+- [Fonts](https://www.w3.org/Style/Examples/007/fonts.en.html)
+- [How to Add a Favicon in HTML](https://www.w3schools.com/html/html_favicon.asp)
+- [HTML canvas Tutorial for beginners](https://www.youtube.com/watch?v=P_B-O8CLwDs&t=47s)
 
 ### 📋 Other Stuff
 - [Multi-Agent Path Finding with Capacity Constraints](https://arxiv.org/pdf/1907.12648)
@@ -227,6 +243,7 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 - [DSA Dijkstra's Algorithm](https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
 - [Terminal Colors](https://chrisyeh96.github.io/2020/03/28/terminal-colors.html)
 - [RGB](https://rgbcolorpicker.com/)
+- [HTML Color Picker](https://www.w3schools.com/colors/colors_picker.asp)
 
 ## 🤖 AI Usage
 
@@ -292,3 +309,5 @@ being kept in the code.
 | Old JS or JSON keeps loading | Hard reload, or enable "Disable cache" in DevTools |
 | "Address already in use" | Stop the previous server process or change the port |
 | Blurry canvas | Scale the canvas by `devicePixelRatio` |
+
+Install extensions Live Server, LteX grannar, autorename tag

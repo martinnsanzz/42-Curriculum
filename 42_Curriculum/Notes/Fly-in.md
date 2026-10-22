@@ -261,3 +261,166 @@ RGB has a variant called `RGBA` where A stand for **ALPHA**. The alpha channel
 represents the opacity of transparency of a color.
 
 ### HTTP
+
+**HTTP** stand for `Hyper Text Transfer Protocol` which are a set of rules that tell 2
+computers how they're supposed to "talk" to one another. We have 3 components:
+- **Client or Local machine** → This is the computer you work at.
+- **Server or the remote machine** → This houses the website files that you try to access.
+- **The router** → This is the machine that connects both and "talks" to each other.
+
+The way this connection works is as follows:
+1. The *client machine* does a request to the server.
+2. The *server machine* does a response that sends an answer to the client.
+
+These 2 things always happen over **HTTP**. When the request happens, the server will ask
+itself if it has the files being asks for. If it has them, it will return the in the
+response, else it will respond with an error or a status code.
+
+<u>Status Codes</u>
+
+These are the status code a server can respond with (Always 3-digit numbers):
+* 100–199 → Informational, indicate that the server has received the request and is 
+continuing to process it.
+* 200–299 → Success *E.g., 200 (Success)*
+* 300–399: → Redirection, the client must take additional action to complete the request, 
+often involving a different URL.
+* 400–499 → Client Error *E.g.,404 (Page Not Found)*
+* 500–599 → Server error due to an internal problem.
+
+<u>HTTP Request</u>
+
+A `HTTP request` is a message sent by a client (typically a browser or mobile app) to a 
+server, asking for a specific resource or action. When you hit an endpoint like 
+`GET /api/users`, your client sends an HTTP request to the server—and that request contains 
+multiple layers of important information.
+
+**The 4 Main Parts of an HTTP Request**
+
+**1. Request Line**
+
+This is the first line of the HTTP request, and it is used to initialize an action. This line
+indicates what kind of method, request target and version of HTTP protocol the client is
+using. This includes:
+- **Method:** `Get`, `POST`, `PUT`, `DELETE`...
+- **Request:** The path or endpoint *(e.g. /api/users)*
+- **HTTP Version:** Usually `HTTP/1.1` or `HTTP/2`
+
+```Example
+GET /api/users HTTP/1.1
+```
+
+**2. Headers**
+
+Headers carry `metadata` about the request, this includes. The server leverages this 
+information to identify the browser and OS version of the client. HTTP request headers are 
+*case-insensitive, followed by a colon (:) and a value.* 
+
+Common request headers include:
+- **Host:** The domain name of the server
+- **Content-Type:** Type of the request body (e.g. application/json)
+- **Authorization:** Token or credentials
+- **User-Agent:** Info about the client software and OS
+- **Accept:** This give Info about the kind of content the client can understand.
+- **Connection:** This suggests the connection between client and server should be kept open 
+for subsequent requests.
+- **Accept-Language:** Preferred language of the client
+
+```Example:
+Host: api.example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0
+Content-Type: application/json
+Connection: keep-alive
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Authorization: Bearer <token>
+```
+
+**3. Body (Optional)**
+The body contains data sent to the server.  It's often `JSON, form data, or raw text`. The 
+format of the data in the body is specified by the Content-Type header in the request. This 
+is usually done with `POST`, `PUT`, or `PATCH` requests.
+
+```Example
+{
+  "name": "Elijah",
+  "email": "elijah@example.com"
+}
+
+// in the header
+
+Content-Type: aapplication/json
+```
+
+**4. Query Parameters (Optional)**
+These are `key-value pairs` appended to the URL to `filter` or `sort` data. If you have 
+multiple parameters, they're usually separated by a `ampersand (&)`.
+
+```Example
+GET /api/products/search?q=coffee+beans&sort=price-low
+```
+
+<u>HTTP Responses</u>
+
+An HTTP response is the server’s way of *communicating the result of a client request*. It 
+typically consists of 3 main components:
+
+- **Status Line** → Indicates whether the request was successful, failed, or needs further 
+action. *e.g. HTTP/1.1 404 Not Found*
+- **Headers** → Contain metadata about the response, such as content type, server 
+information, or cookies. *e.g. Content-Type: Image/png*
+- **Body** → The actual content returned, such as an HTML page, JSON data, or an image.
+*e.g. The file/resource requested*
+
+These responses are standardized, and each carries a status code that provides immediate 
+insight into what happened with the request.
+
+### DevTools
+Every modern **web browser** includes a powerful suite of develop tools. These tools
+can do multiple things such as:
+
+- Inspecting currently-loaded HTML, CSS and JavaScript.
+- Showing which assets the page has requested.
+- Showing how long they took to load.
+
+The DevTools usually open by default the `inspector`, this tool shows what the HTML on 
+the page looks at runtime *(e.g. headers, fonts, body, images...)*. It also allows you to 
+**instantly modify** the HTML and CSS *(CSS is the language we use to style an HTML document.)* and see the results of your changes reflected live in the 
+browser viewport.
+
+Keyboard shortcut to open DevTools:
+- Windows: Ctrl + Shift + I or F12
+- macOS: ⌘ + ⌥ + I
+
+### Local host
+**Localhost** is always your computer, which means the computer is talking to itself. Within 
+my network `localhost(127.0.0.1)` allows the computer to communicate with itself, while
+*192.168.0.1* is a private IP address used for local network devices. **Localhost is a 
+domain name reserved as a **top-level domain** for documentation and testing purposes.
+If you access`http://localhost//` in the browser, the request will not be forwarded to the 
+internet, it will instead remain in your system. 
+>**Notes:** Localhost has the *IP address 127.0.0.1*. This refers back to your server. 
+
+An **IP** address is a unique number that identifies a device on the internet or a local
+network. This is used to help computers find and communicate with each other.
+
+<u>How to set up a local testing server with Python</u>
+
+Python contains a `http:server` module. These are the steps to follow:
+
+1. Navigate to the directory that contains the website code you want to test, using the `cd` command.
+
+2. Enter the command to start up the server in that directory.
+
+```bash
+python3 -m http.server
+```
+
+3. By default, this will run the contents of the directory on a local web server, on port 8000. You can specify a port writing it at the end 
+
+```bash
+python3 -m http.server 8080
+
+# Or a directory using with the flag -d
+
+python3 -m http.server 8000 -d src/main/frontend/web/
+```

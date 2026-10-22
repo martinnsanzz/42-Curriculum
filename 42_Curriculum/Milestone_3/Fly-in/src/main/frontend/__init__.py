@@ -1,6 +1,8 @@
 # Local modules
-from .terminal.output import TerminalPrinter
+from .terminal import TerminalPrinter
+from .web import run_http_server
 
 __all__ = [
-    "TerminalPrinter"
+    "TerminalPrinter",
+    run_http_server
 ]

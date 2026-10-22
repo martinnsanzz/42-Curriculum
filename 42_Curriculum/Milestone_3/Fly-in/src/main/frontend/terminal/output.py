@@ -8,17 +8,17 @@ from ...backend import Move
 RGB = tuple[int, int, int]
 
 COLORS: dict[str, RGB] = {
-        "black": (0, 0, 0), "blue": (0, 0, 255), "brown": (165, 42, 42),
-        "crimson": (220, 20, 60), "cyan": (0, 255, 255),
-        "darkred": (139, 0, 0), "gold": (255, 215, 0),
+        "black": (0, 0, 0), "blue": (0, 0, 255), "brown": (153, 51, 0),
+        "crimson": (204, 0, 51), "cyan": (0, 255, 255),
+        "darkred": (102, 0, 0), "gold": (255, 204, 0),
         "lime": (0, 255, 0), "magenta": (255, 0, 255),
-        "maroon": (128, 0, 0), "orange": (255, 165, 0),
-        "purple": (128, 0, 128), "red": (255, 50, 0),
-        "violet": (238, 130, 238), "yellow": (255, 255, 0),
-        "green": (0, 128, 0), "gray": (128, 128, 128),
+        "maroon": (51, 0, 0), "orange": (255, 153, 0),
+        "purple": (102, 0, 102), "red": (255, 0, 0),
+        "violet": (204, 102, 204), "yellow": (255, 255, 0),
+        "green": (153, 204, 102), "gray": (102, 102, 102),
         }
 
-DEFAULT_HUB_COLOR = (128, 128, 128)
+DEFAULT_HUB_COLOR = (102, 102, 102)
 
 RAINBOW: list[RGB] = [
     COLORS["red"], COLORS["orange"], COLORS["gold"],
@@ -38,6 +38,20 @@ class TerminalPrinter:
     All methods are class methods and no instance state is used, so the
     class is used as a namespace and is not meant to be instantiated.
     """
+    @classmethod
+    def print_msg(cls, msg: str, color: str = "None") -> None:
+        """Print a message to stdout in the specified color.
+        
+        If color is not present in `COLORS` it will provide a default
+        hub color `grey`.
+        """
+        if color in COLORS:
+            ansi = cls.build_ansi(COLORS[color])
+            print(f"{ansi}{msg}{RESET}")
+        else:
+            ansi = cls.build_ansi(DEFAULT_HUB_COLOR)
+            print(f"{ansi}{msg}{RESET}")
+
     @classmethod
     def print_error(cls, error: str) -> None:
         """Print an error message to stderr, in red."""
@@ -60,11 +74,17 @@ class TerminalPrinter:
                 print(cls.format_move(move), end=" ")
             print("\n")
 
+    @staticmethod
+    def _to_cube(channel: int) -> int:
+        """Scale a 0-255 channel to the 0-5 range of the 256-color cube."""
+        return (channel * 5 + 127) // 255
+
     @classmethod
     def build_ansi(cls, rgb: RGB) -> str:
-        """Build the ANSI escape sequence for a 24-bit foreground color."""
-        r, g, b = rgb
-        return f"\033[38;2;{r};{g};{b}m"
+        """Build the ANSI escape sequence for a 256-color foreground."""
+        r, g, b = (cls._to_cube(c) for c in rgb)
+        index = 16 + 36 * r + 6 * g + b
+        return f"\033[38;5;{index}m"
 
     @classmethod
     def _paint_hub(cls, name: str, color: Optional[str]) -> str:
