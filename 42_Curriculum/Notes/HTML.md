@@ -87,6 +87,28 @@ attribute. Attributes are used to provide additional information about HTML elem
 <a href="https://www.w3schools.com">This is a link</a>
 ```
 
+`HTML links` are **hyperlinks** that you can click and it will send you to another document.
+
+>**Notes:** A link can be text, an image or any other HTML element.
+
+Links have a `target` attribute to specify where you want the link to open up 
+*(Default is on the current browser window)*
+
+The target attribute can have one of the following values:
+
+- **_self** - Default. Opens the document in the same window/tab as it was clicked
+- **_blank** - Opens the document in a new window or tab
+- **_parent** - Opens the document in the parent frame
+- **_top** - Opens the document in the full body of the window
+
+To use an image as a link you just need to put the **\<img>** tag inside the **\<a>**.
+
+```html
+<a href="default.asp">
+<img src="smiley.gif" alt="HTML tutorial" style="width:42px;height:42px;">
+</a>
+```
+
 ### Images
 HTML `images` are defined with the **\<img>** tag. The source file (src), alternative text 
 (alt), width, and height are provided as attributes
@@ -346,3 +368,39 @@ Here is a list of some common CSS properties:
 - `border`: a border around an HTML element.
 - `padding`: the space between the text and the border.
 - `margin`: the space outside the border.
+
+## Containers \<div>
+The `<div>` element is by default a **block element**, meaning it takes all available width,
+and comes with line breaks before and after. It doesn't come with mandatory attributes, but is
+often used with `style`, `class`, and `id`.
+
+The `<div>` element is often used to group sections of a web page together.
+
+```html
+<div>
+  <h2>London</h2>
+  <p>London is the capital city of England.</p>
+  <p>London has over 9 million inhabitants.</p>
+</div>
+```
+
+You can center-align a *\<div>* element using CSS `margin` property.
+
+```html
+<style>
+div {
+  width:300px;
+  margin:auto;
+}
+</style>
+```
+
+## Classes
+The HTML `class` attribute is used to specify a class for an HTML element. Multiple HTML 
+elements can share the same class.
+
+## Buttons
+To create buttons you use the **\<button>** elements. This will create a clickable button. On
+its own it does nothing, so some functionality must be added.
+
+Buttons are often styled with CSS.

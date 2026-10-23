@@ -310,4 +310,3 @@ being kept in the code.
 | "Address already in use" | Stop the previous server process or change the port |
 | Blurry canvas | Scale the canvas by `devicePixelRatio` |
 
-Install extensions Live Server, LteX grannar, autorename tag
