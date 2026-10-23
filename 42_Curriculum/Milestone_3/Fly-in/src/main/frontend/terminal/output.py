@@ -1,6 +1,6 @@
 # Built-in modules
 from typing import Optional
-from sys import stderr
+from sys import stderr, stdout
 
 # Local Modules
 from ...backend import Move
@@ -45,6 +45,8 @@ class TerminalPrinter:
         If color is not present in `COLORS` it will provide a default
         hub color `grey`.
         """
+        if not stdout.isatty():
+            print(msg)
         if color in COLORS:
             ansi = cls.build_ansi(COLORS[color])
             print(f"{ansi}{msg}{RESET}")

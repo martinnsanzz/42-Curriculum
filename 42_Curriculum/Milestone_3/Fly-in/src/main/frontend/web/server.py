@@ -26,7 +26,8 @@ def run_http_server() -> None:
         try:
             httpd = ThreadingHTTPServer((HOST, port), handler)
         except OSError:
-            print(f"Port {port} is busy, trying {port + 1}...")
+            TerminalPrinter.print_msg(msg=f"Port {port} is busy,"
+                                      "trying {port + 1}...\n")
             port += 1
 
     TerminalPrinter.print_msg(msg="Server successfully started",
