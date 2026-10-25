@@ -397,10 +397,146 @@ div {
 
 ## Classes
 The HTML `class` attribute is used to specify a class for an HTML element. Multiple HTML 
-elements can share the same class.
+elements can share the same class. The `class` attribute is often used to point to a 
+class name in a style sheet.
+
+In the following example three `div` elements will be styled equally according to the
+`.city` style definition since they all share the same class.
+
+```css
+.city {
+  background-color: tomato;
+  color: white;
+  border: 2px solid black;
+  margin: 20px;
+  padding: 20px;
+}
+```
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<div class="city">
+  <h2>London</h2>
+  <p>London is the capital of England.</p>
+</div>
+
+<div class="city">
+  <h2>Paris</h2>
+  <p>Paris is the capital of France.</p>
+</div>
+
+<div class="city">
+  <h2>Tokyo</h2>
+  <p>Tokyo is the capital of Japan.</p>
+</div>
+
+</body>
+</html>
+```
+
+The `class` attribute can be used on **any** HTML element.
+
+## ID
+The HTML `id` attribute is used to specify a unique **id** for an HTML element. The id 
+attribute is used to **point to a specific style declaration** in a style sheet. It is 
+also used by JavaScript to access and manipulate the element with the specific id.
+
+The syntax for id is: write a hash character `(#)`, followed by an id name. Then, define 
+the CSS properties within curly braces `{}`.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#myHeader {
+  background-color: lightblue;
+  color: black;
+  padding: 40px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<h1 id="myHeader">My Header</h1>
+
+</body>
+</html>
+```
 
 ## Buttons
-To create buttons you use the **\<button>** elements. This will create a clickable button. On
-its own it does nothing, so some functionality must be added.
+To create buttons you use the **\<button>** elements. This will create a clickable 
+button. On its own it does nothing, so some functionality must be added.
 
 Buttons are often styled with CSS.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.testbtn {
+  background-color: #04AA6D;
+  color: white;
+  font-size: 15px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.testbtn:hover {
+  background-color: #059862;
+}
+</style>
+</head>
+<body>
+
+<h1>HTML Buttons</h1>
+
+<p>Default button with no styling:</p>
+<button>Click me</button>
+
+<p>Styled button:</p>
+<button class="testbtn">Green Button</button>
+
+</body>
+</html>
+```
+
+Buttons can be used with `JavaScript`:
+
+```html
+<button onclick="alert('Hello!')">Click Me</button>
+```
+
+## JavaScript in HTML
+
+The HTML `\<script>` tag is used to define a **client-side script (JavaScript)**. The 
+`\<script>` element either contains script statements, or it points to an external script 
+file through the **src** attribute.
+
+Common uses for JavaScript are **image manipulation**, **form validation**, and **dynamic changes** of content.
+To select an HTML element, JavaScript most often uses the `document.getElementById()` 
+method.
+
+```html
+<script>
+document.getElementById("demo").innerHTML = "Hello JavaScript!";
+</script>
+```
+
+## Canvas
+The HTML **\<canvas>** element is used to `draw graphics`, on the fly, via JavaScript. 
+This element is only a `container for graphics`. You **MUST** use JavaScript to actually
+draw the graphics. The **Canvas API** allows JavaScript to draw on the canvas, and has 
+several methods for drawing paths, boxes, circles, text, and adding images.
+
+```html
+<canvas id="myCanvas" width="300" height="150"></canvas>
+```
+
