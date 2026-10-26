@@ -32,6 +32,15 @@ function draw_all() {
 }
 
 /**
+ * 
+ */
+function get_map_name() {
+    const map_name = document.getElementById("mapName")
+
+    map_name.textContent = "Temp Name"
+}
+
+/**
  * @brief Sets the (0, 0) cords of the canvas to the middle of the canvas
  *        instead of the top-left corner.
  */
@@ -47,7 +56,8 @@ function set_canvas_cords() {
  * @brief Main function to run for initial set-up.
  */
 function main() {
-    set_canvas_cords()
+    set_canvas_cords();
+    get_map_name();
 }
 
 main();
