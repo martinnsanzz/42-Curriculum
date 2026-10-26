@@ -1,17 +1,121 @@
+/* || ------- Custom Fonts ------- */
+@font-face {
+    font-family: Main_Title;
+    src: url(fonts/PressStart2P-Regular.ttf);
+}
+
+/* || ------- General Styles ------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
 body {
-    background-color:#eef1ff;
+    margin: 0;
+    height: 100dvh;
+    overflow: hidden;
 }
 
-h1 {
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #eef1ff;
+}
+
+/* || ------- Classes ------- */
+.top_center {
+    flex: 0 0 auto;          /* natural height, never shrinks */
     text-align: center;
-    text-decoration: underline;
-    font-family: Chalkduster, fantasy;
+    padding: 8px 0;
 }
 
-.test {
-    background-color: red;
+.mid_center {
+    flex: 1 1 0;             /* take all remaining space */
+    min-height: 0;
+    min-width: 0;
+    container-type: size;    /* canvas uses cqw / cqh of this box */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
 }
 
-.test1 {
-    background-color: yellow;
+.stage {
+    --btn-h: 44px;           /* height of the controls row (buttons) */
+    --selector-h: 44px;      /* height of the map selector row */
+    --gap: 12px;             /* space between stacked rows and between buttons */
+    /* space the canvas must leave free: 2 rows + 2 gaps */
+    --reserved: calc(var(--btn-h) + var(--selector-h) + 2 * var(--gap));
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* center, never stretch (would distort the canvas) */
+    gap: var(--gap);
+}
+
+.map_selector {
+    align-self: stretch;     /* as wide as the canvas */
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;       /* one line only, keeps the reserved height exact */
+    gap: var(--gap);
+    height: var(--selector-h);
+}
+
+.map_name {
+    min-width: 0;            /* allow shrinking so the ellipsis can work */
+    border: thick double grey;
+    font-family: Main_Title, monospace;
+    font-size: 16px;
+    line-height: calc(var(--selector-h) - 6px);   /* height minus the 2 borders: centers text vertically */
+    text-align: center;
+    padding: 0 12px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.controls {
+    align-self: stretch;     /* as wide as the canvas, so justify-content has room */
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: var(--gap);
+    height: var(--btn-h);
+}
+
+.btn {
+    flex: 0 0 auto;
+    height: 100%;            /* fills its row (.controls or .map_selector) */
+    padding: 0 24px;
+    font-family: Main_Title, monospace;   /* buttons do NOT inherit the font */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* || ------- ID ------- */
+#title {
+    display: inline-block;
+    font-family: Main_Title, monospace;
+    font-size: 30px;
+    padding: 1%;
+    margin: 0;
+}
+
+#simulation {
+    /* smallest of: max size, available width, available height (minus both rows) in 16:9 */
+    width: min(1280px, 100cqw, calc((100cqh - var(--reserved)) * 16 / 9));
+    height: auto;
+    aspect-ratio: 16 / 9;
+    flex: 0 0 auto;
+    outline: 3px solid grey;
+    background-color: transparent;
+}
+
+#prevBtn, #nextBtn {
+    aspect-ratio: 1;         /* square < and > buttons */
+    padding: 0;
 }

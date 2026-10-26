@@ -1,12 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Fly-in Simulation</title>
     <link rel="icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
-    <h1 class="test">Fly-in Simulator</h1>
-    <h1 class="test1">Fly-in Simulator</h1>
+    <div class="top_center">
+        <h1 id="title">Fly-in Simulator</h1>
+    </div>
+    <div class="mid_center">
+        <div class="stage">
+             <div class="map_selector">
+                <button id="prevBtn" class="btn" type="button" aria-label="Previous map">&lt;</button>
+                <div id="mapName" class="map_name">Test Map Name</div>
+                <button id="nextBtn" class="btn" type="button" aria-label="Next map">&gt;</button>
+            </div>
+            <canvas id="simulation" width="1280" height="720"></canvas>
+            <div class="controls">
+                <button id="startBtn" class="btn" onclick="draw_all()">Start</button>
+                <button id="pauseBtn" class="btn" onclick="">Pause</button>
+                <button id="restartBtn" class="btn" onclick="reset_canvas()">Restart</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

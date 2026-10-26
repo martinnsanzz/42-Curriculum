@@ -225,6 +225,11 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 - [Fonts](https://www.w3.org/Style/Examples/007/fonts.en.html)
 - [How to Add a Favicon in HTML](https://www.w3schools.com/html/html_favicon.asp)
 - [HTML canvas Tutorial for beginners](https://www.youtube.com/watch?v=P_B-O8CLwDs&t=47s)
+- [Documenting CSS, HTML and JavaScript](https://developer.mozilla.org/en-US/)
+
+#### JavaScript
+- [ts-check](https://medium.com/@hakanbudk0/ts-nocheck-and-ts-check-in-typescript-478f5adb69f5)
+- [Js docs](https://www.w3schools.com/js/)
 
 ### 📋 Other Stuff
 - [Multi-Agent Path Finding with Capacity Constraints](https://arxiv.org/pdf/1907.12648)
@@ -244,6 +249,7 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 - [Terminal Colors](https://chrisyeh96.github.io/2020/03/28/terminal-colors.html)
 - [RGB](https://rgbcolorpicker.com/)
 - [HTML Color Picker](https://www.w3schools.com/colors/colors_picker.asp)
+- [Google Fonts](https://fonts.google.com/)
 
 ## 🤖 AI Usage
 

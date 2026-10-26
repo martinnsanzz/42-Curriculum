@@ -4,6 +4,7 @@ This *markdown file* will be used to write down everything related to `HTML` and
 as syntax methods and other things related to the programming language
 
 ## HTML Basics
+HTML is the **standard markup language** for creating Web pages.
 
 All HTML documents must start with a `document type declaration` **\<!DOCTYPE html>**.
 The HTML document itself begins with **\<html>** and end with **\</html>**.
