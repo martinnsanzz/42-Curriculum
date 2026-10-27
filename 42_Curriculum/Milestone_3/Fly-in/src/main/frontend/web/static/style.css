@@ -55,23 +55,39 @@ body {
     gap: var(--gap);
 }
 
-.map_selector {
-    align-self: stretch;     /* as wide as the canvas */
+.selection {
+    align-self: stretch;             /* as wide as the canvas */
     display: flex;
-    justify-content: center;
-    flex-wrap: nowrap;       /* one line only, keeps the reserved height exact */
+    justify-content: space-between;  /* first child left, last child right */
+    align-items: center;             /* vertical centering on the same line */
+    flex-wrap: nowrap;               /* one line only, keeps the reserved height exact */
     gap: var(--gap);
     height: var(--selector-h);
+}
+
+.difficulty_selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: Main_Title, monospace;
+    font-size: 16px;
+}
+
+.map_selector {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
 }
 
 .map_name {
     min-width: 0;            /* allow shrinking so the ellipsis can work */
     border: thick double grey;
+    background-color: white;
     font-family: Main_Title, monospace;
     font-size: 16px;
     line-height: calc(var(--selector-h) - 6px);   /* height minus the 2 borders: centers text vertically */
     text-align: center;
-    padding: 0 12px;
+    padding: 0 8px;
 
     overflow: hidden;
     text-overflow: ellipsis;
@@ -92,6 +108,7 @@ body {
     padding: 0 24px;
     font-family: Main_Title, monospace;   /* buttons do NOT inherit the font */
     font-size: 16px;
+    background-color: white;
     cursor: pointer;
     border-radius: 5px;
 }
@@ -105,6 +122,18 @@ body {
     margin: 0;
 }
 
+#difficultySelect {
+    font-family: Main_Title, monospace;
+    font-size: 12px;                  /* multiple of 8: sharp pixel font */
+    color: #222;
+    background-color: #fff;
+    padding: 8px;       /* right side leaves room for the arrow */
+    border: 3px solid grey;           /* same look as the canvas frame */
+    border-radius: 0;
+    text-transform: capitalize;
+    cursor: pointer;
+}
+
 #simulation {
     /* smallest of: max size, available width, available height (minus both rows) in 16:9 */
     width: min(1280px, 100cqw, calc((100cqh - var(--reserved)) * 16 / 9));
@@ -116,6 +145,14 @@ body {
 }
 
 #prevBtn, #nextBtn {
-    aspect-ratio: 1;         /* square < and > buttons */
+    width: var(--selector-h);
+    height: var(--selector-h);
     padding: 0;
+    font-size: 24px;  
+}
+
+/* || ------- Labels ------- */
+label[for="difficultySelect"] {
+    font-family: Main_Title, monospace;
+    font-size: 16px;
 }

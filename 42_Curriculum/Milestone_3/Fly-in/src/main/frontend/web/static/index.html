@@ -14,10 +14,16 @@
     </div>
     <div class="mid_center">
         <div class="stage">
-             <div class="map_selector">
-                <button id="prevBtn" class="btn" type="button" aria-label="Previous map">&lt;</button>
-                <div id="mapName" class="map_name">-</div>
-                <button id="nextBtn" class="btn" type="button" aria-label="Next map">&gt;</button>
+            <div class ="selection">
+                <div class="difficulty_selector">
+                    <label for="difficultySelect">Difficulty:</label>
+                    <select id="difficultySelect" disabled></select>
+                </div>
+                <div class="map_selector">
+                    <button id="prevBtn" class="btn" type="button" aria-label="Previous map">&lt;</button>
+                    <div id="mapName" class="map_name">-</div>
+                    <button id="nextBtn" class="btn" type="button" aria-label="Next map">&gt;</button>
+                </div>
             </div>
             <canvas id="simulation" width="1280" height="720"></canvas>
             <div class="controls">
