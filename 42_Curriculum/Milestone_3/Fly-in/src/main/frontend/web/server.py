@@ -7,7 +7,7 @@ from typing import Optional
 # Local modules
 from ..terminal import TerminalPrinter
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
+STATIC_DIR = Path("src/main/frontend/web/static")
 HOST = "localhost" # or "127.0.0.1"
 DEFAULT_PORT = 8000
 
@@ -27,7 +27,7 @@ def run_http_server() -> None:
             httpd = ThreadingHTTPServer((HOST, port), handler)
         except OSError:
             TerminalPrinter.print_msg(msg=f"Port {port} is busy,"
-                                      "trying {port + 1}...\n")
+                                      f"trying {port + 1}...\n")
             port += 1
 
     TerminalPrinter.print_msg(msg="Server successfully started",

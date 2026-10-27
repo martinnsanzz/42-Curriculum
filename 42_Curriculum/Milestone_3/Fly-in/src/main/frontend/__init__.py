@@ -1,8 +1,13 @@
 # Local modules
 from .terminal import TerminalPrinter
-from .web import run_http_server
+from .web import run_http_server, prepare_output_dirs, serialize_map, \
+                 write_map, write_index
 
 __all__ = [
     "TerminalPrinter",
-    run_http_server
+    "run_http_server",
+    "prepare_output_dirs",
+    "serialize_map",
+    "write_map",
+    "write_index"
 ]

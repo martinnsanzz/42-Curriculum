@@ -15,3 +15,6 @@ __pycache__
 
 # PDF
 *.pdf
+
+# Parsed json maps
+parsed_maps/

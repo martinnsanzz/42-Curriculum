@@ -230,6 +230,7 @@ This is a list of multiple resources use throughout the life-cycle of the projec
 #### JavaScript
 - [ts-check](https://medium.com/@hakanbudk0/ts-nocheck-and-ts-check-in-typescript-478f5adb69f5)
 - [Js docs](https://www.w3schools.com/js/)
+- [Promises & Fetch](https://dev.to/wolfmath/javascript-promises-fetch-46ja)
 
 ### 📋 Other Stuff
 - [Multi-Agent Path Finding with Capacity Constraints](https://arxiv.org/pdf/1907.12648)

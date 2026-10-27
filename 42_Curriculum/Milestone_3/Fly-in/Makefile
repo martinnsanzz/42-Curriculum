@@ -84,6 +84,9 @@ clean:
 	@echo "${RED}Removing '.pyc' files.${RESET}"
 	@find . -type f -name "*.pyc" -exec rm -rf {} +
 
+	@echo "${RED}Removing 'parsed_maps' folders.${RESET}"
+	@rm -rf src/main/frontend/web/static/parsed_maps/
+
 fclean: clean
 	@echo "${RED}Removing '.venv'.${RESET}"
 	@rm -rf $(VENV)

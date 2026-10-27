@@ -1,10 +1,13 @@
 # Built-in Modules
 from argparse import Namespace
+from pathlib import Path
 
 # Local modules
 from .parser import parse_map
-from .map_selection import resolve_map
-from .frontend import TerminalPrinter, run_http_server
+from .exceptions import MapError
+from .map_selection import resolve_map, read_map_folder
+from .frontend import TerminalPrinter, run_http_server, prepare_output_dirs, \
+                      serialize_map, write_map, write_index
 from .backend import Graph, PathFinder, Simulation
 
 
@@ -36,5 +39,26 @@ def run_terminal(args: Namespace) -> int:
 
 def run_visual() -> int:
     """Run the simulation and display the results in a different window"""
+    map_paths: list[Path] = []
+    entries: list[dict[str, str]] = []
+
+    for key, value in read_map_folder().items():
+        for val in value:
+            map_paths.append(Path(key + "/" + val))
+
+    prepare_output_dirs(map_paths)
+
+    for map_path in map_paths:
+        try:
+            drone_map = parse_map(map_path)
+        except MapError as e:
+            raise MapError(f"Map: {map_path.name}\n"
+                           f"   {str(e)}")
+        data = serialize_map(drone_map)
+        rel = write_map(map_path, data)
+        entries.append({"name": map_path.stem,
+                        "difficulty": map_path.parent.name,
+                        "path": rel})
+    write_index(entries)
     run_http_server()
     return 0
