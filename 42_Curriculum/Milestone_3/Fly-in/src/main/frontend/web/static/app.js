@@ -1,3 +1,16 @@
+
+/**
+ * Draws a hub on the canvas.
+ *
+ * @param {number} x - Horizontal position in screen pixels.
+ * @param {number} y - Vertical position in screen pixels.
+ * @param {string} color - Any CSS color string.
+ * @returns {void}
+ */
+function draw_hub(x, y, color) {
+
+}
+
 function draw_line() {
     /** @type {HTMLCanvasElement} */
     const canvas = document.getElementById("simulation");
