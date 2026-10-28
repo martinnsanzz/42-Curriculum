@@ -9,6 +9,15 @@ const state = {
     request: 0,          // id of the latest map request (detects stale responses)
 };
 
+let globalHue = 0;  // hue value for color. Same for all rainbow hubs
+let animationFrameId = null;    // Keep track of active loop
+
+/* || ------- Time Variables ------- */
+let lastTime = 0;
+const fpsWanted = 10;
+const fpsInterval = 1000 / fpsWanted // ~33.33ms per frame
+
+
 /* || ------- DOM references ------- */
 
 /** @type {HTMLCanvasElement} */
@@ -26,11 +35,10 @@ const map_name = document.getElementById("mapName");
  * centered, keeping the aspect ratio.
  *
  * @param {Array<{x: number, y: number}>} zones - Hubs with coordinates.
- * @param {HTMLCanvasElement} canvas - Target canvas.
  * @param {number} [padding=40] - Empty border in pixels.
  * @returns {void}
  */
-function init_view(zones, canvas, padding = 30) {
+function init_view(zones, padding = 30) {
     const xs = zones.map(z => z.x);
     const ys = zones.map(z => z.y);
     const min_x = Math.min(...xs);
@@ -124,36 +132,124 @@ function draw_map(map) {
     if (map.hubs.length === 0) {
         return;
     }
-    init_view(map.hubs, canvas);
+    init_view(map.hubs);
 
     const by_name = new Map(map.hubs.map(hub => [hub.name, hub]));
 
     ctx.strokeStyle = "grey";
     ctx.lineWidth = 2;
     for (const conn of map.connections) {
-        const a = by_name.get(conn.from);
-        const b = by_name.get(conn.to);
-        if (!a || !b) {
-            console.warn("Unknown hub in connection:", conn);
-            continue;
-        }
-        const p1 = world_to_screen(a.x, a.y);
-        const p2 = world_to_screen(b.x, b.y);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+        draw_connection(by_name, conn)
     }
 
     ctx.strokeStyle = "black";
     for (const hub of map.hubs) {
-        const p = world_to_screen(hub.x, hub.y);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 20, 0, 2 * Math.PI);
-        ctx.fillStyle = hub.color ?? "white";
-        ctx.fill();
-        ctx.stroke();
+        if (hub.color === "rainbow")
+            draw_rainbow_hub(hub);
+        else 
+            draw_hub(hub)
     }
+}
+
+/**
+ * Draws a line from point a to point b on the canvas.
+ * 
+ * @param {Map<any, Object>} by_name, list of hub names.
+ * @param {object} conn
+ * @returns {void}
+ */
+function draw_connection(by_name, conn) {
+    const a = by_name.get(conn.from);
+    const b = by_name.get(conn.to);
+
+    if (!a || !b) {
+        console.warn("Unknown hub in connection:", conn);
+        return ;
+    }
+    const p1 = world_to_screen(a.x, a.y);
+    const p2 = world_to_screen(b.x, b.y);
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+}
+
+/**
+ * Draws circle in the specified position
+ * 
+ * @param {object} hub, current hub to draw on screen 
+ * @return {void}
+ */
+function draw_hub(hub) {
+    const p = world_to_screen(hub.x, hub.y);
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 20, 0, 2 * Math.PI);
+    ctx.fillStyle = hub.color ?? "white";
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "black";
+    ctx.fill();
+    ctx.stroke();
+}
+
+/**
+ * Draws circle in the specified position with a changing color
+ * animation
+ * 
+ * @param {object} hub, current hub to draw on screen 
+ * @return {void}
+ */
+function draw_rainbow_hub(hub) {
+    const p = world_to_screen(hub.x, hub.y);
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 20, 0, 2 * Math.PI);
+
+    ctx.fillStyle = `hsl(${globalHue}, 100%, 50%)`;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "black";
+    ctx.fill();
+    ctx.stroke();
+}
+
+/**
+ * Global animation loop in charge of redrawing the map at a controlled frame rate.
+ * 
+ * It optimizes performance by only animating if the map contains "rainbow" hubs,
+ * and caps the redraw rate based on a predefined FPS interval to save resources.
+ *
+ * @param {{hubs: Array<Object>, connections: Array<Object>}} map - The map object to render.
+ * @returns {void}
+ */
+function startAnimationLoop(map) {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    const hasRainbow = map.hubs.some(hub => hub.color === "rainbow")
+
+    if (!hasRainbow) {
+        draw_map(map);
+        return ;
+    }
+
+    lastTime = performance.now()
+
+    function animate(currentTime) {
+        animationFrameId = requestAnimationFrame(animate);
+        
+        const elapsedTime = currentTime - lastTime;
+
+        if (elapsedTime >= fpsInterval) {
+            lastTime = currentTime - (elapsedTime % fpsInterval)
+
+            globalHue = (globalHue + 10) % 360; 
+            draw_map(map);
+            console.log("hello") 
+        }
+    }
+    animationFrameId = requestAnimationFrame(animate);
 }
 
 /* || ------- UI ------- */
@@ -217,7 +313,7 @@ async function show_map() {
         if (id !== state.request) {
             return;
         }
-        draw_map(map);
+        startAnimationLoop(map)
     } catch (error) {
         console.error(error);
     }
@@ -279,55 +375,3 @@ async function main() {
 }
 
 main();
-
-/**
- * Fly-in Simulator: front-end map viewer.
- *
- * Overview
- * --------
- * The Python backend writes one JSON file per map plus an index into
- * parsed_maps/ (served as static files). This script reads those files and
- * draws the selected map on the canvas.
- *
- * Data files (paths relative to index.html)
- *   parsed_maps/index.json
- *       List of entries {name, difficulty, path}, one per map.
- *   parsed_maps/<difficulty>/<name>.json
- *       One map: {hubs: [{name, x, y, color, role}],
- *                 connections: [{from, to}]}
- *
- * Flow
- * ----
- * 1. main() runs once when the page has loaded (the script is deferred, so
- *    the DOM already exists). It attaches the event listeners.
- * 2. get_index_data() fetches index.json. On failure it returns [] and the
- *    page shows "No maps".
- * 3. group_by_difficulty() turns the flat list into a Map of
- *    difficulty -> entries, keeping the order of the index.
- * 4. fill_difficulties() creates one <option> per difficulty in the dropdown.
- *    The first difficulty and its first map are selected.
- * 5. show_map() fetches the selected map file and calls draw_map().
- *    It is the single entry point for showing a map, so the dropdown and the
- *    < > buttons all go through it.
- * 6. draw_map() clears the canvas, computes the scale and offset with
- *    init_view(), then draws the connections first and the hubs on top.
- *    world_to_screen() converts each hub's world coordinates to pixels.
- *
- * User actions
- *   Difficulty change -> on_difficulty_change(): select that difficulty's
- *                        first map, then show_map().
- *   < / > buttons     -> step(-1 / +1): move inside the current difficulty
- *                        (clamped, never wraps), then show_map().
- *
- * State
- *   state.groups      Map of difficulty -> entries.
- *   state.difficulty  Selected difficulty.
- *   state.position    Index of the selected map inside that difficulty.
- *   state.request     Counter incremented on every show_map(). A response
- *                     is drawn only if its id is still the latest, so a slow
- *                     fetch can never overwrite a newer map.
- *   view              Scale and offsets from init_view(), used by
- *                     world_to_screen(). Recomputed for every map.
- *
- * Not implemented yet: Start / Pause / Restart (no listeners attached).
- */

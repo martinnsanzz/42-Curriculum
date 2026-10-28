@@ -1,6 +1,7 @@
 # Built-in modules
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 from collections import defaultdict
+from pathlib import Path
 
 # Local modules
 from .drone import Drone, DroneState, Move
@@ -56,6 +57,19 @@ class Simulation:
             ))
         self.occupancy[self.graph.start] = len(drones)
         return drones
+
+    def get_simulation(self, map_path: Path) -> dict[str, Any]:
+        simulation = dict()
+
+        moves = self.run()
+
+        simulation["map"] = (map_path.parent.name + "/" + map_path.stem)
+        simulation["drones"] = self.graph._nb_drones
+
+        for move in moves:
+            turn = {}
+
+        return simulation
 
     def run(self) -> list[list[Move]]:
         """Run the simulation until all drones have reached the end hub.

@@ -78,8 +78,10 @@ class Move:
         connection (Optional[str]): The connection name the drone is on,
             if any.
     """
-    def __init__(self, id: int, hub: Optional[Hub] = None,
+    def __init__(self, id: int, from_hub: str, hub: Optional[Hub] = None,
                  connection: Optional[str] = None) -> None:
         self.id = id
         self.hub = hub
         self.connection = connection
+        self.from_hub = from_hub
+        self.too_hub = hub.name

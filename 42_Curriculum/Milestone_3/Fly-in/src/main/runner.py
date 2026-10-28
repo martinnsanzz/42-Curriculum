@@ -7,7 +7,7 @@ from .parser import parse_map
 from .exceptions import MapError
 from .map_selection import resolve_map, read_map_folder
 from .frontend import TerminalPrinter, run_http_server, prepare_output_dirs, \
-                      serialize_map, write_map, write_index
+                      serialize_map, write_map, write_simulation, write_index
 from .backend import Graph, PathFinder, Simulation
 
 
@@ -55,10 +55,18 @@ def run_visual() -> int:
             raise MapError(f"Map: {map_path.name}\n"
                            f"   {str(e)}")
         data = serialize_map(drone_map)
+
+        graph = Graph.from_drone_map(parse_map(map_path))
+        simulation = Simulation(graph, PathFinder(graph)).get_simulation(map_path)
+
         rel = write_map(map_path, data)
+        sim_path = rel.rstrip(".json") + "_sim.json"
+        write_simulation(Path(sim_path), simulation)
+
         entries.append({"name": map_path.stem,
                         "difficulty": map_path.parent.name,
-                        "path": rel})
+                        "path": rel,
+                        "simulation": sim_path})
     write_index(entries)
-    run_http_server()
+    # run_http_server()
     return 0

@@ -39,6 +39,13 @@ def write_map(map_path: Path, data: dict[str, Any]) -> str:
         dump(data, f, indent=4)
     return target.relative_to(PARSED_MAPS_DIR.parent).as_posix()
 
+def write_simulation(sim_path: Path, simulation: dict[str, Any]) -> None:
+    """Write the simulation of a map to a JSON file."""
+    target = (PARSED_MAPS_DIR / sim_path.parent.name
+              / f"{sim_path.stem}.json")
+    with open(target, "w", encoding="utf-8") as f:
+        dump(simulation, f, indent=4)
+
 def write_index(entries: list[dict[str, str]]) -> None:
     """Write an index of all parsed maps to ``index.json``.
 
