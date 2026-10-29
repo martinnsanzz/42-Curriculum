@@ -41,7 +41,7 @@ class TerminalPrinter:
     @classmethod
     def print_msg(cls, msg: str, color: str = "None") -> None:
         """Print a message to stdout in the specified color.
-        
+
         If color is not present in `COLORS` it will provide a default
         hub color `grey`.
         """
@@ -125,8 +125,8 @@ class TerminalPrinter:
         id = ("D" + str(move.id)) + "-"
         hub = ""
 
-        if move.hub is not None:
-            hub = cls._paint_hub(move.hub.name, move.hub.metadata.color)
+        if move.to_hub is not None:
+            hub = cls._paint_hub(move.to_hub.name, move.to_hub.metadata.color)
             return id + hub
         elif move.connection is not None:
             return id + BOLD + "conn(" + move.connection + ")" + RESET

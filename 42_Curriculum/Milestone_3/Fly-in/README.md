@@ -23,6 +23,14 @@ Route every drone from `start` to `end` while **minimizing the total number of t
   - `restricted`: costs 2 turns to enter.
   - `blocked`: can never be entered.
 
+## Results
+This is how map (`hard/01_maze_nightmare.txt`) looks like on the localhost graphical
+display for the project.
+
+<p align="center">
+    <img src="assets/Website_Example.gif" width="60%" alt="A_Maze_Ing">
+</p>
+
 ## 🔷 Instructions
 
 > **Notes:** This project uses `uv` as the package manager. Make sure it is installed, or 
@@ -48,7 +56,7 @@ The program runs as a package (`python -m src`) from the project root.
 | Command | Description |
 |---|---|
 | `make terminal` | Runs the simulation and prints every turn in the terminal. |
-| `make visual` | Runs the simulation with the `--visual` flag. *(Reserved for the upcoming visualizer, not implemented yet.)* |
+| `make visual` | Runs the simulation with the `--visual` flag, which runs a localhost website showcasing the drone simulation. |
 | `make debug` | Runs the program under `pdb`. |
 
 You can also run it directly:
@@ -189,6 +197,58 @@ The simulation ends when every drone has reached the `end` hub. The total number
 
 <u>Visualizer</u>
 
+The simulation is played in a **web page** served locally. The page loads one
+map at a time and animates the drones on a canvas. It is designed for
+**desktop** browsers.
+
+Run it with:
+
+```bash
+make visual
+```
+
+This parses every map in `maps`, runs the simulation on each one, and
+starts a local HTTP server. The terminal prints the address to open. If the
+default port is busy, the next free port is used. Press `Ctrl+C` to stop the
+server.
+
+**Interface**
+
+| Element | Description |
+|---|---|
+| Difficulty | Dropdown with one entry per difficulty folder. Selecting one loads its first map. |
+| `<` / `>` | Previous / next map inside the selected difficulty. |
+| Map name | Name of the map currently shown. |
+| Canvas | Map graph and drones. The map is scaled and centered to fit. |
+| `Start` | Starts the simulation, resumes it after a pause, or replays it after it finished. |
+| `Pause` | Freezes the simulation where it is. |
+| `Restart` | Goes back to turn 0 and runs again. |
+
+Changing the map stops the current simulation and loads the new one.
+
+**Canvas**
+
+- **Connections** are drawn as grey lines.
+- **Hubs** are drawn as circles with the color from the metadata field
+  *[color=...]*. If the color is `rainbow`, the hub cycles through all hues.
+- **Drones** are drawn with the drone image at their current position. All
+  drones wait on the `start` hub before their first move.
+- A drone disappears once it has reached its last hub.
+- A drone moving toward a restricted zone is drawn at the **middle of the
+  connection** during its turn in flight, then continues to the zone on the
+  next turn.
+- The **stats panel** (top-left) shows `Turn <current>/<total>` and the
+  number of drones. The turn is `0` before `Start` and stays on the last turn
+  when the simulation finishes.
+
+Each simulation turn lasts 600 ms on screen. Drone positions are interpolated
+smoothly between hubs during a turn. The simulation ends after the last turn
+of the simulation file.
+
+> **Notes:** The page needs the server: opening `index.html` directly from
+> the file system will fail, because the map and simulation JSON files are
+> loaded with `fetch`.
+
 
 ## 📖 Resources
 This is a list of multiple resources use throughout the life-cycle of the project
@@ -276,46 +336,9 @@ and running a file directly.
 - **Graphics Interface** → Guided me through the process of building a local web
 visualizer, a technology I had not used before: drafted a step-by-step learning
 roadmap, explained how HTTP and a local Python server work, and suggested learning
-resources (HTTP, DevTools, HTML/CSS/JavaScript, Canvas). The interface code itself
-was written by me.
+resources (HTTP, DevTools, HTML/CSS/JavaScript, Canvas).
 
 **What AI was not used for**
 The design of the project (parser, graph, pathfinding and simulation logic) and the 
 algorithms were written by me. Every AI suggestion was read, tested and understood before 
 being kept in the code.
-
-# Fly-in Web Display Roadmap
-
-| # | Milestone | Tasks | What you learn | Done when |
-|---|-----------|-------|----------------|-----------|
-| 1 | Serve a static page | Create `index.html` with a heading. Run `python -m http.server 8000`. Open `localhost:8000`. Inspect the Network tab in DevTools. | HTTP request/response, localhost and ports, DevTools | Page loads and you can see the `GET /` request and its 200 status |
-| 2 | Draw with hardcoded data | Add `<canvas>` and `app.js`. Draw 3 circles and 2 lines. Write a world-to-screen transform (scale, offset, padding). | HTML, Canvas 2D API, coordinates (y-axis points down) | Zones and connections appear at the right positions |
-| 3 | Define the JSON contract | Handwrite `replay.json` with zones, connections and turns. Decide how a drone in flight on a restricted connection is encoded. | Data modeling, JSON | A short document or sample file describing every field |
-| 4 | Load and render the JSON | `fetch("replay.json")` with `async`/`await`. Draw all zones and connections from the data. Use zone colors and types. | Promises, `fetch`, `response.json()`, ES modules | Changing the JSON changes the drawing, with no hardcoded values left |
-| 5 | Show drones per turn | Draw drones at their positions for a chosen turn. Add a "next turn" button. | DOM events, `addEventListener`, state in JS | Clicking steps through the turns correctly |
-| 6 | Animate movement | Use `requestAnimationFrame` and lerp between turn states. Handle 2-turn restricted moves. Add easing. | Animation loop, timestamps, interpolation | Drones glide smoothly between zones |
-| 7 | Playback controls | Add play, pause, step back, a turn slider and a speed control. Model it as a small state machine. | `<input type="range">`, UI state management | You can scrub to any turn and playback behaves consistently |
-| 8 | Polish the visuals | Scale link thickness by `max_link_capacity`. Show zone occupancy vs `max_drones`. Add a hover tooltip. Handle HiDPI (`devicePixelRatio`). | CSS, canvas details, hit testing | Looks good on your screen and on a second one |
-| 9 | Info panel and metrics | Show current turn, delivered drones, drones per turn and average turns per drone. | DOM updates, layout with flexbox/grid | Panel stays in sync with playback |
-| 10 | Connect the real backend | Python serializer writes the JSON from your simulation. A small entry point starts the server and calls `webbrowser.open`. Bind to `127.0.0.1`. | Python `http.server`, `json`, `pathlib`, typed serializer classes | `python main.py map.txt --web` opens the animated viewer |
-| 11 | Test on all maps | Run every provided map plus your own edge cases. | Debugging in DevTools Console | No console errors and the replay matches the terminal output |
-| 12 | Document it | Add the visual features and how they help to the README. | Technical writing | README section is ready for peer review |
-
-## Optional extras
-
-| Idea | What it adds |
-|------|--------------|
-| WebSocket streaming | Live turn-by-turn updates from Python |
-| TypeScript | Type safety on the frontend |
-| Map picker dropdown | Switch maps without restarting |
-| SVG version of the renderer | Compare Canvas vs SVG trade-offs |
-
-## Common gotchas
-
-| Problem | Fix |
-|---------|-----|
-| `fetch` fails on `file://` pages | Always use the local server |
-| Old JS or JSON keeps loading | Hard reload, or enable "Disable cache" in DevTools |
-| "Address already in use" | Stop the previous server process or change the port |
-| Blurry canvas | Scale the canvas by `devicePixelRatio` |
-

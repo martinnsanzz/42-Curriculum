@@ -8,6 +8,7 @@ from json import dump
 
 PARSED_MAPS_DIR = Path("src/main/frontend/web/static/parsed_maps/")
 
+
 def prepare_output_dirs(map_paths: list[Path]) -> None:
     """Reset the output directory and create one subfolder per difficulty.
 
@@ -20,6 +21,7 @@ def prepare_output_dirs(map_paths: list[Path]) -> None:
     for path in map_paths:
         (PARSED_MAPS_DIR / path.parent.name).mkdir(parents=True,
                                                    exist_ok=True)
+
 
 def write_map(map_path: Path, data: dict[str, Any]) -> str:
     """Write the parsed data of a map to a JSON file.
@@ -39,12 +41,14 @@ def write_map(map_path: Path, data: dict[str, Any]) -> str:
         dump(data, f, indent=4)
     return target.relative_to(PARSED_MAPS_DIR.parent).as_posix()
 
+
 def write_simulation(sim_path: Path, simulation: dict[str, Any]) -> None:
     """Write the simulation of a map to a JSON file."""
     target = (PARSED_MAPS_DIR / sim_path.parent.name
               / f"{sim_path.stem}.json")
     with open(target, "w", encoding="utf-8") as f:
         dump(simulation, f, indent=4)
+
 
 def write_index(entries: list[dict[str, str]]) -> None:
     """Write an index of all parsed maps to ``index.json``.

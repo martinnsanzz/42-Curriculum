@@ -113,6 +113,11 @@ body {
     border-radius: 5px;
 }
 
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* || ------- ID ------- */
 #title {
     display: inline-block;

@@ -38,7 +38,20 @@ def run_terminal(args: Namespace) -> int:
 
 
 def run_visual() -> int:
-    """Run the simulation and display the results in a different window"""
+    """Simulate every map and serve the results through an HTTP server.
+
+    Discover the maps in the map folder, parse and serialize each one,
+    run the simulation on its graph, and write the map and simulation
+    JSON files. Then write an index of all processed maps and start the
+    HTTP server.
+
+    Returns:
+        int: Always 0, once the HTTP server call returns.
+
+    Raises:
+        MapError: If a map fails to parse. The message is prefixed with
+            the name of the offending map file.
+    """
     map_paths: list[Path] = []
     entries: list[dict[str, str]] = []
 
@@ -57,7 +70,8 @@ def run_visual() -> int:
         data = serialize_map(drone_map)
 
         graph = Graph.from_drone_map(parse_map(map_path))
-        simulation = Simulation(graph, PathFinder(graph)).get_simulation(map_path)
+        simulation = Simulation(graph,
+                                PathFinder(graph)).get_simulation(map_path)
 
         rel = write_map(map_path, data)
         sim_path = rel.rstrip(".json") + "_sim.json"
@@ -68,5 +82,5 @@ def run_visual() -> int:
                         "path": rel,
                         "simulation": sim_path})
     write_index(entries)
-    # run_http_server()
+    run_http_server()
     return 0

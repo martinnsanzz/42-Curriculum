@@ -67,21 +67,29 @@ class Drone:
 
 
 class Move:
-    """A single drone move in one simulation turn, ready to be printed.
+    """A single drone action in one simulation turn.
 
-    A move is expected to carry either a hub (the drone arrived in a
-    hub) or a connection (the drone is in transit).
+    A move describes a drone leaving one hub toward another. If the
+    connection takes several turns, the move is recorded twice: once on
+    the turn the drone enters the connection (``connection`` is set) and
+    once on the turn it arrives (``connection`` is None).
 
     Args:
-        id (int): Identifier of the drone that moved.
-        hub (Optional[hub]): The hub the drone moved into, if any.
-        connection (Optional[str]): The connection name the drone is on,
-            if any.
+        id: Identifier of the drone that moved.
+        from_hub: Name of the hub the drone left.
+        to_hub: Name of the hub the drone is heading to (in transit) or
+            has arrived in.
+        connection: Name of the connection the drone is travelling on if
+            it is still in transit, otherwise None.
     """
-    def __init__(self, id: int, from_hub: str, hub: Optional[Hub] = None,
+    def __init__(self, id: int, from_hub: str, to_hub: Hub,
                  connection: Optional[str] = None) -> None:
         self.id = id
-        self.hub = hub
-        self.connection = connection
         self.from_hub = from_hub
-        self.too_hub = hub.name
+        self.to_hub = to_hub
+        self.connection = connection
+
+    @property
+    def in_transit(self) -> bool:
+        """Whether the drone is still on a multi-turn connection."""
+        return self.connection is not None

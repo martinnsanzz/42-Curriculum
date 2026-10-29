@@ -59,15 +59,40 @@ class Simulation:
         return drones
 
     def get_simulation(self, map_path: Path) -> dict[str, Any]:
-        simulation = dict()
+        """Build the JSON-serializable record of a simulation.
 
+        Args:
+            map_path: Path of the source map file. Its parent directory
+                name and file stem identify the map.
+
+        Returns:
+            A dictionary with the keys ``"map"`` (``"<difficulty>/<stem>"``),
+            ``"drones"`` (number of drones) and ``"turns"``. ``"turns"`` is
+            a list with one list per turn, each move being
+            ``{"drone", "from", "to", "in_transit"}``.
+
+        Raises:
+            SimulationError: If deadlocks are found in `run()`.
+        """
         moves = self.run()
 
-        simulation["map"] = (map_path.parent.name + "/" + map_path.stem)
-        simulation["drones"] = self.graph._nb_drones
+        simulation: dict[str, Any] = {
+            "map": f"{map_path.parent.name}/{map_path.stem}",
+            "drones": self.graph._nb_drones,
+            "turns": [],
+        }
 
-        for move in moves:
-            turn = {}
+        for i, turn in enumerate(moves):
+            turn_data = []
+            for move in turn:
+                turn_data.append({
+                    "drone": move.id,
+                    "from": move.from_hub,
+                    "to": move.to_hub.name,
+                    "in_transit": move.in_transit,
+                })
+            simulation["turns"].append({"turn_nb": i + 1,
+                                        "turn_data": turn_data})
 
         return simulation
 
@@ -118,8 +143,9 @@ class Simulation:
             drone.turns_left -= 1
 
             if drone.turns_left == 0:
+                from_hub = drone.curr_hub
                 self._arrive(drone, drone.target_hub)
-                moves.append(self._create_move(drone))
+                moves.append(self._create_move(drone, from_hub))
                 not_use.append(drone)
 
         for drone in self.drones:
@@ -131,6 +157,7 @@ class Simulation:
             if nxt is None:
                 continue
 
+            from_hub = drone.curr_hub
             pair = frozenset({drone.curr_hub, nxt})
             link_use[pair] += 1
             self.occupancy[drone.curr_hub] -= 1
@@ -139,11 +166,10 @@ class Simulation:
             cost = self.graph.cost(nxt)
             if cost == 1:
                 self._arrive(drone, nxt)
-                moves.append(self._create_move(drone))
             else:
                 drone.target_hub = nxt
                 drone.turns_left = cost - 1
-                moves.append(self._create_move(drone))
+            moves.append(self._create_move(drone, from_hub))
         moves.sort(key=lambda m: m.id)
         return moves
 
@@ -191,24 +217,28 @@ class Simulation:
             return n
         return None
 
-    def _create_move(self, drone: Drone) -> Move:
+    def _create_move(self, drone: Drone, from_hub: str) -> Move:
         """Build the move record describing a drone's action this turn.
+
+        Store both the hub it came from and the hub is going to.
 
         Args:
             drone: Drone that has just moved or started moving.
+            from_hub: Name of the hub the drone left this turn.
 
         Returns:
-            A `Move` with the connection name if the drone is still in
-            transit, otherwise a `Move` with the hub it arrived in.
+            A `Move` object carrying the data of the drone in
+            a turn.
         """
         if drone.target_hub is not None:
             return Move(
                 id=drone.id,
-                hub=None,
+                from_hub=from_hub,
+                to_hub=self.graph._hubs[drone.target_hub],
                 connection=drone.connection_name
             )
         return Move(
             id=drone.id,
-            hub=self.graph._hubs[drone.curr_hub],
-            connection=None
+            from_hub=from_hub,
+            to_hub=self.graph._hubs[drone.curr_hub]
         )

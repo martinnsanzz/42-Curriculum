@@ -39,6 +39,7 @@ def serialize_map(drone_map: DroneMap) -> dict[str, Any]:
 
     return {"hubs": hubs, "connections": connections}
 
+
 def _hub_to_dict(hub: Hub, role: str) -> dict[str, Any]:
     """Converta a hub into a dictionary"""
     return {"name": hub.name, "x": hub.x, "y": hub.y,
