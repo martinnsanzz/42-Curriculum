@@ -8,7 +8,7 @@ from .runner import run_terminal, run_visual
 from .parser import parse_args
 
 
-def main() -> int:
+def main() -> None:
     """Starting point of the program.
 
     Based on the CLI it will display the simulation in the terminal
@@ -18,8 +18,8 @@ def main() -> int:
         args = parse_args()
 
         if args.visual:
-            return run_visual()
-        return run_terminal(args)
+            run_visual()
+        else:
+            run_terminal(args)
     except (FlyInError, ArgumentError) as e:
         TerminalPrinter.print_error(f"{e}\n")
-        return 1

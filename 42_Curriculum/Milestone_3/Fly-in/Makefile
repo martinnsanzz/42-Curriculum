@@ -19,11 +19,7 @@ UV					:= uv
 RUN_COMM			:= ${UV} run python
 DEBUGGER			:= pdb
 
-# ---------------- Map Path ----------------- #
-MAP_PATH			:= maps/easy/01_linear_path.txt
-
 # ------------------ Flags ------------------ #
-MAP_FLAG			:= --map ${MAP_PATH}
 VISUAL_FLAG			:= --visual
 
 MYPY_FLAGS			:= . --warn-return-any --warn-unused-ignores \

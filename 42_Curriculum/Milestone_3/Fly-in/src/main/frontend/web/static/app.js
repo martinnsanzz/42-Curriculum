@@ -29,7 +29,7 @@
 
 const HUB_RADIUS = 20;
 const DRONE_RADIUS = 8;         // fallback circle, used while the image is missing
-const DRONE_IMAGE = "assets/drone.png";
+const DRONE_IMAGE = "assets/Drone.png";
 const DRONE_SIZE = 100;          // drawn width in pixels (height keeps the ratio)
 const HUD_FONT_SIZE = 16;       // multiple of 8: sharp with Press Start 2P
 const HUD_PAD = 10;             // space between the stats panel border and text

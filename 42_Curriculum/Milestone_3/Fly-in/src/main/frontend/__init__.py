@@ -1,14 +1,10 @@
 # Local modules
 from .terminal import TerminalPrinter
-from .web import run_http_server, prepare_output_dirs, serialize_map, \
-                 write_map, write_simulation, write_index
+from .web import VisualizerServer, MapExporter, serialize_map
 
 __all__ = [
     "TerminalPrinter",
-    "run_http_server",
-    "prepare_output_dirs",
+    "VisualizerServer",
+    "MapExporter",
     "serialize_map",
-    "write_map",
-    "write_simulation",
-    "write_index"
 ]
